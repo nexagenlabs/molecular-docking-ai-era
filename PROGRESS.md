@@ -27,7 +27,7 @@ Session memory for the autonomous build. Updated after every completed task.
 
 ## Phase 2 — chapters with hard expected values
 
-- [ ] 2.1 `ch05_receptor_prep`
+- [x] 2.1 `ch05_receptor_prep` — 15 tests pass; every §2.1 value reproduces
 - [ ] 2.2 `ch08_ligand_prep`
 - [ ] 2.3 `ch04_formats`
 - [ ] 2.4 `ch17_validation`
