@@ -352,8 +352,8 @@ def report(pdb_id):
         lines.append("")
 
     OUT.mkdir(parents=True, exist_ok=True)
-    (OUT / ("qc_%s.json" % pdb_id)).write_text(json.dumps(out, indent=2) + "\n")
-    (OUT / ("qc_%s.md" % pdb_id)).write_text("\n".join(lines))
+    (OUT / ("qc_%s.json" % pdb_id)).write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")
+    (OUT / ("qc_%s.md" % pdb_id)).write_text("\n".join(lines), encoding="utf-8")
     return out, lines
 
 

@@ -79,7 +79,7 @@ def main():
               "scores": {str(k): v for k, v in scores.items()},
               "book": {str(k): v for k, v in BOOK.items()} if args.system == "synthetic" else None,
               "reference_platform": is_reference_platform()}
-    (out / "box_sweep.json").write_text(json.dumps(result, indent=2) + "\n")
+    (out / "box_sweep.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     print("\nwrote %s" % (out / "box_sweep.json"))
 
 

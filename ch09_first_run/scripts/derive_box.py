@@ -80,7 +80,7 @@ def main():
         "energy_range = %d     # Vina's default, kcal/mol" % ENERGY_RANGE,
         "",
     ]
-    CONFIG.write_text("\n".join(lines))
+    CONFIG.write_text("\n".join(lines), encoding="utf-8")
     print("box centre %.3f %.3f %.3f, size %.2f x %.2f x %.2f"
           % (centre[0], centre[1], centre[2], size[0], size[1], size[2]))
     print("derived from the centroid of STC %s (%.2f A from Ser64 OG)"

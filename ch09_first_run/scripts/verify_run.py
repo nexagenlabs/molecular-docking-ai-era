@@ -62,7 +62,7 @@ def main():
 
     result = {"system": args.system, "runs": runs,
               "seed0_reproducible": seed0_same, "seed42_reproducible": seed42_same}
-    (out / "verify_run.json").write_text(json.dumps(result, indent=2) + "\n")
+    (out / "verify_run.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     print("\nwrote %s" % (out / "verify_run.json"))
 
     # A failure here is a real one: it would mean the seed does not control the

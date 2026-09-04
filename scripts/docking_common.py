@@ -91,7 +91,7 @@ def dock(receptor, ligand, centre, size, out_pdbqt, seed=DEFAULT_SEED,
     log = result.stdout + result.stderr
     if log_path is not None:
         Path(log_path).parent.mkdir(parents=True, exist_ok=True)
-        Path(log_path).write_text(log)
+        Path(log_path).write_text(log, encoding="utf-8")
     if result.returncode != 0:
         print(log)
         sys.exit("vina failed: " + " ".join(cmd))

@@ -28,7 +28,7 @@ Session memory for the autonomous build. Updated after every completed task.
 ## Phase 2 — chapters with hard expected values
 
 - [x] 2.1 `ch05_receptor_prep` — 15 tests pass; every §2.1 value reproduces
-- [ ] 2.2 `ch08_ligand_prep`
+- [x] 2.2 `ch08_ligand_prep` — exact on Linux once the neutral form was identified
 - [ ] 2.3 `ch04_formats`
 - [ ] 2.4 `ch17_validation`
 - [ ] 2.5 `ch18_enrichment`
@@ -75,6 +75,24 @@ a build, not across builds, and nothing in the log distinguishes the two
 situations. Exact-value tests assert three decimals on Linux and behaviour
 elsewhere. `scripts/docking_common.py` carries the measurements and
 `is_reference_platform()`.
+
+### ch08's conformer counts are from the NEUTRAL form
+
+**Status: resolved. The book is right; the protocol was under-specified.**
+
+`CLAUDE.md` §6 gives the ETKDGv3 settings but not which protonation state is
+embedded. Docking the charged forms gave 15/15/16/16/16 for STC against the
+book's 17/16/15/16/15 — close, but wrong on both platforms, so it was not the
+build. Embedding the **neutral** (drawn) form reproduces all three rows exactly
+on Linux: 17/16/15/16/15, 10/14/9/9/9, 33/39/33/30/40.
+
+So the order of operations is: generate conformers on the drawn molecule, apply
+protonation when writing the ligand for docking. The chapter now prints both
+columns, because a conformer table that does not say which form it used cannot
+be reproduced.
+
+On Windows the neutral counts are 16/16/15/16/15 for STC and off by one or two
+elsewhere — the same build-level difference as ch09.
 
 ### Open Babel is 3.1.0, not the pinned 3.2.1
 

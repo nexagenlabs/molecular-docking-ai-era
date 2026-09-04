@@ -7,7 +7,7 @@ RDKit changes behaviour here, the build must break loudly.
 """
 import pytest
 
-from conftest import read_json, run_script
+from conftest import read_json, require_platform, run_script
 
 # ETKDGv3, 300 attempts, pruneRmsThresh=0.5. Counts do NOT track rotatable-bond
 # count -- 18U has more rotatable bonds than STC and yields fewer conformers.
@@ -41,6 +41,12 @@ def test_rotatable_bond_count(prepared, name):
 
 @pytest.mark.parametrize("name", sorted(EXPECTED))
 def test_conformer_counts_by_seed(prepared, name):
+    """The book's counts are from the NEUTRAL form, and they are exact on Linux.
+
+    Off Linux the same RDKit version differs by one or two conformers, for the
+    same reason the ch09 scores differ: the build, not the protocol.
+    """
+    require_platform("The conformer count")
     got = [prepared["ligands"][name]["conformers"][str(s)] for s in SEEDS]
     assert got == EXPECTED[name]["conformers"], \
         ("%s conformer counts %s, book says %s. Do not adjust the script until "

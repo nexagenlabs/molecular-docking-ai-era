@@ -69,7 +69,7 @@ def main():
 
     result = {"system": args.system, "cpu": CPU, "timings": timings,
               "ratio": round(ratio, 2)}
-    (out / "timing.json").write_text(json.dumps(result, indent=2) + "\n")
+    (out / "timing.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     print("\nwrote %s" % (out / "timing.json"))
 
 

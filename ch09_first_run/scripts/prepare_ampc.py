@@ -150,7 +150,7 @@ def main():
     # -- receptor ------------------------------------------------------------
     receptor_pdb = OUT / "receptor_chainB.pdb"
     kept = [a["line"] for a in atoms if a["rec"] == "ATOM" and a["chain"] == CHAIN]
-    receptor_pdb.write_text("\n".join(kept) + "\nEND\n")
+    receptor_pdb.write_text("\n".join(kept) + "\nEND\n", encoding="utf-8")
     print("\nreceptor: chain %s only, %d atoms, every HETATM removed"
           % (CHAIN, len(kept)))
 

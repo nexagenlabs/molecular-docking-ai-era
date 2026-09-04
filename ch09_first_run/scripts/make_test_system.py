@@ -59,7 +59,7 @@ def main():
     # then the portable half of this system would have a different digest on
     # every platform -- which would destroy its usefulness as the control when
     # a score differs and the cause has to be found.
-    (out / "rec.pdbqt").write_text("\n".join(lines) + "\nTER\n", newline="\n")
+    (out / "rec.pdbqt").write_text("\n".join(lines) + "\nTER\n", newline="\n", encoding="utf-8")
 
     heavy = Chem.RemoveHs(mol).GetNumAtoms()
     print("receptor: %d atoms on a %.1f-%.1f A shell" % (SHELL_ATOMS, SHELL_MIN,
