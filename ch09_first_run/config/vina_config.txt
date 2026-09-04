@@ -1,6 +1,6 @@
 # Vina configuration for the AmpC run in Chapter 9.
 #
-# Written by scripts/derive_box.py on 2026-09-04 05:00 UTC.
+# Written by scripts/derive_box.py on 2026-09-04 08:11 UTC.
 # Every value carries where it came from. Edit derive_box.py, not this
 # file: a hand-edited centre is a centre that no longer matches the
 # ligand it was supposed to be derived from.

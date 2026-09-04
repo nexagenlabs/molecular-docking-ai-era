@@ -57,9 +57,12 @@ Session memory for the autonomous build. Updated after every completed task.
 
 ## Phase 4 — integration
 
-- [ ] 4.1 root README
-- [ ] 4.2 cross-checks
-- [ ] 4.3 BUILD_REPORT.md
+- [x] 4.1 root README — written last, with the chapter table
+- [x] 4.2 cross-checks — 25/25 directories, run.sh strict, no --minimize, no
+      unset seed, no TODO(value), every chapter run end to end from clean
+- [x] 4.3 `BUILD_REPORT.md`
+
+**Gate 4: report delivered.** 75 passed, 15 xfailed, 0 failed.
 
 ---
 
