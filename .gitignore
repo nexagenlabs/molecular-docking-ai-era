@@ -13,3 +13,7 @@ environment/resolved.txt
 # Local environment and downloaded binaries.
 .venv/
 .tools/
+
+# Chapter outputs are generated. Reference results in outputs/expected/ are not.
+ch*/outputs/*
+!ch*/outputs/expected/
