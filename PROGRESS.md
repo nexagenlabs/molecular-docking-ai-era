@@ -29,7 +29,7 @@ Session memory for the autonomous build. Updated after every completed task.
 
 - [x] 2.1 `ch05_receptor_prep` — 15 tests pass; every §2.1 value reproduces
 - [x] 2.2 `ch08_ligand_prep` — exact on Linux once the neutral form was identified
-- [ ] 2.3 `ch04_formats`
+- [x] 2.3 `ch04_formats` — all four formats behave exactly as §6 describes
 - [ ] 2.4 `ch17_validation`
 - [ ] 2.5 `ch18_enrichment`
 - [ ] 2.6 `ch10_flexibility`
@@ -98,8 +98,10 @@ elsewhere — the same build-level difference as ch09.
 
 `openbabel-wheel` ships a cp312 Windows wheel built from Open Babel 3.1.0; no
 3.2.1 Windows wheel exists. ch04's round-trip results are Open Babel's output,
-so this could move a published value. ch04 is run and compared anyway, with the
-version difference recorded next to the result.
+so this could move a published value. **Run and compared: it did not.** PDB and
+MOL2 preserve charge, bond orders and stereochemistry; PDBQT returns the
+dianion neutral with the atom order changed; XYZ loses charge. Every §6 claim
+for this chapter holds on 3.1.0.
 
 ## Deviations from CLAUDE.md
 
