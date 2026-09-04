@@ -45,7 +45,19 @@ the reader's machine.
 SDFs are the reference copies: PDBQT loses formal charge and reorders atoms, so
 conversion is outward only, never round-tripped.
 
-> **Not done yet:** the SDFs themselves. They must be generated once under the
-> pinned environment (pip, Python 3.12.3, rdkit 2026.3.5) and committed from
-> there. Generating them anywhere else would put a reference copy in the
-> repository whose provenance nobody can state.
+## Provenance of the committed copies
+
+Built with rdkit 2026.3.5 — the pinned version — but on **Windows 11, Python
+3.12.10**, not the Ubuntu 3.12.3 machine that produced the book's numbers. Each
+SDF carries `rdkit_version`, `python_version` and `platform` tags, so the
+provenance is in the file rather than only in this README.
+
+Two independent checks that the copies are right:
+
+- Heavy-atom counts are **19 / 22 / 23** for STC / 18U / 1MU, matching the atom
+  counts of the crystallographic ligands in 1L2S, 4JXS and 4JXV exactly.
+- Formal charge is asserted against the table above during generation, not
+  assumed — a SMILES that fails to deprotonate stops the script.
+
+If a rebuild under Ubuntu 3.12.3 gives different coordinates, that is worth
+knowing and worth recording here: replace these copies with those, and say so.

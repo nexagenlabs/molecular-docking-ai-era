@@ -57,11 +57,11 @@ are the class B metallo-β-lactamases and are a different protein.
 |---|---|---|---|---|
 | **1L2S** | 1.94 Å | 0.207 | Redocking target | Ligand **STC**, non-covalent. **Three copies**: A/1115 and B/2115 are catalytic (2.70 Å from Ser64 OG); B/3115 is at the chain interface, 22.7 Å from either active site — **discard it**. Chain A is missing Lys290–Ala292; **use chain B**. Sole altloc is Gln250. |
 | **4JXS** | 1.90 Å | 0.212 | Cross-docking | Ligand **18U**. Inhibitor is in **chain B only** — chain A has phosphate and no ligand. Chain A missing 285–290. |
-| **4JXV** | 1.76 Å | 0.232 | Cross-docking | Ligand **1MU**. No gaps, best resolution. Ligand modelled in **two altlocs** — pick one, record which. |
-| **1GA9** | 2.10 Å | 0.249 | **Excluded** | Ligand **ETP**, arylboronic acid, **covalent**: `LINK Ser64 OG — B, 1.64 Å`. Non-covalent docking cannot represent this. The exclusion is a modelling decision and must be recorded as one. |
+| **4JXV** | 1.76 Å | 0.232 | Cross-docking | Ligand **1MU**, present in **both chains**: A/402 is a single conformer, B/401 is modelled in **two altlocs**. Choosing a reference is therefore two decisions — chain, then conformer. No gaps, best resolution. |
+| **1GA9** | 2.10 Å | 0.249 | **Excluded** | Ligand **ETP**, arylboronic acid, **covalent**: `LINK Ser64 OG — B`, 1.64 Å in chain A and 1.62 Å in chain B. Also carries a **K⁺ ion** from crystallisation — name it explicitly, because AmpC is a serine enzyme and a stray metal invites the misreading this book warns against. Non-covalent docking cannot represent this. The exclusion is a modelling decision and must be recorded as one. |
 
 **Phosphates** in 4JXS, 4JXV and 1GA9 come from 1.7 M potassium phosphate
-crystallisation. Nearest P to any Ser64 OG is **7.83 Å** — surface artefacts,
+crystallisation. Nearest P to any Ser64 OG is **7.83 Å** (in 4JXS; the minimum across the three) — surface artefacts,
 delete them. This was measured, not assumed.
 
 **Bridging waters** in 1L2S chain B: HOH 403 (2.68 Å to the ligand carboxylate,

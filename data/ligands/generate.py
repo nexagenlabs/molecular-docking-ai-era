@@ -18,6 +18,7 @@ reorders atoms, so a PDBQT round-trip would silently return the 18U dianion as
 the neutral diacid with an atom order that breaks any RMSD computed against it.
 """
 import argparse
+import platform
 import sys
 from pathlib import Path
 
@@ -96,6 +97,10 @@ def build(name, spec):
     mol.SetProp("embed_seed", str(EMBED_SEED))
     mol.SetProp("force_field", FORCE_FIELD)
     mol.SetProp("rdkit_version", Chem.rdBase.rdkitVersion)
+    # Platform is provenance, not decoration: the book's pins were taken from
+    # Ubuntu and these copies may not have been built there.
+    mol.SetProp("python_version", platform.python_version())
+    mol.SetProp("platform", platform.platform())
     return mol
 
 

@@ -11,6 +11,22 @@ sudo apt install openbabel        # 3.2.1, a system binary -- not a pip package
 obabel -V                         # confirm it says 3.2.1
 ```
 
+## On Windows
+
+`pip install vina==1.2.7` **fails on Windows**: the PyPI package is a source
+distribution that needs Boost, and there is no Windows wheel. Use the official
+binary of the same release instead —
+`vina_1.2.7_win.exe` from the
+[AutoDock Vina 1.2.7 release](https://github.com/ccsb-scripps/AutoDock-Vina/releases/tag/v1.2.7)
+— and confirm it reports `AutoDock Vina v1.2.7`. Scripts here call Vina through
+its command line, so the binary and the Python bindings are interchangeable for
+this purpose; it is the same upstream code at the same version.
+
+Everything else installs from `requirements.txt` on Windows Python 3.12.
+
+Open Babel is a separate install on Windows too, and ch04's format round-trips
+are its output, so `ch04_formats` cannot run without it.
+
 `environment/environment.yml` is provided as a convenience for conda users. It
 carries the same version pins, but **conda-forge may resolve transitive
 dependencies differently even at an identical pin**, so it is not a guarantee
