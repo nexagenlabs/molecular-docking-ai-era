@@ -205,16 +205,19 @@ chemistry is out of date). **PDBQT returns the dianion neutral, atom order
 changed.** XYZ loses charge.
 
 **ch08_ligand_prep** — RDKit ETKDGv3, 300 attempts, `pruneRmsThresh=0.5`, seeds
-1/7/42/99/2026:
+1/7/42/99/2026, **on the deprotonated forms** (STC −1, 18U −2, 1MU −2).
+Protonation comes before conformer generation; the neutral forms give different
+counts.
 
 | Ligand | Rot. bonds | Conformers by seed |
 |---|---|---|
-| STC | 4 | 17, 16, 15, 16, 15 |
-| 18U | 6 | 10, 14, 9, 9, 9 |
-| 1MU | 7 | 33, 39, 33, 30, 40 |
+| STC | 4 | 15, 15, 16, 16, 16 |
+| 18U | 6 | 9, 9, 12, 11, 8 |
+| 1MU | 7 | 33, 35, 33, 28, 37 |
 
 Counts do **not** track rotatable-bond count. That is the teaching point; do not
-"fix" it.
+"fix" it. They are also **build-dependent** — a Windows RDKit reproduces twelve
+of the fifteen and differs on three. Record a mismatch, do not tune to it.
 
 **ch09_first_run** — Vina 1.2.7.
 
@@ -260,8 +263,10 @@ FEP+ 0.52. The notebook must show the squaring; the book's argument depends on i
 **ch16_rescoring** — GNINA LIT-PCBA median EF1% 1.88–2.58 against Vina 0.90.
 **EF = 1.0 is chance**, so Vina is below it. Preserve that framing.
 
-**ch18_enrichment** — Two synthetic screens, 10,000 compounds, 100 actives, tuned
-to equal AUC **0.758**:
+**ch18_enrichment** — The construction is defined by
+`ch18_enrichment/scripts/ch18_make_screens.py`, which is authoritative; the
+values below are what it produces. Two synthetic screens, 10,000 compounds, 100
+actives, tuned to equal AUC **0.758**:
 
 | | AUC | EF1% | EF5% | BEDROC(α=20) |
 |---|---|---|---|---|
@@ -271,8 +276,10 @@ to equal AUC **0.758**:
 Cross-check BEDROC against `rdkit.ML.Scoring.Scoring.CalcBEDROC` — they agreed to
 six decimals. At α = 20, 79.8% of the weight falls in the top 8% of the list.
 
-**ch21_molecular_dynamics** — Synthetic trajectory, four separated relaxation
-timescales:
+**ch21_molecular_dynamics** — The construction is defined by
+`ch21_molecular_dynamics/scripts/ch21_make_trajectory.py`, which is
+authoritative. Four separated Ornstein-Uhlenbeck relaxations; the noise term is
+why the early slopes are negative:
 
 | Window | Mean RMSD | Slope over 2nd half | Value at 10× window |
 |---|---|---|---|

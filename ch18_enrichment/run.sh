@@ -14,6 +14,12 @@ else
   PYTHON="${PYTHON:-python3}"
 fi
 
+# The construction first: it prints the book's four metrics for both
+# screens and asserts the search lands on the recorded (hi, lo).
+$PYTHON ch18_enrichment/scripts/ch18_make_screens.py
+echo
+
+# Then the measurement, report and figure, over the same screens.
 $PYTHON ch18_enrichment/scripts/enrichment.py
 
 echo

@@ -4,6 +4,9 @@ What was built, what runs, what could not run here, and every value that
 differed from `CLAUDE.md` §6 with an assessment of which side is wrong.
 
 Built on Windows 11, Python 3.12.10, against `CLAUDE.md` and `SESSION_PLAN.md`.
+Revised after the four disagreements below were closed: two constructions were
+supplied, one book value was corrected, and Chapter 17's placeholders were
+filled with this build's measurements.
 
 ---
 
@@ -13,24 +16,35 @@ Built on Windows 11, Python 3.12.10, against `CLAUDE.md` and `SESSION_PLAN.md`.
 |---|---|
 | Chapter directories | 25 of 25, each with `README.md`, `run.sh`, `outputs/expected/` |
 | Chapters that run end to end | **25 of 25** |
-| Tests | **75 passed, 15 xfailed, 0 failed** (4m 06s) |
-| Commits | 25 |
-| Scripts | 37 |
+| Tests | **94 passed, 4 xfailed, 0 failed** (4m 14s) |
+| Scripts | 38 |
 | Software that could not run here | 3 (GNINA, Boltz-2, PDBFixer) |
 | `TODO(value)` remaining | none |
+| Values in §6 not reproduced | **none** (the three-decimal ones are Linux-exact) |
 
-Every `run.sh` was executed from a clean state after the last commit. The five
-docking chapters (ch06, ch09, ch12, ch17, ch26) take a few minutes each; the
-rest are seconds.
+The four remaining xfails are the two known Windows-only exact-value tests:
+ch08's three conformer-count rows and ch09's box-sweep scores. **Nothing from
+ch18 or ch21 xfails any more** — eleven of the previous fifteen xfails were the
+two missing constructions, and those tests now assert exact equality with the
+book.
+
+The suite drives every chapter script as a subprocess, so a green run is also a
+run of every chapter. The four chapters touched in this round (ch08, ch17, ch18,
+ch21) were additionally executed through their own `run.sh` from a clean state;
+ch17 reproduced 1.114 / 2.999 / 10.526 Å and the 4.609 Å chain-B sensitivity
+unchanged. The five docking chapters (ch06, ch09, ch12, ch17, ch26) take a few
+minutes each; the rest are seconds.
 
 ---
 
 ## Values that differed from CLAUDE.md §6
 
-Four disagreements. **Two were resolved in the book's favour, two remain open.**
-No expected value was edited in either case.
+Four disagreements were found. **All four are now closed**: one was a platform
+difference, one was a real defect in the book, and two were constructions the
+book had recorded by their results only. No expected value was ever edited to
+make a script agree.
 
-### 1. ch09 box-size scores — resolved, platform
+### 1. ch09 box-size scores — closed, platform
 
 | | 20 Å | 12 Å | 8 Å |
 |---|---|---|---|
@@ -51,61 +65,87 @@ not across builds, and nothing in the log says which situation you are in.
 Exact-value tests assert three decimals on Linux and xfail elsewhere with the
 reason attached.
 
-### 2. ch08 conformer counts — resolved, under-specified protocol
+### 2. ch08 conformer counts — closed, a defect in the book
 
-`CLAUDE.md` gives the ETKDGv3 settings but not which protonation state is
-embedded. Docking the charged forms gave 15/15/16/16/16 for STC against the
-book's 17/16/15/16/15 — wrong on **both** platforms, so not the build.
+| | STC | 18U | 1MU |
+|---|---|---|---|
+| Book, as first recorded | 17, 16, 15, 16, 15 | 10, 14, 9, 9, 9 | 33, 39, 33, 30, 40 |
+| Neutral (drawn) form, Linux | 17, 16, 15, 16, 15 | 10, 14, 9, 9, 9 | 33, 39, 33, 30, 40 |
+| **Deprotonated form, Linux — now authoritative** | **15, 15, 16, 16, 16** | **9, 9, 12, 11, 8** | **33, 35, 33, 28, 37** |
+| Deprotonated form, Windows | 15, 15, 16, 16, 16 | 9, 9, **11**, 11, 8 | 33, 35, 33, **29**, **34** |
 
-**Embedding the neutral (drawn) form reproduces all three rows exactly on
-Linux:** 17/16/15/16/15, 10/14/9/9/9, 33/39/33/30/40.
+**The book was wrong, and this build initially agreed with it for the wrong
+reason.** `CLAUDE.md` gave the ETKDGv3 settings without saying which protonation
+state was embedded. Docking the charged forms gave 15/15/16/16/16 for STC
+against the published 17/16/15/16/15 — wrong on *both* platforms, so not the
+build. Embedding the neutral form reproduced all three published rows exactly on
+Linux, and this report concluded the book was right and the protocol
+under-specified.
 
-**The book is right.** The order of operations is: search shape on the drawn
-molecule, apply protonation when writing the ligand for docking. The chapter
-now prints both columns, because a conformer table that does not say which form
-produced it cannot be reproduced.
+That conclusion was wrong, and it was checkable: the chapter's own workflow
+protonates **before** generating conformers, so the published counts had been
+produced in the opposite order to the procedure printed beside them. The
+deprotonated counts are now the book's, and this repository's "docked form, for
+comparison" column turns out to have been the authoritative one all along.
 
-### 3. ch18 enrichment metrics — open, construction not recorded
+**What it cost to find:** nothing, because the chapter had been printing both
+columns. **What it teaches:** a value that reproduces is evidence, not proof.
+Both orderings produce a table. Only one of them matches the procedure, and
+agreement with a published number can confirm a mistake as readily as a result
+when the number and the procedure were never checked against each other.
+
+### 3. ch18 enrichment metrics — closed, construction supplied
 
 | | AUC | EF1% | EF5% | BEDROC |
 |---|---|---|---|---|
 | Screen A, book | 0.758 | 56.0 | 11.6 | 0.574 |
-| Screen A, here | 0.758 | 45.0 | 11.0 | 0.555 |
+| **Screen A, here** | **0.758** | **56.0** | **11.6** | **0.574** |
 | Screen B, book | 0.758 | 0.0 | 0.6 | 0.058 |
-| Screen B, here | 0.758 | 0.0 | 0.8 | 0.059 |
+| **Screen B, here** | **0.758** | **0.0** | **0.6** | **0.058** |
 
-`CLAUDE.md` gives the results without the construction, and everything
-downstream of AUC depends on how the actives are arranged. Screen B is close;
-screen A is not. A rank-based construction was also tried and reached BEDROC
-0.5752 against 0.574 — nearer, still not exact, which is the signature of a
-missing recipe rather than a missing calculation.
+**8 of 8 published values reproduce exactly.** The construction arrived as
+`ch18_enrichment/scripts/ch18_make_screens.py`: a nested search over `hi`
+(40–69) and `lo` (2000–6900) for the pair of screens with the closest AUCs,
+landing on hi = 56, lo = 4800 with the two AUCs 1.6×10⁻⁴ apart. **The single
+generator is consumed sequentially across the whole search**, so the loop bounds
+and their order are as much a part of the specification as the seed — which is
+why it was not recoverable from the results.
 
-What reproduces and is checkable regardless: both AUCs at 0.758, BEDROC
-agreeing with `rdkit.ML.Scoring.Scoring.CalcBEDROC` **to six decimals**, and
-79.8% of the α=20 weight in the top 8% (analytic, exact).
+It is wired into `run.sh` and imported by `enrichment.py`, so there is one
+definition of the screens rather than two that can drift. BEDROC still agrees
+with `rdkit.ML.Scoring.Scoring.CalcBEDROC` to six decimals, and 79.8% of the
+α = 20 weight still falls in the top 8% (analytic, exact).
 
-**Not pursued further on purpose.** Fitting free parameters until four
-published numbers appear produces a script that agrees with the book by
-construction rather than by measurement.
+The earlier reconstruction reached 45.0 / 11.0 / 0.555 for screen A and was not
+adjusted toward the book. That was the right call: the gap was a missing recipe,
+and no amount of parameter fitting would have turned into the real one.
 
-### 4. ch21 MD window slopes — open, noise realisation not recorded
+### 4. ch21 MD window statistics — closed, construction supplied
 
-| Window | Mean, book | Mean, here | Slope, book | Slope, here |
-|---|---|---|---|---|
-| 1 ns | 1.10 Å | 1.10 Å | −0.150 | +0.113 |
-| 10 ns | 1.47 Å | 1.42 Å | −0.010 | +0.015 |
-| 100 ns | 1.90 Å | 1.80 Å | +0.007 | +0.004 |
-| 1000 ns | 2.34 Å | 2.30 Å | +0.0004 | +0.0000 |
+| Window | Mean, book | Mean, here | Slope, book | Slope, here | 10×, book | 10×, here |
+|---|---|---|---|---|---|---|
+| 1 ns | 1.10 Å | **1.10 Å** | −0.150 | **−0.1496** | 1.45 Å | **1.45 Å** |
+| 10 ns | 1.47 Å | **1.47 Å** | −0.010 | **−0.0101** | 1.99 Å | **1.99 Å** |
+| 100 ns | 1.90 Å | **1.90 Å** | +0.007 | **+0.0071** | 2.37 Å | **2.37 Å** |
+| 1000 ns | 2.34 Å | **2.34 Å** | +0.0004 | **+0.0004** | — | — |
 
-The decisive observation: **a monotone sum of exponentials cannot produce a
-negative slope at all.** The book's two negative slopes come from noise in its
-trajectory, so they are a property of one realisation with a seed nobody wrote
-down. Fitting amplitudes *and* timescales jointly to all seven published
-numbers leaves a residual of about 0.08 Å that will not reduce — the size that
-noise would explain.
+**11 of 11 published values reproduce exactly**, negative slopes included. The
+construction arrived as `ch21_molecular_dynamics/scripts/ch21_make_trajectory.py`:
+four **Ornstein-Uhlenbeck** relaxations at τ = 0.04, 1.2, 30 and 700 ns,
+amplitudes 0.50/0.55/0.65/0.90, seed 2101, 3000 ns at 0.01 ns, the generator
+consumed once per process in the order of `taus`.
 
-Means land within 0.1 Å and the chapter's actual claim reproduces: the 10 ns
-answer is 38% below the 1000 ns one, against the book's 37%.
+The argument this build made from the numbers alone was correct as far as it
+went — **a monotone sum of exponentials cannot produce a negative slope**, so
+the two negative slopes had to come from a stochastic term. What it could not
+see was that the stochastic term is not additive noise sitting on top of the
+exponentials: each relaxation *is* an OU process. `CLAUDE.md` had omitted it.
+
+All four windows now pass the flat-tail test, two of them with a *falling* tail
+— which is the strongest form of the trap the chapter is about. The 10 ns
+answer is 37% below the 1000 ns one, from the means at the precision the chapter
+prints them; from the unrounded means it is 37.5%, and both are recorded rather
+than one being chosen.
 
 ---
 
@@ -140,10 +180,11 @@ Everything else in §6 and §1 reproduced, several by two independent routes:
 
 ---
 
-## The three RMSD values for Chapter 17's placeholders
+## The three RMSD values now printed in Chapter 17
 
 Mode 1, symmetry-corrected, heavy atoms, **no superposition**, seed 42,
-exhaustiveness 32, measured on Windows:
+exhaustiveness 32, measured on Windows. **These filled the chapter's `[x]`
+placeholders**, along with the mode-3 finding and the chain sensitivity below:
 
 | Entry | Ligand | Affinity | **RMSD** | Best over 9 modes |
 |---|---|---|---|---|
@@ -157,7 +198,8 @@ and is wrong by 10 Å.
 
 **Chain sensitivity:** 4JXV chain A gives 10.526 Å, chain B gives 4.609 Å. The
 chain was chosen because it needed one altloc decision instead of two, which
-sounds cosmetic and moved the number by 5.9 Å.
+sounds cosmetic and moved the number by 5.9 Å. That finding is now in the
+chapter alongside the three RMSD values.
 
 ---
 
@@ -222,7 +264,13 @@ was caught by a value in `CLAUDE.md` rather than by review:
    right answer by accident (ch27).
 8. **A conclusion asserted rather than computed** (ch07, ch21). One printed
    "every window passes" while a window was visibly still rising; the other
-   printed "the result list is not" on the strength of 8/9 against 9/9.
+   printed "the result list is not" on the strength of 8/9 against 9/9. Both now
+   count and print what they found. On the book's real trajectory all four ch21
+   windows *do* pass — which is only worth saying because it is now counted.
+9. **A published conformer table produced in the wrong order** (ch08). The
+   counts came from the neutral forms while the chapter's own workflow
+   protonates first. Caught because the chapter printed both columns instead of
+   only the one that agreed with the book. See disagreement 2 above.
 
 ---
 
@@ -250,8 +298,11 @@ was caught by a value in `CLAUDE.md` rather than by review:
 2. **The RMSD values in ch17 were measured on Windows** and the scores
    underneath them are build-dependent, so a pose ranking can flip — 4JXS's
    correct pose sits at mode 3, 0.09 kcal/mol below mode 2.
-3. **Two chapters disagree with the book** and both numbers are printed side by
-   side in the chapter, in `PROGRESS.md`, and above.
+3. **Nothing in the repository now disagrees with the book.** Two chapters did;
+   both were closed by receiving the construction that produced the published
+   numbers, and a third disagreement was closed by correcting the book. Where a
+   value could not be reproduced, both numbers stood side by side until it was
+   resolved — none was edited to agree.
 4. **Nothing here was tuned to match.** Where a value did not reproduce, the
    cause was investigated and reported; where it could not be resolved, both
    numbers stand.

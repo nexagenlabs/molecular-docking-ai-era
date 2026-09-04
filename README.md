@@ -44,7 +44,7 @@ expect, a `run.sh` that goes from nothing to the result in one command, and
 matched without opening the book.
 
 ```bash
-pytest                             # 90 tests across the chapters with expected values
+pytest                             # 98 tests across the chapters with expected values
 ```
 
 ## The running system

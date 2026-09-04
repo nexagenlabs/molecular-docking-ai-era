@@ -28,12 +28,12 @@ Session memory for the autonomous build. Updated after every completed task.
 ## Phase 2 — chapters with hard expected values
 
 - [x] 2.1 `ch05_receptor_prep` — 15 tests pass; every §2.1 value reproduces
-- [x] 2.2 `ch08_ligand_prep` — exact on Linux once the neutral form was identified
+- [x] 2.2 `ch08_ligand_prep` — exact on Linux; the book's counts are from the deprotonated form (Phase 5)
 - [x] 2.3 `ch04_formats` — all four formats behave exactly as §6 describes
 - [x] 2.4 `ch17_validation` — 1.114 / 2.999 / 10.526 Å; 6 tests pass
-- [x] 2.5 `ch18_enrichment` — AUC, RDKit cross-check and the 79.8% weight all reproduce; EF/BEDROC differ, see Blocked
+- [x] 2.5 `ch18_enrichment` — all eight published values reproduce exactly once the construction was supplied (Phase 5)
 - [x] 2.6 `ch10_flexibility` — exactly Gln120, Leu293, Thr316; eight residues ≤20°
-- [x] 2.7 `ch21_molecular_dynamics` — means within 0.1 Å, shortfall 38% vs 37%; slopes blocked, see below
+- [x] 2.7 `ch21_molecular_dynamics` — all eleven published values reproduce exactly once the construction was supplied (Phase 5)
 
 ## Phase 3 — remaining chapters
 
@@ -63,6 +63,110 @@ Session memory for the autonomous build. Updated after every completed task.
 - [x] 4.3 `BUILD_REPORT.md`
 
 **Gate 4: report delivered.** 75 passed, 15 xfailed, 0 failed.
+
+## Phase 5 — the three open items closed
+
+Two book defects were found by this build and have been fixed in the book; two
+constructions that `CLAUDE.md` had recorded only by their results were supplied.
+
+- [x] 5.1 `ch08_ligand_prep` — **book defect, fixed.** The published counts came
+      from the neutral forms while the chapter's own workflow says protonate
+      first. The deprotonated counts are now the authoritative ones:
+      STC 15/15/16/16/16, 18U 9/9/12/11/8, 1MU 33/35/33/28/37. Script, README,
+      expected results and test updated; the neutral column is kept alongside,
+      because a conformer table that does not say which form it used cannot be
+      reproduced.
+- [x] 5.2 `ch18_enrichment` — construction supplied as
+      `scripts/ch18_make_screens.py`, wired into `run.sh`, imported by
+      `enrichment.py` so there is one definition of the screens. **8 of 8
+      published values reproduce exactly.**
+- [x] 5.3 `ch21_molecular_dynamics` — construction supplied as
+      `scripts/ch21_make_trajectory.py`, same treatment. **11 of 11 published
+      values reproduce exactly**, negative slopes included.
+- [x] 5.4 `ch17_validation` — the book's `[x]` placeholders now carry this
+      build's 1.114 / 2.999 / 10.526 Å, with the mode-3 finding and the 5.9 Å
+      chain sensitivity. Chapter text updated to match; no values changed.
+- [x] 5.5 `tests/conftest.py` — `unknown_construction()` removed. No chapter
+      needs it any more.
+- [x] 5.6 full suite rerun; ch08, ch17, ch18 and ch21 also re-run through their
+      own `run.sh` from a clean state. ch17 reproduced 1.114 / 2.999 / 10.526 Å
+      and the 4.609 Å chain-B check unchanged.
+
+**Gate 5: 94 passed, 4 xfailed, 0 failed (4m 14s).** The four are the known
+Windows-only exact-value tests, ch08's three conformer rows and ch09's box
+scores. Eleven of the previous fifteen xfails were the two missing
+constructions; nothing from ch18 or ch21 xfails now.
+
+---
+
+## Closed
+
+### ch08's conformer counts came from the wrong protonation state
+
+**Status: closed. A real defect in the book, now corrected.**
+
+`CLAUDE.md` originally gave the ETKDGv3 settings without saying which
+protonation state was embedded, and its counts (17/16/15/16/15 for STC) matched
+neither platform when the charged forms were used. Embedding the neutral form
+reproduced them exactly on Linux, so this build recorded the book as right and
+the protocol as under-specified.
+
+That was the wrong conclusion, and the right one was reachable: the chapter's
+own workflow protonates before generating conformers, so the published counts
+had been produced in the opposite order to the procedure printed beside them.
+The counts are now the deprotonated ones — STC 15/15/16/16/16,
+18U 9/9/12/11/8, 1MU 33/35/33/28/37 — and this repository's earlier "docked
+form, for comparison" column turns out to have been the authoritative one all
+along.
+
+**What to take from it:** an expected value that reproduces is evidence, not
+proof. Both orderings produce a table; only one of them matches the procedure.
+Agreement with a published number can confirm a mistake as readily as a result
+when the number and the procedure were never checked against each other.
+
+On Windows the deprotonated counts give the STC row exactly and differ by one
+to three elsewhere (18U 9/9/**11**/11/8, 1MU 33/35/33/**29**/**34**) — the same
+build-level difference as ch09.
+
+### ch18's screen construction
+
+**Status: closed. The construction was supplied; everything reproduces.**
+
+`ch18_make_screens.py` searches `hi` over 40–69 and `lo` over 2000–6900 for the
+pair of screens with the closest AUCs, and lands on hi = 56, lo = 4800 with the
+two AUCs 1.6×10⁻⁴ apart. The single generator is consumed sequentially across
+the whole nested search, so the loop bounds and their order are part of the
+specification — which is why it was not guessable from the results, and why the
+file is imported rather than copied.
+
+All eight published values reproduce exactly: AUC 0.758 for both screens, EF1%
+56.0 and 0.0, EF5% 11.6 and 0.6, BEDROC 0.574 and 0.058. BEDROC still agrees
+with `rdkit.ML.Scoring.Scoring.CalcBEDROC` to six decimals, and the 79.8% weight
+figure is analytic as before.
+
+The earlier reconstruction reached 45.0 / 11.0 / 0.555 for screen A. It was not
+adjusted toward the book, and that was the right call: the gap was a missing
+recipe, exactly as recorded, and no amount of parameter fitting would have
+turned into the real one.
+
+### ch21's noise realisation
+
+**Status: closed. The construction was supplied; everything reproduces.**
+
+The trajectory is four **Ornstein-Uhlenbeck** relaxations at τ = 0.04, 1.2, 30
+and 700 ns, amplitudes 0.50/0.55/0.65/0.90, seed 2101, 3000 ns at 0.01 ns —
+`ch21_make_trajectory.py`. The generator is consumed once per process in the
+order of `taus`.
+
+The argument this build made from the numbers alone was correct as far as it
+went: **a monotone sum of exponentials cannot produce a negative slope**, so the
+book's −0.150 and −0.010 had to come from a stochastic term. What was missing
+was that the stochastic term is not additive measurement noise sitting on top of
+the exponentials — each relaxation *is* an OU process. `CLAUDE.md` omitted it.
+
+All eleven published values reproduce exactly: four means, four second-half
+slopes, three values at ten times the window. All four windows pass the
+flat-tail test, two of them with a falling tail.
 
 ---
 
@@ -96,83 +200,6 @@ a build, not across builds, and nothing in the log distinguishes the two
 situations. Exact-value tests assert three decimals on Linux and behaviour
 elsewhere. `scripts/docking_common.py` carries the measurements and
 `is_reference_platform()`.
-
-### ch08's conformer counts are from the NEUTRAL form
-
-**Status: resolved. The book is right; the protocol was under-specified.**
-
-`CLAUDE.md` §6 gives the ETKDGv3 settings but not which protonation state is
-embedded. Docking the charged forms gave 15/15/16/16/16 for STC against the
-book's 17/16/15/16/15 — close, but wrong on both platforms, so it was not the
-build. Embedding the **neutral** (drawn) form reproduces all three rows exactly
-on Linux: 17/16/15/16/15, 10/14/9/9/9, 33/39/33/30/40.
-
-So the order of operations is: generate conformers on the drawn molecule, apply
-protonation when writing the ligand for docking. The chapter now prints both
-columns, because a conformer table that does not say which form it used cannot
-be reproduced.
-
-On Windows the neutral counts are 16/16/15/16/15 for STC and off by one or two
-elsewhere — the same build-level difference as ch09.
-
-### ch18's screen construction is not recorded, so EF and BEDROC differ
-
-**Status: blocked on information, not on work. Both numbers recorded; neither
-adjusted.**
-
-`CLAUDE.md` §6 gives the book's results for the two synthetic screens but not
-the construction that produced them. Everything downstream of AUC depends on
-exactly how the actives are arranged, and many arrangements give AUC 0.758.
-
-| | AUC | EF1% | EF5% | BEDROC |
-|---|---|---|---|---|
-| Screen A, book | 0.758 | 56.0 | 11.6 | 0.574 |
-| Screen A, here | 0.758 | 45.0 | 11.0 | 0.555 |
-| Screen B, book | 0.758 | 0.0 | 0.6 | 0.058 |
-| Screen B, here | 0.758 | 0.0 | 0.8 | 0.059 |
-
-What does reproduce, and is checkable independently of the construction:
-
-- **Both screens land on AUC 0.758**, by solving for the active score mean.
-- **BEDROC agrees with `rdkit.ML.Scoring.Scoring.CalcBEDROC` to six decimals**,
-  from an implementation written directly from Truchon & Bayly (2007).
-- **79.8% of the α=20 weight falls in the top 8%** — analytic, exact.
-- Screen B finds nothing in the top 1% while Screen A finds 45 of 100.
-
-A rank-based construction was also tried (56 actives spread through the top
-90 ranks, two more by rank 500, the remainder in a solved block): AUC 0.7574,
-BEDROC 0.5752 against the book's 0.574. Closer, and still not exact. Both
-routes get near the book without landing on it, which is what one would expect
-when the recipe rather than the arithmetic is what is missing.
-
-**Not pursued further on purpose.** Fitting free parameters until the four
-published numbers appear would produce a script that agrees with the book by
-construction rather than by measurement.
-
-### ch21's noise realisation is not recorded, so the slopes differ
-
-**Status: blocked on information. The deterministic half is recovered; the
-stochastic half cannot be.**
-
-`CLAUDE.md` §6 says the trajectory has four separated relaxation timescales and
-gives the resulting statistics, but not the amplitudes, the noise or the seed.
-
-| Window | Mean, book | Mean, here | Slope, book | Slope, here |
-|---|---|---|---|---|
-| 1 ns | 1.10 Å | 1.10 Å | −0.150 | +0.113 |
-| 10 ns | 1.47 Å | 1.42 Å | −0.010 | +0.015 |
-| 100 ns | 1.90 Å | 1.80 Å | +0.007 | +0.004 |
-| 1000 ns | 2.34 Å | 2.30 Å | +0.0004 | +0.0000 |
-
-The decisive observation: **a monotone sum of exponentials cannot produce a
-negative slope at all.** The book's two negative slopes must come from noise, so
-they are a property of one realisation. Fitting amplitudes and timescales
-jointly to all seven published numbers leaves a residual of about 0.08 Å that
-will not reduce — the size a noise realisation would explain.
-
-What reproduces: the means to within 0.1 Å, the ordering, every window from
-10 ns up passing the flat-tail test, and the chapter's actual claim — the 10 ns
-answer is 38% below the 1000 ns one against the book's 37%.
 
 ### Open Babel is 3.1.0, not the pinned 3.2.1
 
@@ -244,7 +271,7 @@ separate environment.**
   would remove backbone, and Lys290's centre of mass is 1.1 Å outside the 20 Å
   box face. Chapter 5 describes rebuilding with PDBFixer as the alternative.
 
-## The three RMSD values for Chapter 17's placeholders
+## The three RMSD values now printed in Chapter 17
 
 Mode 1, symmetry-corrected, heavy atoms, no superposition, seed 42,
 exhaustiveness 32, on Windows:
@@ -257,6 +284,8 @@ exhaustiveness 32, on Windows:
 
 One pass, one near-miss ranked third, one failure. The best affinity is
 inversely ordered against the RMSD — 4JXV scores best and is wrong by 10 Å.
+These filled the chapter's `[x]` placeholders, along with the mode-3 finding and
+the chain sensitivity below.
 
 **4JXV chain sensitivity:** chain A gives 10.526 Å, chain B gives 4.609 Å. The
 chain was chosen because it needed one altloc decision instead of two, which

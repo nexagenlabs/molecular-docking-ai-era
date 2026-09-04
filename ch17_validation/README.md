@@ -55,7 +55,9 @@ Mode 1, symmetry-corrected, heavy atoms, no superposition:
 | 4JXS | 18U | −7.805 | **2.999 Å** | 1.876 Å (mode 3) |
 | 4JXV | 1MU | −8.131 | **10.526 Å** | 10.371 Å (mode 4) |
 
-**These fill the `[x]` placeholders in the book's Chapter 17.**
+**These are the values now printed in the book's Chapter 17**, in place of
+its `[x]` placeholders — together with the mode-3 finding in the last
+column and the chain sensitivity below.
 
 Read against the usual 2 Å criterion: one clear pass, one failure whose correct
 pose is present but ranked third, and one outright failure. That is a more

@@ -18,6 +18,12 @@ else
   PYTHON="${PYTHON:-python3}"
 fi
 
+# The construction first: it prints the book's window table and asserts
+# each mean against it.
+$PYTHON ch21_molecular_dynamics/scripts/ch21_make_trajectory.py
+echo
+
+# Then the analysis, report and figure, over the same trajectory.
 $PYTHON ch21_molecular_dynamics/scripts/convergence.py
 
 echo

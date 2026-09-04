@@ -8,11 +8,14 @@ Three things, in the order they bite:
 1. **Protonation at pH 7.4.** This series spans −1 and −2. Docking the drawn
    neutral forms gets every member wrong by a *different* amount, which
    corrupts the ranking rather than shifting it -- and a corrupted ranking
-   still looks like a result.
+   still looks like a result. Protonation therefore comes **first**, before
+   anything downstream is generated from the molecule.
 2. **Stereochemistry across a round trip.** Cheap to check and expensive to
    discover later.
 3. **Conformer generation.** ETKDGv3, 300 attempts, pruneRmsThresh 0.5, at five
    seeds -- because one seed tells you nothing about how stable the count is.
+   Run on the **deprotonated** form, because that is the molecule that gets
+   docked and the two forms give different counts.
 
 Writes outputs/ligand_prep.json and outputs/ligand_prep.md.
 """
@@ -97,7 +100,7 @@ def main():
     print("RDKit %s, ETKDGv3, %d attempts, pruneRmsThresh %.1f\n"
           % (Chem.rdBase.rdkitVersion, NUM_CONFS, PRUNE_RMS))
     print("%-5s %-7s %-6s %-22s %s"
-          % ("", "charge", "rot.", "conformers (neutral)", "conformers (docked)"))
+          % ("", "charge", "rot.", "conformers (docked)", "conformers (neutral)"))
 
     for name, spec in LIGANDS.items():
         neutral = Chem.MolFromSmiles(spec["neutral"])
@@ -113,14 +116,16 @@ def main():
 
         rot = Descriptors.NumRotatableBonds(docked)
 
-        # Conformers are generated from the NEUTRAL form -- the molecule as
-        # drawn, before pH is applied. That is the book's protocol and it is
-        # the right order of operations: the conformer search explores shape,
-        # and protonation is applied when the ligand is written for docking.
-        # It also matters for reading the table below, because the two forms
-        # are different molecules and give different counts. Both are recorded.
-        counts = {str(seed): conformer_count(neutral, seed) for seed in SEEDS}
-        counts_docked = {str(seed): conformer_count(docked, seed) for seed in SEEDS}
+        # Conformers are generated from the DEPROTONATED form -- the species
+        # that will actually be docked. Protonation comes first; the conformer
+        # search runs on what protonation produced. Generating on the drawn
+        # neutral molecule and charging it afterwards searches the shape of a
+        # molecule nobody docks, and the two forms give different counts, so
+        # the order is not cosmetic. Both columns are recorded, because a
+        # conformer table that does not say which form produced it cannot be
+        # reproduced -- and reproducing the book's table required knowing.
+        counts = {str(seed): conformer_count(docked, seed) for seed in SEEDS}
+        counts_neutral = {str(seed): conformer_count(neutral, seed) for seed in SEEDS}
         before, after, preserved = stereo_round_trip(docked)
 
         results["ligands"][name] = {
@@ -130,7 +135,7 @@ def main():
             "formal_charge_neutral_form": Chem.GetFormalCharge(neutral),
             "rotatable_bonds": rot,
             "conformers": counts,
-            "conformers_from_docked_form": counts_docked,
+            "conformers_from_neutral_form": counts_neutral,
             "stereo_smiles_before": before,
             "stereo_smiles_after": after,
             "stereo_preserved": preserved,
@@ -139,21 +144,27 @@ def main():
         print("%-5s %+6d %6d   %-22s %s"
               % (name, charge, rot,
                  ", ".join(str(counts[str(s)]) for s in SEEDS),
-                 ", ".join(str(counts_docked[str(s)]) for s in SEEDS)))
+                 ", ".join(str(counts_neutral[str(s)]) for s in SEEDS)))
 
     # -- the teaching point --------------------------------------------------
     # Conformer count does not track rotatable-bond count. 18U has two more
     # rotatable bonds than STC and yields fewer conformers, because the prune
     # threshold works on geometry rather than on topology: a flexible molecule
     # whose torsions lead to similar shapes collapses under a 0.5 A prune.
-    lines.append("| Ligand | Charge at pH 7.4 | Rotatable bonds | Conformers, neutral form | Conformers, docked form |")
+    lines.append("| Ligand | Charge at pH 7.4 | Rotatable bonds | Conformers, docked form | Conformers, neutral form |")
     lines.append("|---|---|---|---|---|")
     for name, entry in results["ligands"].items():
         lines.append("| %s | %+d | %d | %s | %s |"
                      % (name, entry["formal_charge"], entry["rotatable_bonds"],
                         ", ".join(str(entry["conformers"][str(s)]) for s in SEEDS),
-                        ", ".join(str(entry["conformers_from_docked_form"][str(s)])
+                        ", ".join(str(entry["conformers_from_neutral_form"][str(s)])
                                   for s in SEEDS)))
+    counts_1mu = results["ligands"]["1MU"]["conformers"]
+    low_seed = min(SEEDS, key=lambda seed: counts_1mu[str(seed)])
+    high_seed = max(SEEDS, key=lambda seed: counts_1mu[str(seed)])
+    spread = {"low": counts_1mu[str(low_seed)], "low_seed": low_seed,
+              "high": counts_1mu[str(high_seed)], "high_seed": high_seed}
+
     lines += [
         "",
         "Conformer counts do **not** track rotatable-bond count. 18U has two",
@@ -162,15 +173,20 @@ def main():
         "molecule whose extra torsions lead to similar shapes collapses under",
         "it. Do not 'fix' this.",
         "",
-        "Counts also move with the seed — 18U gives 14 at seed 7 against 9 at",
-        "three of the other four. A conformer count quoted without its seed is",
-        "not a number anyone can check.",
+        # Read off the run rather than typed in, so this sentence cannot drift
+        # from the table above it on a platform where the counts differ.
+        "Counts also move with the seed — 1MU gives %d at seed %d against %d at"
+        % (spread["low"], spread["low_seed"], spread["high"]),
+        "seed %d. A conformer count quoted without its seed is not a number"
+        % spread["high_seed"],
+        "anyone can check.",
         "",
-        "And they move with the protonation state. The neutral column is the",
-        "book's; the docked column is the same search run on the deprotonated",
-        "form, and it is a different molecule with different counts. Neither is",
-        "wrong — but a table that does not say which form it used cannot be",
-        "reproduced, which is why both are printed here.",
+        "And they move with the protonation state. The docked column is the",
+        "book's: protonation comes first, and the conformer search runs on the",
+        "deprotonated species that will actually be docked. The neutral column",
+        "is the same search run on the molecule as drawn, and it is a different",
+        "molecule with different counts. A table that does not say which form",
+        "it used cannot be reproduced, which is why both are printed here.",
         "",
         "## Charges",
         "",

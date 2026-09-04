@@ -44,20 +44,6 @@ def require_platform(what):
                      % (what, sys.platform))
 
 
-def unknown_construction(what, ours, theirs):
-    """Mark a book value we cannot derive because its recipe is not recorded.
-
-    Used only where CLAUDE.md gives a result without the construction that
-    produced it. The expected value stays in the test unchanged -- this turns
-    the mismatch into a visible XFAIL carrying both numbers, rather than either
-    a silent pass or an edited expectation.
-    """
-    pytest.xfail("%s: this construction gives %s, the book says %s. The book's "
-                 "construction is not recorded in CLAUDE.md, so the two are "
-                 "different synthetic experiments making the same point, not a "
-                 "disagreement about one. See PROGRESS.md." % (what, ours, theirs))
-
-
 def run_script(relative, *args, timeout=1800):
     """Run a chapter script. Fails the test if it is missing or errors."""
     script = REPO / relative

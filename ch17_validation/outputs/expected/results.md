@@ -9,9 +9,10 @@ exhaustiveness 32:
 | 4JXS | 18U | −7.805 | **2.999 Å** | 1.876 Å (mode 3) |
 | 4JXV | 1MU | −8.131 | **10.526 Å** | 10.371 Å (mode 4) |
 
-These are the values that fill the `[x]` placeholders in the book's
-Chapter 17. They were measured on Windows; see the platform note in Chapter 9
-for why the underlying scores are build-dependent.
+These are the values now printed in the book's Chapter 17, in place of its
+`[x]` placeholders, along with the mode-3 finding and the 5.9 Å chain
+sensitivity below. They were measured on Windows; see the platform note in
+Chapter 9 for why the underlying scores are build-dependent.
 
 ## What must hold everywhere
 

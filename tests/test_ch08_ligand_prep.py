@@ -9,13 +9,15 @@ import pytest
 
 from conftest import read_json, require_platform, run_script
 
-# ETKDGv3, 300 attempts, pruneRmsThresh=0.5. Counts do NOT track rotatable-bond
-# count -- 18U has more rotatable bonds than STC and yields fewer conformers.
-# That is the teaching point of the chapter and must not be "fixed".
+# ETKDGv3, 300 attempts, pruneRmsThresh=0.5, on the DEPROTONATED forms --
+# protonation comes before conformer generation, and the neutral forms give
+# different counts. Counts do NOT track rotatable-bond count: 18U has more
+# rotatable bonds than STC and yields fewer conformers. That is the teaching
+# point of the chapter and must not be "fixed".
 EXPECTED = {
-    "STC": {"charge": -1, "rotatable_bonds": 4, "conformers": [17, 16, 15, 16, 15]},
-    "18U": {"charge": -2, "rotatable_bonds": 6, "conformers": [10, 14, 9, 9, 9]},
-    "1MU": {"charge": -2, "rotatable_bonds": 7, "conformers": [33, 39, 33, 30, 40]},
+    "STC": {"charge": -1, "rotatable_bonds": 4, "conformers": [15, 15, 16, 16, 16]},
+    "18U": {"charge": -2, "rotatable_bonds": 6, "conformers": [9, 9, 12, 11, 8]},
+    "1MU": {"charge": -2, "rotatable_bonds": 7, "conformers": [33, 35, 33, 28, 37]},
 }
 SEEDS = [1, 7, 42, 99, 2026]
 
@@ -41,7 +43,7 @@ def test_rotatable_bond_count(prepared, name):
 
 @pytest.mark.parametrize("name", sorted(EXPECTED))
 def test_conformer_counts_by_seed(prepared, name):
-    """The book's counts are from the NEUTRAL form, and they are exact on Linux.
+    """The book's counts are from the DEPROTONATED form, exact on Linux.
 
     Off Linux the same RDKit version differs by one or two conformers, for the
     same reason the ch09 scores differ: the build, not the protocol.
