@@ -1,0 +1,7 @@
+# Shell scripts must reach a Linux reader with LF endings or bash fails on the
+# shebang line. Normalise on commit, check out LF everywhere.
+* text=auto eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.yml text eol=lf
+*.md text eol=lf

@@ -1,0 +1,27 @@
+# Molecular Docking in the AI Era -- companion repository.
+#
+#   python3.12 -m venv .venv && . .venv/bin/activate
+#   pip install -r requirements.txt
+#
+# The book's numbers were produced with pip on Ubuntu, Python 3.12.3.
+# This file, not environment/environment.yml, is the authoritative environment.
+#
+# Six of these can change a published value -- pinned exactly:
+#   rdkit, vina, spyrmsd, meeko, numpy, and Open Babel.
+vina==1.2.7            # NOT 1.2.5 -- superseded February 2025
+rdkit==2026.3.5        # conformer counts in ch08 are version-sensitive
+spyrmsd==0.9.0         # symmetry-corrected RMSD; never run it with --minimize
+meeko==0.8.0           # PDBQT preparation
+gemmi==0.7.5           # meeko needs it; pinned because meeko's output depends on it
+numpy==2.4.4
+
+# Plots only -- a minimum bound is enough, these cannot move a published number.
+matplotlib>=3.10.8
+scipy>=1.17.1
+
+# NOT installable from pip: Open Babel 3.2.1, a system binary.
+#
+#   sudo apt install openbabel        # Ubuntu -- check `obabel -V` reports 3.2.1
+#
+# Open Babel does affect published values (ch04's format round-trips are its
+# output), so verify the version rather than assuming the distribution's.

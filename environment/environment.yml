@@ -1,0 +1,27 @@
+# Conda alternative to the authoritative pip environment.
+#
+#   conda env create -f environment/environment.yml
+#   conda activate mdaie
+#
+# The book's numbers were produced with pip on Ubuntu, Python 3.12.3 -- see
+# requirements.txt, which is the authoritative record. conda-forge may resolve
+# a package's dependencies differently even at an identical version pin, so if
+# your numbers differ from the book's, reproduce under pip before reporting it.
+name: mdaie
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12.3
+
+  # Exact pins: each of these can move a published value.
+  - vina=1.2.7           # NOT 1.2.5 -- superseded February 2025
+  - rdkit=2026.3.5       # ch08 conformer counts are version-sensitive
+  - spyrmsd=0.9.0        # symmetry-corrected RMSD; never with --minimize
+  - meeko=0.8.0          # PDBQT preparation
+  - gemmi=0.7.5          # meeko needs it
+  - numpy=2.4.4
+  - openbabel=3.2.1      # ch04's format round-trips are its output
+
+  # Plots only -- these cannot move a published number.
+  - matplotlib>=3.10.8
+  - scipy>=1.17.1

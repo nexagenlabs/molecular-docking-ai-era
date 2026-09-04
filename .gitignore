@@ -1,0 +1,11 @@
+*.docx
+*.pdf
+__pycache__/
+.ipynb_checkpoints/
+validation_output/
+data/structures/*.pdb
+data/structures/*.cif
+
+# A reader's own record of what pip resolved on their machine.
+# See environment/README.md -- keep it with your results, do not commit it.
+environment/resolved.txt
