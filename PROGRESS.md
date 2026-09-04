@@ -37,7 +37,23 @@ Session memory for the autonomous build. Updated after every completed task.
 
 ## Phase 3 — remaining chapters
 
-Not started.
+- [x] `ch26_case_study` — 3x3 cross-dock, redock 1.114 Å, series too tight to rank
+- [x] `ch06_predicted_structures` — 0.216 Å backbone, 3.140 Å pose
+- [x] `ch07_pocket` — four box definitions, all within 0.09 Å
+- [x] `ch20_protocol_record` — blank, filler, worked AmpC example; 7 tests
+- [ ] `ch02_method_choice`
+- [ ] `ch03_databases`
+- [ ] `ch11_web_servers`
+- [ ] `ch12_screening`
+- [ ] `ch13_cofolding`
+- [ ] `ch14_boltz2`
+- [ ] `ch15_cofolding_field`
+- [ ] `ch16_rescoring`
+- [ ] `ch22_free_energy`
+- [ ] `ch23_interactions`
+- [ ] `ch24_network_pharmacology`
+- [ ] `ch25_hit_to_bench`
+- [ ] `ch27_methods`
 
 ## Phase 4 — integration
 
