@@ -10,42 +10,70 @@ import pytest
 
 from conftest import REPO, repo_text_files, run_script, read_json
 
-# This file necessarily contains the string it forbids, and so does the
-# documentation that explains why. Both are exempt by name rather than by
-# pattern, so a new file cannot quietly inherit the exemption.
-MINIMIZE_EXEMPT = {
-    "tests/test_gotchas.py",
-    "CLAUDE.md",
-    "README.md",
-    "PROGRESS.md",
-    "BUILD_REPORT.md",
-    "protocols/reproducibility_record.md",
-    "ch17_validation/README.md",
-    "ch09_first_run/README.md",
-    "ch09_first_run/outputs/expected/results.md",
-    "SESSION_PLAN.md",
-    "tests/test_ch17_validation.py",
-    "requirements.txt",
-    "environment/environment.yml",
-    "environment/README.md",
-}
+# Prose may quote the forbidden flag -- explaining why it is forbidden is half
+# the point of this repository. Code may not use it. So Python is checked with
+# the comments and string literals removed, rather than by grepping the file,
+# and documentation is checked only for shell command lines.
+DOC_SUFFIXES = {".md", ".txt", ".yml"}
+
+# The API form is the more dangerous one: no flag appears anywhere, the
+# parameter is easy to pass by accident, and the result looks like a validation
+# that passed.
+FORBIDDEN_IN_CODE = ("--minimize", "minimize=True", "minimize = True")
+
+
+def code_only(path):
+    """A Python file's source with comments and string literals removed."""
+    import io
+    import tokenize
+    pieces = []
+    with open(path, "rb") as handle:
+        try:
+            for token in tokenize.tokenize(handle.readline):
+                if token.type in (tokenize.COMMENT, tokenize.STRING):
+                    continue
+                pieces.append(token.string)
+        except (tokenize.TokenError, IndentationError, SyntaxError):
+            # Unparseable file: fall back to the whole text, which can only
+            # make the guard stricter.
+            return path.read_text(encoding="utf-8", errors="replace")
+    return " ".join(pieces)
 
 
 def test_no_script_uses_minimize():
     """--minimize superimposes before measuring, and makes every redock pass.
 
     A pose displaced 3.0 A returns 3.00000 without the flag and 0.00000 with
-    it. There is no legitimate use of it in this repository.
+    it. There is no legitimate use of it in this repository -- in code. Prose
+    that explains the trap is exactly what should exist.
     """
     offenders = []
     for path in repo_text_files():
         relative = path.relative_to(REPO).as_posix()
-        if relative in MINIMIZE_EXEMPT:
+        if path.suffix == ".py":
+            haystack = code_only(path)
+            needles = FORBIDDEN_IN_CODE
+        elif path.suffix == ".sh":
+            haystack = path.read_text(encoding="utf-8", errors="replace")
+            needles = ("--minimize",)
+        else:
             continue
-        if "--minimize" in path.read_text(encoding="utf-8", errors="replace"):
-            offenders.append(relative)
-    assert not offenders, \
-        "--minimize appears in: %s" % ", ".join(offenders)
+        for needle in needles:
+            if needle in haystack:
+                offenders.append("%s (%s)" % (relative, needle))
+    assert not offenders,         "--minimize or minimize=True used in: %s" % ", ".join(offenders)
+
+
+def test_the_rmsd_call_passes_minimize_false_explicitly():
+    """Not passing it is not enough; the record has to be able to say so.
+
+    spyrmsd defaults to minimize=False, so an implicit call would be correct
+    today and silently wrong if that default ever changed.
+    """
+    validate = REPO / "ch17_validation" / "scripts" / "validate.py"
+    if not validate.exists():
+        pytest.skip("ch17 not built yet")
+    assert "minimize=False" in validate.read_text(encoding="utf-8")
 
 
 def test_no_vina_config_leaves_the_seed_unset():
