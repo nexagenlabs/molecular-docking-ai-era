@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
-# Chapter 12 — screening
-# Stub. Not yet implemented.
+# Chapter 12 - the mechanics of a screen, and what it would cost.
+#
+#   bash ch12_screening/run.sh
 set -euo pipefail
-echo "ch12 (screening): not yet implemented." >&2
-exit 1
+cd "$(dirname "$0")/.."
+if [ -x ".venv/Scripts/python.exe" ]; then PYTHON=".venv/Scripts/python.exe"
+elif [ -x ".venv/bin/python" ]; then PYTHON=".venv/bin/python"
+else PYTHON="${PYTHON:-python3}"; fi
+if [ ! -f data/structures/1L2S.pdb ]; then bash data/structures/fetch.sh; fi
+if [ ! -f data/ligands/STC.sdf ]; then $PYTHON data/ligands/generate.py; fi
+$PYTHON ch12_screening/scripts/screen.py "$@"
+echo
+echo "Results:  ch12_screening/outputs/screen.md"
+echo "Expected: ch12_screening/outputs/expected/results.md"
