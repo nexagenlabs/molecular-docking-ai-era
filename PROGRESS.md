@@ -32,7 +32,7 @@ Session memory for the autonomous build. Updated after every completed task.
 - [x] 2.3 `ch04_formats` — all four formats behave exactly as §6 describes
 - [x] 2.4 `ch17_validation` — 1.114 / 2.999 / 10.526 Å; 6 tests pass
 - [x] 2.5 `ch18_enrichment` — AUC, RDKit cross-check and the 79.8% weight all reproduce; EF/BEDROC differ, see Blocked
-- [ ] 2.6 `ch10_flexibility`
+- [x] 2.6 `ch10_flexibility` — exactly Gln120, Leu293, Thr316; eight residues ≤20°
 - [ ] 2.7 `ch21_molecular_dynamics`
 
 ## Phase 3 — remaining chapters

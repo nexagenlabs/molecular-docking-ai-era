@@ -1,6 +1,26 @@
 #!/usr/bin/env bash
-# Chapter 10 — flexibility
-# Stub. Not yet implemented.
+# Chapter 10 - which binding-site side chains actually move.
+#
+#   bash ch10_flexibility/run.sh
 set -euo pipefail
-echo "ch10 (flexibility): not yet implemented." >&2
-exit 1
+
+cd "$(dirname "$0")/.."
+
+if [ -x ".venv/Scripts/python.exe" ]; then
+  PYTHON=".venv/Scripts/python.exe"
+elif [ -x ".venv/bin/python" ]; then
+  PYTHON=".venv/bin/python"
+else
+  PYTHON="${PYTHON:-python3}"
+fi
+
+if [ ! -f data/structures/1L2S.pdb ]; then
+  echo "structures not present; fetching."
+  bash data/structures/fetch.sh
+fi
+
+$PYTHON ch10_flexibility/scripts/torsion_analysis.py
+
+echo
+echo "Results:  ch10_flexibility/outputs/rotamers.md"
+echo "Expected: ch10_flexibility/outputs/expected/results.md"
