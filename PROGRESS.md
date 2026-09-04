@@ -31,7 +31,7 @@ Session memory for the autonomous build. Updated after every completed task.
 - [x] 2.2 `ch08_ligand_prep` — exact on Linux once the neutral form was identified
 - [x] 2.3 `ch04_formats` — all four formats behave exactly as §6 describes
 - [x] 2.4 `ch17_validation` — 1.114 / 2.999 / 10.526 Å; 6 tests pass
-- [ ] 2.5 `ch18_enrichment`
+- [x] 2.5 `ch18_enrichment` — AUC, RDKit cross-check and the 79.8% weight all reproduce; EF/BEDROC differ, see Blocked
 - [ ] 2.6 `ch10_flexibility`
 - [ ] 2.7 `ch21_molecular_dynamics`
 
@@ -93,6 +93,40 @@ be reproduced.
 
 On Windows the neutral counts are 16/16/15/16/15 for STC and off by one or two
 elsewhere — the same build-level difference as ch09.
+
+### ch18's screen construction is not recorded, so EF and BEDROC differ
+
+**Status: blocked on information, not on work. Both numbers recorded; neither
+adjusted.**
+
+`CLAUDE.md` §6 gives the book's results for the two synthetic screens but not
+the construction that produced them. Everything downstream of AUC depends on
+exactly how the actives are arranged, and many arrangements give AUC 0.758.
+
+| | AUC | EF1% | EF5% | BEDROC |
+|---|---|---|---|---|
+| Screen A, book | 0.758 | 56.0 | 11.6 | 0.574 |
+| Screen A, here | 0.758 | 45.0 | 11.0 | 0.555 |
+| Screen B, book | 0.758 | 0.0 | 0.6 | 0.058 |
+| Screen B, here | 0.758 | 0.0 | 0.8 | 0.059 |
+
+What does reproduce, and is checkable independently of the construction:
+
+- **Both screens land on AUC 0.758**, by solving for the active score mean.
+- **BEDROC agrees with `rdkit.ML.Scoring.Scoring.CalcBEDROC` to six decimals**,
+  from an implementation written directly from Truchon & Bayly (2007).
+- **79.8% of the α=20 weight falls in the top 8%** — analytic, exact.
+- Screen B finds nothing in the top 1% while Screen A finds 45 of 100.
+
+A rank-based construction was also tried (56 actives spread through the top
+90 ranks, two more by rank 500, the remainder in a solved block): AUC 0.7574,
+BEDROC 0.5752 against the book's 0.574. Closer, and still not exact. Both
+routes get near the book without landing on it, which is what one would expect
+when the recipe rather than the arithmetic is what is missing.
+
+**Not pursued further on purpose.** Fitting free parameters until the four
+published numbers appear would produce a script that agrees with the book by
+construction rather than by measurement.
 
 ### Open Babel is 3.1.0, not the pinned 3.2.1
 
