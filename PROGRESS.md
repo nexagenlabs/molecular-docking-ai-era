@@ -33,7 +33,7 @@ Session memory for the autonomous build. Updated after every completed task.
 - [x] 2.4 `ch17_validation` — 1.114 / 2.999 / 10.526 Å; 6 tests pass
 - [x] 2.5 `ch18_enrichment` — AUC, RDKit cross-check and the 79.8% weight all reproduce; EF/BEDROC differ, see Blocked
 - [x] 2.6 `ch10_flexibility` — exactly Gln120, Leu293, Thr316; eight residues ≤20°
-- [ ] 2.7 `ch21_molecular_dynamics`
+- [x] 2.7 `ch21_molecular_dynamics` — means within 0.1 Å, shortfall 38% vs 37%; slopes blocked, see below
 
 ## Phase 3 — remaining chapters
 
@@ -127,6 +127,31 @@ when the recipe rather than the arithmetic is what is missing.
 **Not pursued further on purpose.** Fitting free parameters until the four
 published numbers appear would produce a script that agrees with the book by
 construction rather than by measurement.
+
+### ch21's noise realisation is not recorded, so the slopes differ
+
+**Status: blocked on information. The deterministic half is recovered; the
+stochastic half cannot be.**
+
+`CLAUDE.md` §6 says the trajectory has four separated relaxation timescales and
+gives the resulting statistics, but not the amplitudes, the noise or the seed.
+
+| Window | Mean, book | Mean, here | Slope, book | Slope, here |
+|---|---|---|---|---|
+| 1 ns | 1.10 Å | 1.10 Å | −0.150 | +0.113 |
+| 10 ns | 1.47 Å | 1.42 Å | −0.010 | +0.015 |
+| 100 ns | 1.90 Å | 1.80 Å | +0.007 | +0.004 |
+| 1000 ns | 2.34 Å | 2.30 Å | +0.0004 | +0.0000 |
+
+The decisive observation: **a monotone sum of exponentials cannot produce a
+negative slope at all.** The book's two negative slopes must come from noise, so
+they are a property of one realisation. Fitting amplitudes and timescales
+jointly to all seven published numbers leaves a residual of about 0.08 Å that
+will not reduce — the size a noise realisation would explain.
+
+What reproduces: the means to within 0.1 Å, the ordering, every window from
+10 ns up passing the flat-tail test, and the chapter's actual claim — the 10 ns
+answer is 38% below the 1000 ns one against the book's 37%.
 
 ### Open Babel is 3.1.0, not the pinned 3.2.1
 
