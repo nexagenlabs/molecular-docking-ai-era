@@ -30,7 +30,7 @@ Session memory for the autonomous build. Updated after every completed task.
 - [x] 2.1 `ch05_receptor_prep` — 15 tests pass; every §2.1 value reproduces
 - [x] 2.2 `ch08_ligand_prep` — exact on Linux once the neutral form was identified
 - [x] 2.3 `ch04_formats` — all four formats behave exactly as §6 describes
-- [ ] 2.4 `ch17_validation`
+- [x] 2.4 `ch17_validation` — 1.114 / 2.999 / 10.526 Å; 6 tests pass
 - [ ] 2.5 `ch18_enrichment`
 - [ ] 2.6 `ch10_flexibility`
 - [ ] 2.7 `ch21_molecular_dynamics`
@@ -123,6 +123,24 @@ for this chapter holds on 3.1.0.
   atoms, so the file holds exactly alanine's heavy atoms; deleting the residues
   would remove backbone, and Lys290's centre of mass is 1.1 Å outside the 20 Å
   box face. Chapter 5 describes rebuilding with PDBFixer as the alternative.
+
+## The three RMSD values for Chapter 17's placeholders
+
+Mode 1, symmetry-corrected, heavy atoms, no superposition, seed 42,
+exhaustiveness 32, on Windows:
+
+| Entry | Ligand | Affinity | **RMSD** | Best over 9 modes |
+|---|---|---|---|---|
+| 1L2S | STC | −7.377 | **1.114 Å** | 1.114 Å (mode 1) |
+| 4JXS | 18U | −7.805 | **2.999 Å** | 1.876 Å (mode 3) |
+| 4JXV | 1MU | −8.131 | **10.526 Å** | 10.371 Å (mode 4) |
+
+One pass, one near-miss ranked third, one failure. The best affinity is
+inversely ordered against the RMSD — 4JXV scores best and is wrong by 10 Å.
+
+**4JXV chain sensitivity:** chain A gives 10.526 Å, chain B gives 4.609 Å. The
+chain was chosen because it needed one altloc decision instead of two, which
+sounds cosmetic and moves the answer by 5.9 Å.
 
 ## Timings for the book's hardware note
 
