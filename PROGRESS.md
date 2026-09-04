@@ -46,12 +46,12 @@ Session memory for the autonomous build. Updated after every completed task.
 - [ ] `ch11_web_servers`
 - [ ] `ch12_screening`
 - [ ] `ch13_cofolding`
-- [ ] `ch14_boltz2`
+- [x] `ch14_boltz2` — r² = 0.38 against FEP+ 0.52; pairwise ranking simulated and checked analytically
 - [ ] `ch15_cofolding_field`
-- [ ] `ch16_rescoring`
+- [x] `ch16_rescoring` — arithmetic runs; GNINA attempted and documented as unavailable
 - [ ] `ch22_free_energy`
 - [ ] `ch23_interactions`
-- [ ] `ch24_network_pharmacology`
+- [x] `ch24_network_pharmacology` — refuses without a background, exit 2
 - [ ] `ch25_hit_to_bench`
 - [ ] `ch27_methods`
 
@@ -178,7 +178,21 @@ MOL2 preserve charge, bond orders and stereochemistry; PDBQT returns the
 dianion neutral with the atom order changed; XYZ loses charge. Every §6 claim
 for this chapter holds on 3.1.0.
 
+## Software that could not run here
+
+- **GNINA** (ch16) — compiled binary, CUDA dependency, no PyPI/conda-forge
+  package and no Windows build. `pip install gnina` attempted: no distribution.
+  The pipeline is written, attempted once, and exits 3 with the exact command
+  it would run. Nothing simulated.
+
 ## Deviations from CLAUDE.md
+
+- **Notebooks are scripts.** `CLAUDE.md` §6 calls for a notebook in ch14 and
+  ch18. Both are Python scripts that write a Markdown report and a PNG instead.
+  A script runs in CI and fails loudly; a notebook has to be executed by hand
+  and its stored output can disagree with its code. The substance the book asks
+  for is present in both cases — ch14 prints the squaring step, ch18 plots both
+  screens on one axis.
 
 - **`make_test_system.py` wrote the ligand without hydrogens.** The file as
   supplied called `Chem.MolToMolFile(Chem.RemoveHs(m), "lig.sdf")`, but the
