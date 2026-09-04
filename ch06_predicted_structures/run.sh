@@ -1,6 +1,32 @@
 #!/usr/bin/env bash
-# Chapter 06 — predicted structures
-# Stub. Not yet implemented.
+# Chapter 6 - can you dock into a predicted structure?
+#
+#   bash ch06_predicted_structures/run.sh
+#
+# Fetches the AlphaFold model of AmpC and needs network access the first time.
 set -euo pipefail
-echo "ch06 (predicted_structures): not yet implemented." >&2
-exit 1
+
+cd "$(dirname "$0")/.."
+
+if [ -x ".venv/Scripts/python.exe" ]; then
+  PYTHON=".venv/Scripts/python.exe"
+elif [ -x ".venv/bin/python" ]; then
+  PYTHON=".venv/bin/python"
+else
+  PYTHON="${PYTHON:-python3}"
+fi
+
+if [ ! -f data/structures/1L2S.pdb ]; then
+  echo "structures not present; fetching."
+  bash data/structures/fetch.sh
+fi
+if [ ! -f data/ligands/STC.sdf ]; then
+  echo "reference ligands not present; generating."
+  $PYTHON data/ligands/generate.py
+fi
+
+$PYTHON ch06_predicted_structures/scripts/compare_alphafold.py
+
+echo
+echo "Results:  ch06_predicted_structures/outputs/alphafold_comparison.md"
+echo "Expected: ch06_predicted_structures/outputs/expected/results.md"
