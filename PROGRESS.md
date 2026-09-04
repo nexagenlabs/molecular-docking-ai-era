@@ -16,12 +16,14 @@ Session memory for the autonomous build. Updated after every completed task.
 - [x] `data/ligands/` — SDFs generated and committed, `generate.py --check` passes
 - [x] `scripts/audit_structures.py` — every structural claim re-measured
 - [x] `protocols/reproducibility_record.md` — Chapter 20's seventeen fields
-- [ ] `tests/` — pytest harness
+- [x] `tests/` — pytest harness, 67 tests, collection clean
 
 ## Phase 1 — the pattern chapter
 
 - [x] `ch09_first_run` — AmpC run, four demonstrations, gate accepted
-- [ ] `ch09_first_run` — synthetic system, config, plan-named scripts
+- [x] `ch09_first_run` — synthetic system, config, plan-named scripts
+- [x] Gate 1 — `pytest tests/test_ch09_first_run.py` passes (1 xfail: the exact
+      box scores, which are Linux-only and diagnosed below)
 
 ## Phase 2 — chapters with hard expected values
 
