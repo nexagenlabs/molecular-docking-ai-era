@@ -91,16 +91,25 @@ def test_no_vina_config_leaves_the_seed_unset():
 
 
 def test_every_vina_invocation_passes_a_seed():
-    """The same rule for command lines, not only config files."""
+    """The same rule for command lines, not only config files.
+
+    A file satisfies it either by putting --seed on the command line itself, or
+    by going through scripts/docking_common.dock(), which always does and whose
+    callers name the seed as `seed=`. What matters is that no Vina run anywhere
+    in this repository is left on the default.
+    """
     offenders = []
     for path in REPO.glob("**/*.py"):
         if any(part in {".git", ".venv", ".tools"} for part in path.parts):
             continue
         text = path.read_text(encoding="utf-8", errors="replace")
-        if "--exhaustiveness" in text and "--seed" not in text:
-            offenders.append(path.relative_to(REPO).as_posix())
+        if "--exhaustiveness" not in text and "exhaustiveness=" not in text:
+            continue
+        if "--seed" in text or "seed=" in text:
+            continue
+        offenders.append(path.relative_to(REPO).as_posix())
     assert not offenders, \
-        "these build a Vina command line with no seed: %s" % ", ".join(offenders)
+        "these run Vina with no seed: %s" % ", ".join(offenders)
 
 
 def test_every_run_script_is_strict():

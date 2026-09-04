@@ -42,18 +42,18 @@ Session memory for the autonomous build. Updated after every completed task.
 - [x] `ch07_pocket` — four box definitions, all within 0.09 Å
 - [x] `ch20_protocol_record` — blank, filler, worked AmpC example; 7 tests
 - [ ] `ch02_method_choice`
-- [ ] `ch03_databases`
+- [x] `ch03_databases` — API and file header agree on all four entries
 - [ ] `ch11_web_servers`
-- [ ] `ch12_screening`
-- [ ] `ch13_cofolding`
+- [x] `ch12_screening` — 19 compounds, one preparation failure, cost measured
+- [x] `ch13_cofolding` — input written and frame-checked; boltz attempted, breaks the env
 - [x] `ch14_boltz2` — r² = 0.38 against FEP+ 0.52; pairwise ranking simulated and checked analytically
 - [ ] `ch15_cofolding_field`
 - [x] `ch16_rescoring` — arithmetic runs; GNINA attempted and documented as unavailable
-- [ ] `ch22_free_energy`
-- [ ] `ch23_interactions`
+- [x] `ch22_free_energy` — needs σ < 0.116; best available is 0.20
+- [x] `ch23_interactions` — 93% of interactions recovered at 1.114 Å
 - [x] `ch24_network_pharmacology` — refuses without a background, exit 2
-- [ ] `ch25_hit_to_bench`
-- [ ] `ch27_methods`
+- [x] `ch25_hit_to_bench` — assay design covers all three measured Ki
+- [x] `ch27_methods` — methods text generated from the record, gaps left visible
 
 ## Phase 4 — integration
 
@@ -178,12 +178,38 @@ MOL2 preserve charge, bond orders and stereochemistry; PDBQT returns the
 dianion neutral with the atom order changed; XYZ loses charge. Every §6 claim
 for this chapter holds on 3.1.0.
 
+## The environment was broken once, and repaired
+
+**`pip install boltz` (ch13) silently downgraded the pinned environment.**
+
+It succeeds on a CPU-only machine and pulls numpy down to 1.26.4, gemmi to
+0.6.5 and scipy to 1.13.1 — the three pins that ch08's conformer counts, ch17's
+RMSD and meeko's PDBQT output all depend on. No error; pip simply resolved its
+own constraints.
+
+Repaired immediately: boltz and its eighteen leftover dependencies uninstalled,
+`numpy==2.4.4 gemmi==0.7.5 scipy>=1.17.1 rdkit==2026.3.5 meeko==0.8.0
+spyrmsd==0.9.0` reinstalled, versions verified, and the **full test suite
+re-run and passing** before any further work. `environment/resolved.txt` should
+be regenerated before release.
+
+The finding is recorded in ch13's README as a reproducible property of that
+package rather than as general advice: **install co-folding models in a
+separate environment.**
+
 ## Software that could not run here
 
 - **GNINA** (ch16) — compiled binary, CUDA dependency, no PyPI/conda-forge
   package and no Windows build. `pip install gnina` attempted: no distribution.
   The pipeline is written, attempted once, and exits 3 with the exact command
   it would run. Nothing simulated.
+- **Boltz-2** (ch13) — installs, but needs a CUDA GPU and several GB of
+  weights, and breaks the pinned environment on the way in (above). The input
+  YAML is written and frame-checked against the crystal structure regardless,
+  since it is the half a reader can check without a GPU.
+- **PDBFixer** (ch05) — conda-forge only, pulls in OpenMM. Documented in ch05's
+  README as the alternative to typing disordered side chains down to alanine;
+  not installed, and the code shown there is not run.
 
 ## Deviations from CLAUDE.md
 

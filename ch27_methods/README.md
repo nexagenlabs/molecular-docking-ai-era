@@ -1,11 +1,7 @@
-# Chapter 27 — methods
+# Chapter 27 — the methods section
 
-**Status: stub.** The directory exists so the path promised in the book
-resolves; the script is not written yet.
-
-## What this does
-
-_To be written._
+A methods section written from memory a month after the run is a work of
+fiction with a high hit rate. This one is generated from the protocol record.
 
 ## Run
 
@@ -13,15 +9,44 @@ _To be written._
 bash ch27_methods/run.sh
 ```
 
-Requires the pinned environment — pip, Python 3.12.3, see
-[`environment/README.md`](../environment/README.md):
+Reads `ch20_protocol_record/outputs/filled_record.json` and
+`ch17_validation/outputs/validation.json`, and runs Chapter 20 first if the
+record is missing.
 
-```bash
-python3.12 -m venv .venv && . .venv/bin/activate
-pip install -r requirements.txt
-```
+## What comes out
 
-## What to expect
+Six paragraphs in which every number is traceable to a file: the entry and its
+resolution, the chain and why the other one was discarded, how the ligand copy
+was selected and what the alternatives were, the box and its derivation, the
+seed, and the RMSD with its definition attached.
 
-_To be written._ Reference results will live in `outputs/expected/`, so you can
-tell whether your run matched without opening the book.
+Two sentences carry **[TODO]** markers:
+
+| Field | Why a tool cannot fill it |
+|---|---|
+| Stereochemistry as docked | A config file records a filename, not what was in it |
+| Exclusions and deviations | The one field no tool can fill; it is why the record exists |
+
+**They are left visible in the paragraph itself**, not quietly omitted. A
+methods section with a hole in it is one somebody will fix. One with a
+plausible sentence covering the hole is one nobody will ever check — and that
+is the failure this chapter is about, because at reading speed a fluent methods
+section is indistinguishable from an accurate one.
+
+## What the generated text gets right that memory usually does not
+
+- The ligand copy was chosen by **distance to Ser64 OG**, and the discarded
+  copy at 22.72 Å is named. A month later, nobody remembers there were three.
+- The seed is stated **with the reason** — Vina's default of 0 selects a random
+  seed, so a run at the default is not reproducible.
+- The RMSD carries its definition: heavy-atom, symmetry-corrected, and computed
+  **without superposition**, with a sentence saying what enabling superposition
+  would have measured instead.
+- The number of disordered side chains is counted from the coordinate file. In
+  an earlier version of this script that count was produced by an expression
+  that was nonsense and happened to return the right answer — which is exactly
+  the kind of thing a generated methods section is supposed to make impossible,
+  and it was caught by reading the code rather than the output.
+
+None of those are hard to write down. They are hard to *remember* to write
+down, which is a different problem and one a generator solves.

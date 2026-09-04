@@ -136,7 +136,14 @@ def describe_structure(pdb_id, chain, ligand_name):
                     and fields[2].lstrip("-").isdigit()):
                 gaps.setdefault(fields[1], []).append("%s %s" % (fields[0], fields[2]))
 
+    # Disordered side chains in the chain actually used, counted rather than
+    # inferred: ch27 puts this number into a methods paragraph.
+    disordered = sorted({m["seq"] for m in receptor_prep.parse(path)[1]
+                         if m["chain"] == chain})
+
     return {"pdb_id": pdb_id, "chain": chain, "resolution": resolution,
+            "disordered_side_chains": disordered,
+            "disordered_side_chain_count": len(disordered),
             "r_free": r_free, "altlocs": altlocs, "waters": waters,
             "ligand_copies": [{k: v for k, v in c.items() if k != "atoms"}
                               for c in copies],
