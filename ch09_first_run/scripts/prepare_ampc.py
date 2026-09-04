@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
-"""Prepare the receptor and ligand for Chapter 9's first docking run.
+"""Prepare the AmpC receptor and ligand for Chapter 9's second demonstration.
 
-Writes into ch09_first_run/outputs/:
+This is the real system. The timing and box-size numbers in the book come from
+the synthetic system in make_test_system.py and must not be compared with
+anything here.
+
+Writes into ch09_first_run/outputs/ampc/:
 
     receptor.pdbqt      1L2S chain B, rigid
     ligand.pdbqt        STC, from the committed reference SDF
@@ -13,14 +17,14 @@ people get different numbers from "the same" protocol.
 """
 import json
 import math
-import shutil
 import subprocess
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parent.parent
-CH = Path(__file__).resolve().parent
-OUT = CH / "outputs"
+CH = Path(__file__).resolve().parent.parent
+REPO = CH.parent
+sys.path.insert(0, str(REPO / "scripts"))
+OUT = CH / "outputs" / "ampc"
 PDB = REPO / "data" / "structures" / "1L2S.pdb"
 LIGAND_SDF = REPO / "data" / "ligands" / "STC.sdf"
 
@@ -46,16 +50,7 @@ TRUNCATED_TO_ALA = ["7", "52", "57", "123", "126", "205", "207", "246", "290", "
 BRIDGING_WATERS = {"403", "481"}
 
 
-def meeko(tool):
-    """Locate a meeko command line tool, venv first, then PATH."""
-    for candidate in (REPO / ".venv" / "Scripts" / f"{tool}.exe",
-                      REPO / ".venv" / "bin" / tool):
-        if candidate.exists():
-            return str(candidate)
-    found = shutil.which(tool) or shutil.which(f"{tool}.py")
-    if found is None:
-        sys.exit(f"{tool} not found. See environment/README.md.")
-    return found
+from docking_common import find_tool as meeko  # noqa: E402
 
 
 def parse(path):

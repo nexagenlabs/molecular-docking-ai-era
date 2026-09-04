@@ -1,0 +1,14 @@
+# Reference checksums for Chapter 9's synthetic system.
+#
+# rec.pdbqt is portable and MUST match on every platform. It comes from
+# numpy's PCG64 stream and is written with explicit LF endings, so a
+# mismatch here means the receptor recipe changed, not the machine.
+6fc7bcb24bc4036face0d3f95215b57fb7a3ec2702e53d9fb674b7e0887fa471  rec.pdbqt
+
+# lig.sdf is NOT portable, and that is a finding rather than a defect.
+# RDKit 2026.3.5 optimises to different MMFF coordinates on Windows and on
+# Linux from the same EmbedMolecule(randomSeed=11). Digests are recorded per
+# platform rather than asserted; it is one of the two reasons the Windows
+# box-sweep scores differ from the book's.
+3703faa4ea86f928b8a984a6514c6c78b062ea6e5a07d791ef6a0dc7ba0710a5  lig.sdf  (Ubuntu 22.04, RDKit 2026.3.5)  -> reproduces the book exactly
+085a06c23ab1188b96803efca4c3be27c11cef6aa641e7ba3f752a659f08efe7  lig.sdf  (Windows 11,   RDKit 2026.3.5)  -> -4.910 / -4.903 / -2.686

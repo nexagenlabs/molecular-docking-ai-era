@@ -1,125 +1,112 @@
 # Chapter 9 — expected results
 
-The values printed in the book, and what this repository's script actually
-produces. Read the status line on each one before you compare your own run.
+Two systems. Only the first has published numbers.
 
-| Demonstration | Status |
-|---|---|
-| 1. The seed | **reproduced** |
-| 2. Exhaustiveness | **reproduced in ratio**, absolute times are per-machine |
-| 3. Box size | **behaviour reproduced, absolute scores do not match — unresolved** |
-| 4. Mode 1's RMSD | **reproduced** |
+| Part | System | Expected values? |
+|---|---|---|
+| 1 | synthetic — 10-heavy-atom ligand in a carbon shell | **yes**, and they are exact |
+| 2 | AmpC — 1L2S chain B, STC | no published score |
+
+The book's timing and box-size numbers were measured on the synthetic system,
+deliberately: it costs seconds and anyone can repeat it. Docking STC into AmpC
+gives entirely different scores and **must not be compared against them**.
 
 ---
 
-## 1. The seed
+## Part 1 — the synthetic system
 
-**Book:** seed 0 twice → different. Seed 42 twice → byte-identical.
+Built by `scripts/make_test_system.py`: N-methylbenzamide embedded at RDKit
+seed 11, MMFF-optimised, hydrogens kept; 140 carbons on a shell of radius
+9.0–10.5 Å from `numpy.random.default_rng(3)`, centred on the origin. Box
+centre (0, 0, 0), seed 42, exhaustiveness 8 for the sweep, 4 cores for timing.
 
-**Reproduced.** On the reference machine below:
+### 1.1 The seed
 
-| Run | Best affinity | Pose digest |
-|---|---|---|
-| seed 0, run 1 | −7.407 | `d153513c9ae318f1` |
-| seed 0, run 2 | −7.390 | `2d189a4ae5d5a25e` |
-| seed 42, run 1 | −7.384 | `d4a1693823dc0ed7` |
-| seed 42, run 2 | −7.384 | `d4a1693823dc0ed7` |
-
-Your affinities will differ if your inputs differ; what must hold is the
-*pattern* — two digests at seed 0, one at seed 42.
-
-## 2. Exhaustiveness
-
-**Book:** 8 → 3.4 s, 32 → 14.2 s on 4 cores, a factor of 4.2.
-
-**Reproduced in ratio.** This machine: 7.27 s and 26.96 s on 4 cores, a factor
-of **3.7**. Wall time is a property of the machine and will not match; the
-factor is the claim that travels, and it is not the factor of 4 that the
-exhaustiveness ratio suggests, because part of the run is fixed cost.
-
-## 3. Box size
-
-**Book:** cube edges 20 / 12 / 8 Å → best score **−4.905 / −4.911 / −2.748**,
-with no error raised at any size.
-
-**Behaviour reproduced. Absolute scores do not match, and the discrepancy is
-unresolved — do not assume either side is right.**
-
-| Cube edge | Book | This repository |
-|---|---|---|
-| 20 Å | −4.905 | −7.384 |
-| 12 Å | −4.911 | −7.410 |
-| 8 Å | −2.748 | −6.837 |
-
-What does reproduce, and is the chapter's actual point:
-
-- **No error is raised at any size**, exit status 0 throughout. The undersized
-  box returns a number that looks exactly like a result.
-- **20 Å and 12 Å agree** — 0.006 apart in the book, 0.026 here. Once the box
-  covers the pocket, making it larger buys nothing.
-- **8 Å is worse than both.** STC's longest interatomic distance is 9.41 Å, so
-  an 8 Å cube cannot hold it in every orientation.
-
-What does not reproduce is the size of the collapse at 8 Å: 2.16 kcal/mol in
-the book against 0.55 kcal/mol here, on top of a uniform offset of roughly
-2.5 kcal/mol across all three sizes.
-
-### What has been ruled out
-
-Measured, not guessed:
-
-| Hypothesis | Result |
+| | Expected |
 |---|---|
-| The bridging waters were kept | Rejected. Keeping HOH 403 and 481 gives −7.361 against −7.384; a 0.023 difference cannot account for 2.5. |
-| The box was centred on a naive centroid over all three STC copies | Rejected. That centre is 24.76 Å from the nearest Ser64 OG, and gives −7.712 / −5.417 / −4.529 — a monotone decline, not the book's two-equal-then-collapse shape. |
+| seed 0, twice | **different** |
+| seed 42, twice | **byte-identical** |
 
-### What is still open
+Vina's default seed is 0, which means random. Nothing in the log distinguishes
+a defaulted seed from a fixed one.
 
-The book's Chapter 9 protocol is not fully specified in `CLAUDE.md`. Any of
-these would move the absolute scores, and none can be settled from this side:
+### 1.2 Exhaustiveness
 
-1. **Receptor preparation route.** This script uses meeko 0.8.0. A receptor
-   prepared with AutoDockTools' `prepare_receptor4.py` or with Open Babel gets
-   different atom typing, and a systematic offset of a couple of kcal/mol is
-   the expected size of that difference.
-2. **Box centre.** Reproducing the two-equal-then-collapse shape needs a centre
-   where a 12 Å cube still covers the pocket and an 8 Å one clips it. The
-   centroid of STC B/2115 is not it.
-3. **Which ligand conformer and which chain.** This script docks the committed
-   `data/ligands/STC.sdf` into chain B.
-4. **Exhaustiveness for the box sweep**, which the book does not state. This
-   script uses Vina's default, 8.
+Book: 8 → 3.4 s, 32 → 14.2 s on 4 cores, ratio 4.2.
 
-Until one of those is settled, treat the book's three numbers and this
-repository's three numbers as measurements of two different protocols, not as a
-disagreement about one.
+**Absolute times are hardware-specific. Assert only that the ratio is 3–5.**
+This machine (Windows 11, 4 cores): 2.31 s and 8.20 s, ratio **3.55**.
 
-## 4. Mode 1's RMSD
+### 1.3 Box size
 
-**Book:** mode 1 always reports RMSD `0.000 0.000`.
+Cube edges 20 / 12 / 8 Å, seed 42, exhaustiveness 8:
 
-**Reproduced.** The column is distance from mode 1, so mode 1's distance from
-itself is zero by construction. It is not a comparison with the crystal pose,
-and reading it as one is the most common way a docking run appears to validate
-itself. Chapter 17 measures the distance that matters — spyrmsd,
-symmetry-corrected, heavy atoms, no superposition.
+| Cube edge | Book | Native Linux | Native Windows |
+|---|---|---|---|
+| 20 Å | −4.905 | **−4.905** | −4.910 |
+| 12 Å | −4.911 | **−4.911** | −4.903 |
+| 8 Å | −2.748 | **−2.748** | −2.686 |
+
+**On Linux the book's values reproduce to three decimals.** On Windows they do
+not, and the reason is understood — see "Platform" below.
+
+No error is raised at any size. The undersized box returns a number that looks
+exactly like a result.
+
+### 1.4 Mode 1's RMSD
+
+Mode 1 reports `0.000 0.000`, always. The column is distance from mode 1, so
+mode 1's distance from itself is zero by construction. It is not a comparison
+with a crystal pose, and reading it as one is the most common way a docking run
+appears to validate itself.
 
 ---
 
-## Reference machine
+## Part 2 — AmpC
 
-These numbers were produced on:
+**No published expected score.** This is the system a reader actually works
+with, and the chapter's job here is the protocol, not a number.
 
-| | |
-|---|---|
-| Vina | AutoDock Vina v1.2.7 (official Windows binary) |
-| Platform | Windows 11 (10.0.26200) |
-| Python | 3.12.10 |
-| RDKit / meeko | 2026.3.5 / 0.8.0 |
-| Cores | 4 |
-| Receptor | 1L2S chain B, all waters deleted, altloc A, ten REMARK 470 side chains typed as alanine |
-| Ligand | `data/ligands/STC.sdf`, formal charge −1 |
-| Box centre | 79.802, 5.352, 29.948 (centroid of STC B/2115) |
+What the preparation must show, and does:
 
-The book's own numbers came from pip on Ubuntu, Python 3.12.3. See
-`environment/README.md`.
+- Three STC copies found, at 2.70, 2.70 and **22.72 Å** from Ser64 OG. The copy
+  is selected by that distance, never by file order.
+- Every HETATM group not used is printed by name: 352 waters and the two
+  unused STC copies.
+- HOH 403 and 481 named specifically — they bridge the ligand to the protein at
+  2.68 and 2.70 Å, and deleting them (which this chapter does) can put the
+  crystallographic pose out of reach.
+- Chain B, because chain A is missing Lys290–Ala292. Altloc A for Gln250.
+- Ten disordered side chains typed as alanine, not deleted.
+- Box centre 79.802, 5.352, 29.948, derived from the centroid of STC B/2115 and
+  written into `config/vina_config.txt` by `scripts/derive_box.py`.
+
+For the record, this machine gets −7.384 kcal/mol at seed 42 and exhaustiveness
+8, with mode 1 at RMSD `0.000 0.000`. It is not a book value and nothing should
+be tuned to reproduce it.
+
+---
+
+## Platform
+
+**The three-decimal values in Part 1 are Linux values.** Measured on this
+machine, same Vina 1.2.7, meeko 0.8.0 and RDKit 2026.3.5 throughout:
+
+| Ligand built on | Docked with | 20 Å | 12 Å | 8 Å |
+|---|---|---|---|---|
+| Linux | Linux Vina | −4.905 | −4.911 | −2.748 |
+| Windows | Linux Vina | −4.904 | −4.896 | −2.728 |
+| Windows | Windows Vina | −4.910 | −4.903 | −2.686 |
+
+Two independent causes, both established by experiment:
+
+1. **The RDKit build.** Windows and Linux RDKit 2026.3.5 produce different
+   MMFF-optimised coordinates from the same `EmbedMolecule(randomSeed=11)`. The
+   receptor, built from numpy's PCG64, is byte-identical across the two — so it
+   is the force field's convergence that differs, not the random stream.
+2. **The Vina build.** Given identical input files, the Linux and Windows
+   binaries return different scores.
+
+The lesson generalises beyond this chapter: **seed 42 gives byte-identical
+results within a build, not across builds.** Nothing in the log says which
+situation you are in. Record the platform alongside the seed.

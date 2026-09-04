@@ -216,12 +216,40 @@ changed.** XYZ loses charge.
 Counts do **not** track rotatable-bond count. That is the teaching point; do not
 "fix" it.
 
-**ch09_first_run** — Vina 1.2.7:
+**ch09_first_run** — Vina 1.2.7.
+
+**These numbers come from a SYNTHETIC system, not from AmpC.** That was
+deliberate: the measurements are cheap and anyone can repeat them in seconds.
+Docking STC into AmpC gives entirely different scores and must not be compared
+against them. Build the system with `scripts/make_test_system.py`:
+
+```python
+# ligand: N-methylbenzamide, 10 heavy atoms, explicit Hs kept in the SDF
+m = Chem.AddHs(Chem.MolFromSmiles("c1ccccc1C(=O)NC"))
+AllChem.EmbedMolecule(m, randomSeed=11); AllChem.MMFFOptimizeMolecule(m)
+Chem.MolToMolFile(m, "lig.sdf")          # explicit Hs — meeko requires them
+
+# receptor: 140 carbons on a shell, radius 9.0–10.5 Å, centred on the origin
+rng = np.random.default_rng(3)
+for i in range(140):
+    v = rng.normal(size=3); v /= np.linalg.norm(v)
+    p = v * (9.0 + rng.uniform(0, 1.5))
+    # ATOM record, element C, occupancy 1.00, B 0.00
+```
+
+Ligand prepared with meeko 0.8.0. Box centred at **(0, 0, 0)**, seed **42**,
+exhaustiveness **8** for the box sweep, `cpu=4` for the timing run.
+
 - seed 0 twice → different; seed 42 twice → byte-identical
-- exhaustiveness 8 → 3.4 s; 32 → 14.2 s on 4 cores (factor 4.2)
-- box 20/12/8 Å → best score −4.905 / −4.911 / −2.748, **no error raised**
+- exhaustiveness 8 → 3.4 s; 32 → 14.2 s on 4 cores. **Absolute times are
+  hardware-specific; assert only that the ratio is 3–5.**
+- box 20/12/8 Å → **−4.905 / −4.911 / −2.748**, no error raised. Verified to
+  three decimals on the environment in section 4.
 - mode 1 always reports RMSD `0.000 0.000` — distance from mode 1, not from a
   crystal pose
+
+The AmpC run is a *separate* part of this chapter and has no published expected
+score. Keep the two clearly apart in `run.sh` and the README.
 
 **ch10_flexibility** — Torsion analysis across the four structures, eight chains,
 must return Gln120, Leu293 and Thr316 as the rotamer-changing residues.
