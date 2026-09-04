@@ -41,13 +41,13 @@ Session memory for the autonomous build. Updated after every completed task.
 - [x] `ch06_predicted_structures` — 0.216 Å backbone, 3.140 Å pose
 - [x] `ch07_pocket` — four box definitions, all within 0.09 Å
 - [x] `ch20_protocol_record` — blank, filler, worked AmpC example; 7 tests
-- [ ] `ch02_method_choice`
+- [x] `ch02_method_choice` — synthesis; every row read from another chapter's output
 - [x] `ch03_databases` — API and file header agree on all four entries
-- [ ] `ch11_web_servers`
+- [x] `ch11_web_servers` — upload set + audit: 9 of 17 fields recordable, 3 tier-one lost
 - [x] `ch12_screening` — 19 compounds, one preparation failure, cost measured
 - [x] `ch13_cofolding` — input written and frame-checked; boltz attempted, breaks the env
 - [x] `ch14_boltz2` — r² = 0.38 against FEP+ 0.52; pairwise ranking simulated and checked analytically
-- [ ] `ch15_cofolding_field`
+- [x] `ch15_cofolding_field` — the r-versus-R² comparison, in both directions
 - [x] `ch16_rescoring` — arithmetic runs; GNINA attempted and documented as unavailable
 - [x] `ch22_free_energy` — needs σ < 0.116; best available is 0.20
 - [x] `ch23_interactions` — 93% of interactions recovered at 1.114 Å
@@ -57,7 +57,9 @@ Session memory for the autonomous build. Updated after every completed task.
 
 ## Phase 4 — integration
 
-Not started.
+- [ ] 4.1 root README
+- [ ] 4.2 cross-checks
+- [ ] 4.3 BUILD_REPORT.md
 
 ---
 
