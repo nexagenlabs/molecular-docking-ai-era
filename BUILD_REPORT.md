@@ -16,17 +16,25 @@ filled with this build's measurements.
 |---|---|
 | Chapter directories | 25 of 25, each with `README.md`, `run.sh`, `outputs/expected/` |
 | Chapters that run end to end | **25 of 25** |
-| Tests | **94 passed, 4 xfailed, 0 failed** (4m 14s) |
+| Tests | **94 passed, 3 xfailed, 1 xpassed, 0 failed** (4m 12s) |
 | Scripts | 38 |
 | Software that could not run here | 3 (GNINA, Boltz-2, PDBFixer) |
 | `TODO(value)` remaining | none |
 | Values in §6 not reproduced | **none** (the three-decimal ones are Linux-exact) |
 
-The four remaining xfails are the two known Windows-only exact-value tests:
-ch08's three conformer-count rows and ch09's box-sweep scores. **Nothing from
-ch18 or ch21 xfails any more** — eleven of the previous fifteen xfails were the
-two missing constructions, and those tests now assert exact equality with the
-book.
+The remaining xfails are the two known Windows-only exact-value tests: ch08's
+conformer-count rows and ch09's box-sweep scores. **Nothing from ch18 or ch21
+xfails any more** — eleven of the previous fifteen xfails were the two missing
+constructions, and those tests now assert exact equality with the book.
+
+The platform gate is a **non-strict `xfail` marker** rather than an imperative
+`pytest.xfail()` inside the test. The imperative form aborted the test before
+its assertion ran, so a value that matched off Linux was never checked and never
+reported — which is exactly what had happened to ch08's STC row: it reproduces
+the book **exactly on Windows** and had gone on being reported as
+platform-dependent. It now reports **XPASS**. Twelve of ch08's fifteen counts
+match on Windows and three differ; the marker makes that visible instead of
+hiding all fifteen behind one skip.
 
 The suite drives every chapter script as a subprocess, so a green run is also a
 run of every chapter. The four chapters touched in this round (ch08, ch17, ch18,
@@ -73,6 +81,10 @@ reason attached.
 | Neutral (drawn) form, Linux | 17, 16, 15, 16, 15 | 10, 14, 9, 9, 9 | 33, 39, 33, 30, 40 |
 | **Deprotonated form, Linux — now authoritative** | **15, 15, 16, 16, 16** | **9, 9, 12, 11, 8** | **33, 35, 33, 28, 37** |
 | Deprotonated form, Windows | 15, 15, 16, 16, 16 | 9, 9, **11**, 11, 8 | 33, 35, 33, **29**, **34** |
+
+Windows reproduces **twelve of the fifteen** counts, including the whole STC
+row, and differs on three. The test suite reports the STC row as XPASS rather
+than skipping it.
 
 **The book was wrong, and this build initially agreed with it for the wrong
 reason.** `CLAUDE.md` gave the ETKDGv3 settings without saying which protonation

@@ -62,12 +62,17 @@ shapes collapses under it.
 Counts also move with the seed: 1MU spans 28 to 37 across five seeds, a range of
 a third of its own value. One seed tells you nothing about how stable a count is.
 
-**Platform.** These counts are exact on Linux. On Windows the same RDKit
-2026.3.5 reproduces the STC row exactly and differs by one to three elsewhere
-(18U 9, 9, **11**, 11, 8; 1MU 33, 35, 33, **29**, **34**) — the same build-level
-difference documented in Chapter 9, where it moves docking scores rather than
-conformer counts. The tests assert the exact counts on Linux and mark them xfail
-elsewhere, with the reason attached.
+**Platform.** These counts are exact on Linux. **They are also
+build-dependent:** on Windows the same RDKit 2026.3.5 reproduces **twelve of
+the fifteen**, including the whole STC row, and differs on three (18U 9, 9,
+**11**, 11, 8; 1MU 33, 35, 33, **29**, **34**) — the same build-level difference
+documented in Chapter 9, where it moves docking scores rather than conformer
+counts. Record a mismatch; do not tune to it.
+
+The tests assert the exact counts everywhere and mark them non-strict xfail off
+Linux, with the reason attached. Non-strict, so the rows that do match off Linux
+are still checked and reported: STC currently passes on Windows and shows up as
+XPASS rather than being skipped.
 
 ## Stereochemistry
 

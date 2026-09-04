@@ -7,7 +7,7 @@ RDKit changes behaviour here, the build must break loudly.
 """
 import pytest
 
-from conftest import read_json, require_platform, run_script
+from conftest import platform_xfail, read_json, run_script
 
 # ETKDGv3, 300 attempts, pruneRmsThresh=0.5, on the DEPROTONATED forms --
 # protonation comes before conformer generation, and the neutral forms give
@@ -41,14 +41,16 @@ def test_rotatable_bond_count(prepared, name):
     assert prepared["ligands"][name]["rotatable_bonds"] == EXPECTED[name]["rotatable_bonds"]
 
 
+@platform_xfail("The conformer count")
 @pytest.mark.parametrize("name", sorted(EXPECTED))
 def test_conformer_counts_by_seed(prepared, name):
     """The book's counts are from the DEPROTONATED form, exact on Linux.
 
-    Off Linux the same RDKit version differs by one or two conformers, for the
-    same reason the ch09 scores differ: the build, not the protocol.
+    Off Linux the same RDKit version reproduces twelve of the fifteen counts
+    and differs on three, for the same reason the ch09 scores differ: the
+    build, not the protocol. The xfail is non-strict, so the rows that do match
+    off Linux -- STC's, at present -- are still checked and report XPASS.
     """
-    require_platform("The conformer count")
     got = [prepared["ligands"][name]["conformers"][str(s)] for s in SEEDS]
     assert got == EXPECTED[name]["conformers"], \
         ("%s conformer counts %s, book says %s. Do not adjust the script until "

@@ -36,11 +36,12 @@ the molecule as drawn, and it is there so that the table can say which form
 produced which numbers — a conformer count published without its protonation
 state cannot be reproduced.
 
-On Windows, RDKit 2026.3.5 gives the STC row exactly and differs by one to
-three elsewhere: 9, 9, **11**, 11, 8 for 18U and 33, 35, 33, **29**, **34** for
-1MU. That is the same build-level difference that moves the Chapter 9 docking
-scores. Neither platform is wrong; the protocol is what has to be recorded, and
-the platform with it.
+The counts are **build-dependent**. On Windows, RDKit 2026.3.5 reproduces
+**twelve of the fifteen** — the whole STC row included — and differs on three:
+9, 9, **11**, 11, 8 for 18U and 33, 35, 33, **29**, **34** for 1MU. That is the
+same build-level difference that moves the Chapter 9 docking scores. Neither
+platform is wrong; the protocol is what has to be recorded, and the platform
+with it. Record a mismatch rather than tuning to it.
 
 ## Stereochemistry
 

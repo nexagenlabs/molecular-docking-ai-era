@@ -5,7 +5,7 @@ them against AmpC would be asserting against a different experiment.
 """
 import pytest
 
-from conftest import read_json, require_platform, run_script
+from conftest import platform_xfail, read_json, run_script
 
 # The book prints three decimals, so three decimals is the tolerance.
 TOLERANCE = 0.001
@@ -64,9 +64,14 @@ def test_large_and_medium_box_agree(sweep):
     assert abs(sweep["scores"]["20"] - sweep["scores"]["12"]) < 0.05
 
 
+@platform_xfail("The box-sweep score")
 def test_box_scores_match_the_book(sweep):
-    """Exact to three decimals -- on the platform the book was measured on."""
-    require_platform("The box-sweep score")
+    """Exact to three decimals -- on the platform the book was measured on.
+
+    Non-strict, so if a future Windows build starts landing on the book's
+    values the suite reports XPASS rather than going on expecting a difference
+    that is no longer there.
+    """
     for size, expected in BOX_SCORES.items():
         assert sweep["scores"][size] == pytest.approx(expected, abs=TOLERANCE), \
             ("box %s A: got %.3f, book says %.3f. Do not adjust the script; find "

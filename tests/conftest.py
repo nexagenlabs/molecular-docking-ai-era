@@ -36,12 +36,26 @@ def on_reference_platform():
     return sys.platform.startswith("linux")
 
 
-def require_platform(what):
-    """Turn a known platform difference into a visible xfail, not a pass."""
-    if not on_reference_platform():
-        pytest.xfail("%s is exact only on Linux; this is %s. The difference is "
-                     "measured and recorded in PROGRESS.md, not tuned away."
-                     % (what, sys.platform))
+def platform_xfail(what):
+    """Mark a value that is exact only on the reference platform.
+
+    A decorator, not a call inside the test, and **non-strict on purpose**.
+    An imperative `pytest.xfail()` aborts the test before its assertion runs,
+    so a value that happens to match off Linux is never checked and never
+    reported -- which is how ch08's STC row went on being marked platform-
+    dependent after it had started matching the book exactly on Windows.
+
+    Non-strict xfail runs the assertion either way: a mismatch is XFAIL, and a
+    match is XPASS. The day a platform difference goes away, the suite says so
+    instead of quietly continuing to expect it.
+    """
+    return pytest.mark.xfail(
+        not on_reference_platform(),
+        reason="%s is exact only on Linux; this is %s. The difference is "
+               "measured and recorded in PROGRESS.md, not tuned away."
+               % (what, sys.platform),
+        strict=False,
+    )
 
 
 def run_script(relative, *args, timeout=1800):

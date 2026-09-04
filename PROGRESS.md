@@ -92,10 +92,17 @@ constructions that `CLAUDE.md` had recorded only by their results were supplied.
       own `run.sh` from a clean state. ch17 reproduced 1.114 / 2.999 / 10.526 Å
       and the 4.609 Å chain-B check unchanged.
 
-**Gate 5: 94 passed, 4 xfailed, 0 failed (4m 14s).** The four are the known
-Windows-only exact-value tests, ch08's three conformer rows and ch09's box
-scores. Eleven of the previous fifteen xfails were the two missing
-constructions; nothing from ch18 or ch21 xfails now.
+- [x] 5.7 `require_platform()` replaced by a non-strict `@platform_xfail`
+      marker. The imperative `pytest.xfail()` aborted the test before its
+      assertion, so a value matching off Linux was never checked — which is how
+      ch08's STC row went on being reported as platform-dependent after it had
+      started matching the book exactly on Windows. It now reports XPASS.
+
+**Gate 5: 94 passed, 3 xfailed, 1 xpassed, 0 failed.** The xfails are the known
+Windows-only exact-value tests: ch08's 18U and 1MU conformer rows and ch09's box
+scores. The xpass is ch08's STC row, which matches the book on Windows too.
+Eleven of the previous fifteen xfails were the two missing constructions;
+nothing from ch18 or ch21 xfails now.
 
 ---
 
