@@ -11,6 +11,30 @@ bash ch02_method_choice/run.sh
 A criterion whose chapter has not been run reports **"not measured"** rather
 than falling back to a default — a default here is a guess wearing a number.
 
+## Depends on seven other chapters
+
+This chapter computes nothing. Every row is read out of a file another chapter
+produced, and one row per file:
+
+| Reads | Produced by | Feeds the row |
+|---|---|---|
+| `ch06_predicted_structures/outputs/alphafold_comparison.json` | `bash ch06_predicted_structures/run.sh` | Crystal structure, or a predicted one? |
+| `ch10_flexibility/outputs/rotamers.json` | `bash ch10_flexibility/run.sh` | Rigid receptor, or flexible side chains? |
+| `ch12_screening/outputs/screen.json` | `bash ch12_screening/run.sh` | What would a screen cost? |
+| `ch14_boltz2/outputs/correlation.json` | `bash ch14_boltz2/run.sh` | What would a good ML predictor buy? |
+| `ch16_rescoring/outputs/rescoring.json` | `bash ch16_rescoring/run.sh` | Is the ranking any good? |
+| `ch17_validation/outputs/validation.json` | `bash ch17_validation/run.sh` | Does the protocol reproduce a known pose? |
+| `ch22_free_energy/outputs/power.json` | `bash ch22_free_energy/run.sh` | Can any method rank this series? |
+
+Run this chapter with none of them and it prints seven **NOT MEASURED** rows
+and the sentence *"These are gaps, not defaults. Run the chapter."* Run it with
+some of them and it prints the ones it has. It never fills a gap.
+
+There is deliberately **no ch26 entry**, although the ranking question is also
+Chapter 26's subject. This chapter answers it from Chapter 22's arithmetic --
+the series spread against the precision the methods report -- and listing ch26
+as a source claimed a dependency the code did not have.
+
 ## What it concludes for this system
 
 | Question | What was measured | What follows |

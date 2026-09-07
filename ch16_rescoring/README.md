@@ -8,6 +8,20 @@ bash ch16_rescoring/run.sh
 
 The arithmetic runs anywhere. The GNINA pipeline does not run here — see below.
 
+## Depends on Chapter 17
+
+The arithmetic depends on nothing. The GNINA pipeline rescores a pose that
+Chapter 17 produced:
+
+| Reads | Produced by |
+|---|---|
+| `ch17_validation/outputs/work/1L2S_receptor.pdbqt` | `bash ch17_validation/run.sh` |
+| `ch17_validation/outputs/work/1L2S_pose.pdbqt` | `bash ch17_validation/run.sh` |
+
+Both are gitignored, so a fresh clone does not have them. `scripts/rescore_with_gnina.sh`
+prints the command it would run and stops; it does not rescore a pose it
+invented.
+
 ## EF = 1.0 is chance
 
 The published LIT-PCBA result: **GNINA median EF1% of 1.88–2.58 against Vina's

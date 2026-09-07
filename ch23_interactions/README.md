@@ -10,7 +10,19 @@ distance.
 bash ch23_interactions/run.sh
 ```
 
-Uses the poses from Chapter 17 and runs it first if they are missing.
+## Depends on Chapter 17
+
+Both poses compared here are Chapter 17's output:
+
+| Reads | Produced by |
+|---|---|
+| `ch17_validation/outputs/work/1L2S_STC_ref.sdf` | `bash ch17_validation/run.sh` |
+| `ch17_validation/outputs/work/1L2S_pose.sdf` | `bash ch17_validation/run.sh` |
+
+Both are gitignored, so a fresh clone does not have them. `run.sh` runs Chapter
+17 first if they are missing, and `scripts/fingerprint.py` on its own stops with
+`… missing -- run ch17_validation/run.sh first` rather than fingerprinting
+whatever it can find.
 
 ## The result
 

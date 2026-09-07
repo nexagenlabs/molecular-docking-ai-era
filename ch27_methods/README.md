@@ -9,9 +9,17 @@ fiction with a high hit rate. This one is generated from the protocol record.
 bash ch27_methods/run.sh
 ```
 
-Reads `ch20_protocol_record/outputs/filled_record.json` and
-`ch17_validation/outputs/validation.json`, and runs Chapter 20 first if the
-record is missing.
+## Depends on Chapters 20 and 17
+
+Nothing in the generated text is computed here:
+
+| Reads | Produced by |
+|---|---|
+| `ch20_protocol_record/outputs/filled_record.json` | `bash ch20_protocol_record/run.sh` |
+| `ch17_validation/outputs/validation.json` | `bash ch17_validation/run.sh` |
+
+Chapter 20 depends on Chapter 9 in turn, so the chain is ch09 → ch20 → ch27.
+`run.sh` runs Chapter 20 first if the record is missing.
 
 ## What comes out
 

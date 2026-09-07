@@ -270,6 +270,95 @@ def test_format_checker_flags_pdbqt_charge_loss():
     assert result["formats"]["pdbqt"]["18U"]["flagged"] is True
 
 
+# [a-z0-9_] rather than [a-z_]: ch14_boltz2 has a digit in its name, and a
+# pattern that skipped it would have reported ch02 as depending on six chapters
+# instead of seven -- silently, which is the shape of failure this whole file
+# is about. Caught by the companion test below asserting the exact set.
+CHAPTER_PATH = re.compile(r"\b(ch\d\d_[a-z0-9_]+)/(?:outputs|config)/")
+
+# The same dependency written the other way. ch27 reads ch17 as
+# `REPO / "ch17_validation" / "outputs" / "validation.json"`, which the pattern
+# above cannot see -- there is no slash between the chapter and "outputs".
+# A scan that under-reports is worse than no scan, because it says "no
+# undeclared dependencies" when it means "none in the form I looked for".
+CHAPTER_SEGMENT = re.compile(r"""["'](ch\d\d_[a-z0-9_]+)["']""")
+
+
+def cross_chapter_reads():
+    """Which chapters read another chapter's generated files. Returns {ch: {ch}}."""
+    found = {}
+    for chapter in sorted(REPO.glob("ch[0-9][0-9]_*")):
+        if not chapter.is_dir():
+            continue
+        sources = [chapter / "run.sh"] + sorted(
+            list((chapter / "scripts").glob("*.py"))
+            + list((chapter / "scripts").glob("*.sh")))
+        upstream = set()
+        for path in sources:
+            if not path.exists():
+                continue
+            text = path.read_text(encoding="utf-8", errors="replace")
+            for pattern in (CHAPTER_PATH, CHAPTER_SEGMENT):
+                for match in pattern.finditer(text):
+                    if match.group(1) != chapter.name:
+                        upstream.add(match.group(1))
+        if upstream:
+            found[chapter.name] = upstream
+    return found
+
+
+def test_every_cross_chapter_dependency_is_declared_in_the_readme():
+    """A chapter that reads another chapter's output has to say so.
+
+    Ten such edges were undeclared. Low severity while the scripts announce it
+    at runtime -- ch02 names every missing file and ch23 exits with the chapter
+    to run -- but ch20 did not announce it, and a reader who runs chapters in
+    the order the book presents them has no way to discover the order they
+    actually need.
+
+    Derived from the code rather than from a list, so adding a new dependency
+    fails this until the README catches up. Naming either the directory
+    (`ch17_validation/...`) or the chapter (`Chapter 17`) counts.
+    """
+    undeclared = []
+    for chapter, upstream in cross_chapter_reads().items():
+        readme = (REPO / chapter / "README.md").read_text(encoding="utf-8")
+        for other in sorted(upstream):
+            number = int(other[2:4])
+            if other in readme or "Chapter %d" % number in readme:
+                continue
+            undeclared.append("%s reads %s" % (chapter, other))
+    assert not undeclared, \
+        "undeclared cross-chapter dependencies:\n  " + "\n  ".join(undeclared)
+
+
+def test_the_declared_dependencies_are_the_ones_that_exist():
+    """The mirror: a README must not claim an upstream the code never reads.
+
+    ch02 listed ch26_case_study/outputs/case_study.json among its sources and
+    no criterion ever loaded it, so the chapter advertised a dependency it did
+    not have and its own `sources` field was a claim rather than a record.
+    Only the five chapters that genuinely read upstream files are checked here,
+    because a README may of course mention another chapter for any other
+    reason.
+    """
+    reads = cross_chapter_reads()
+    assert set(reads) == {"ch02_method_choice", "ch16_rescoring",
+                          "ch20_protocol_record", "ch23_interactions",
+                          "ch27_methods"}, \
+        ("the set of chapters reading other chapters' output changed: %s. "
+         "That is fine, but the new one needs its README updated and this "
+         "list with it." % sorted(reads))
+    assert reads["ch02_method_choice"] == {
+        "ch06_predicted_structures", "ch10_flexibility", "ch12_screening",
+        "ch14_boltz2", "ch16_rescoring", "ch17_validation", "ch22_free_energy",
+    }, "ch02's upstream set is %s" % sorted(reads["ch02_method_choice"])
+    assert reads["ch27_methods"] == {"ch20_protocol_record", "ch17_validation"}, \
+        "ch27's upstream set is %s" % sorted(reads["ch27_methods"])
+    # Twelve edges across five chapters. Ten of them were undeclared.
+    assert sum(len(v) for v in reads.values()) == 12
+
+
 def test_no_fabricated_values_remain():
     """TODO(value) marks a gap. A plausible placeholder would survive review."""
     outstanding = []

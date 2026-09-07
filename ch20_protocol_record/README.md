@@ -18,6 +18,24 @@ python ch20_protocol_record/scripts/fill_record.py \
     --structure 1L2S --chain B --ligand STC
 ```
 
+## Depends on Chapter 9
+
+The worked example is filled from two files ch09 leaves behind:
+
+| Reads | Produced by | In a fresh clone |
+|---|---|---|
+| `ch09_first_run/config/vina_config.txt` | `derive_box.py`, PART 2.1 | **present** — it is committed |
+| `ch09_first_run/outputs/ampc/logs/modes.log` | `modes.py --system ampc`, PART 2.2 | **absent** — gitignored |
+
+The asymmetry in that last column is worth the space it takes. This script used
+to stop with a clear message when the config was missing and carry on silently
+when the log was — and the config is the one that cannot be missing. What the
+silence produced was not an error but a plausible record: five TODOs instead of
+three, no docking program, no redocking result, and nothing saying why. Both
+inputs are now refused the same way, naming the file and the chapter.
+
+`run.sh` checks for both and runs Chapter 9 if either is missing.
+
 ## What is here
 
 | File | |
