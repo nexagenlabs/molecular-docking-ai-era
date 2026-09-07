@@ -167,11 +167,26 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     config_path = REPO / args.config
     log_path = REPO / args.log
-    if not config_path.exists():
-        sys.exit("%s missing -- run ch09_first_run/run.sh first" % config_path)
+
+    # Both inputs, checked the same way. This script used to stop with exactly
+    # the right sentence when the config was missing and degrade silently to an
+    # empty dict when the log was -- and the config is committed while the log
+    # is gitignored, so the sentence was attached to the input that was never
+    # going to be absent. What the silence produced was a record with five
+    # TODOs instead of three and tier_one_complete False, which reads like a
+    # finding rather than a missing file. ch02 and ch23 both name their missing
+    # upstream artefacts; so does this now.
+    for what, path in (("config", config_path), ("run log", log_path)):
+        if not path.exists():
+            sys.exit("%s missing -- run ch09_first_run/run.sh first\n"
+                     "  the %s comes from that chapter's AmpC branch (PART 2), "
+                     "and without it this record\n"
+                     "  cannot name the docking program or the redocking "
+                     "result. A record with invented\n"
+                     "  fields is worse than no record." % (path, what))
 
     values, comments = read_config(config_path)
-    log = read_log(log_path) if log_path.exists() else {}
+    log = read_log(log_path)
     structure = describe_structure(args.structure, args.chain, args.ligand)
 
     filled, todo = {}, []

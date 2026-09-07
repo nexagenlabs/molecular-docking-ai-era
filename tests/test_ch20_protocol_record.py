@@ -2,14 +2,46 @@
 
 These are the values SESSION_PLAN 3 names explicitly, and they are the ones a
 reader will check the example against.
+
+**This chapter reads ch09's AmpC run.** Two of its inputs:
+
+    ch09_first_run/config/vina_config.txt              committed
+    ch09_first_run/outputs/ampc/logs/modes.log         gitignored
+
+The second is produced only by PART 2 of ch09_first_run/run.sh. In this
+author's working tree it had been left behind by an earlier manual run, so the
+suite passed here and failed in a clean clone: without the log the record
+carries five TODOs instead of three and tier_one_complete is False. The
+dependency was real, silent and undeclared.
+
+So the fixture below builds it rather than hoping for it. It is a fixture and
+not a comment because a declared dependency that nothing executes is the same
+undeclared dependency with better documentation.
 """
 import pytest
 
-from conftest import REPO, read_json, run_script
+from conftest import REPO, read_json, run_script, run_script_raw
 
 
 @pytest.fixture(scope="module")
-def record():
+def ampc_run():
+    """ch09's AmpC artefacts, built here because this chapter needs them.
+
+    prepare_ampc.py writes receptor.pdbqt, ligand.pdbqt and inputs.json;
+    modes.py --system ampc docks and writes logs/modes.log. derive_box.py is
+    deliberately NOT run: it regenerates the committed config, whose only diff
+    would be its embedded timestamp, and a test suite that dirties a tracked
+    file leaves `git status` unable to say whether anyone edited anything.
+    """
+    run_script("ch09_first_run/scripts/prepare_ampc.py")
+    run_script("ch09_first_run/scripts/modes.py", "--system", "ampc")
+    log = REPO / "ch09_first_run" / "outputs" / "ampc" / "logs" / "modes.log"
+    assert log.exists(), "ch09's AmpC branch did not write %s" % log
+    return log
+
+
+@pytest.fixture(scope="module")
+def record(ampc_run):
     run_script("ch20_protocol_record/scripts/fill_record.py")
     return read_json("ch20_protocol_record/outputs/filled_record.json")
 
@@ -79,6 +111,33 @@ def test_seed_is_cross_checked_between_config_and_log(record):
     """A config edited after the run describes a protocol that never ran."""
     assert record["seed_mismatch"] is None
     assert record["fields"]["Random seed"]["value"] == "42"
+
+
+@pytest.mark.parametrize("flag, missing", [
+    ("--config", "ch09_first_run/config/no_such_config.txt"),
+    ("--log", "ch09_first_run/outputs/ampc/logs/no_such.log"),
+])
+def test_a_missing_upstream_file_stops_the_run_and_names_it(flag, missing,
+                                                            tmp_path):
+    """Both inputs, refused the same way.
+
+    The config used to get a clear sentence and the log used to degrade to an
+    empty dict. The asymmetry is what let a record be produced that named no
+    docking program, reported no redocking result, and said so only by leaving
+    two more TODOs than usual -- which looks like a finding, not a missing
+    file. ch02 and ch23 name their missing upstream artefacts; this is the same
+    contract, asserted.
+    """
+    result = run_script_raw("ch20_protocol_record/scripts/fill_record.py",
+                            flag, missing,
+                            "--out", str(tmp_path / "record.md"))
+    assert result.returncode != 0, \
+        "a missing %s produced exit 0:\n%s" % (flag, result.stdout)
+    message = result.stdout + result.stderr
+    assert "no_such" in message, "the refusal did not name the missing file"
+    assert "ch09_first_run/run.sh" in message, \
+        "the refusal did not say which chapter produces it"
+    assert "Traceback" not in message, "refused with a traceback, not a message"
 
 
 def test_blank_template_marks_the_tier_one_fields():

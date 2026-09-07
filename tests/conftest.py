@@ -110,6 +110,23 @@ def load_module(relative, name):
     return module
 
 
+def run_script_raw(relative, *args, timeout=1800):
+    """Run a chapter script and hand back the result, whatever it was.
+
+    run_script() fails the test on a non-zero exit, which is right when the
+    question is "does the chapter produce the book's number". It is wrong when
+    the question is "does the chapter refuse clearly", and refusing clearly is
+    a behaviour worth testing: several scripts here read another chapter's
+    output, and the only thing worse than stopping is continuing.
+    """
+    script = REPO / relative
+    if not script.exists():
+        pytest.fail("%s does not exist yet" % relative)
+    return subprocess.run([python_exe(), str(script), *args],
+                          capture_output=True, text=True, timeout=timeout,
+                          cwd=str(REPO))
+
+
 def read_json(relative):
     path = REPO / relative
     if not path.exists():

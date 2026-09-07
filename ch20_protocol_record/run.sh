@@ -14,8 +14,12 @@ else
   PYTHON="${PYTHON:-python3}"
 fi
 
-if [ ! -f ch09_first_run/config/vina_config.txt ]; then
-  echo "ch09 has not been run; running it to produce a config and a log."
+# This chapter reads two files ch09 leaves behind. The config is committed, so
+# it is present in a fresh clone and testing for it proves nothing; the run log
+# is gitignored and is the one that is actually missing. Both are checked.
+if [ ! -f ch09_first_run/config/vina_config.txt ] \
+   || [ ! -f ch09_first_run/outputs/ampc/logs/modes.log ]; then
+  echo "ch09's AmpC run has not happened here; running it to produce the log."
   bash ch09_first_run/run.sh
 fi
 
