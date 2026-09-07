@@ -41,6 +41,34 @@ def test_it_refuses_rather_than_simulating_a_prediction(cofold):
     assert "Traceback" not in message
 
 
+def test_run_sh_propagates_the_scripts_exit_code():
+    """A chapter that cannot run has to say so through its exit code.
+
+    `|| true` used to sit in run.sh, so the chapter exited 0 while cofold.py
+    exited 3 saying it could not run. The prose was honest and the exit code
+    was not, and a machine reading exit codes could not tell a full run from a
+    skipped one.
+
+    Asserted as equality rather than as "non-zero", so this still holds on a
+    machine that does have a GPU: whatever the script decides, the wrapper
+    reports.
+    """
+    import subprocess
+
+    from conftest import REPO
+
+    script = run_script_raw("ch13_cofolding/scripts/cofold.py")
+    wrapper = subprocess.run(["bash", "ch13_cofolding/run.sh"],
+                             capture_output=True, text=True, cwd=str(REPO),
+                             timeout=900)
+    assert wrapper.returncode == script.returncode, (
+        "cofold.py exited %d and run.sh exited %d"
+        % (script.returncode, wrapper.returncode))
+    assert "ampc_stc.yaml" in wrapper.stdout, \
+        "the footer must still print, so a reader is told where the input " \
+        "file they can check was written"
+
+
 def test_the_sequence_is_the_mature_protein(cofold):
     """UniProt P00811 residues 20-377. The first 19 are a signal peptide.
 

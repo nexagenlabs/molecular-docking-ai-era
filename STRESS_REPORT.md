@@ -394,7 +394,20 @@ survived — the same shape as B7.
 | **B4** | `ch09/run.sh` rewrites a tracked config whose only diff is a timestamp | not in the fix list. The test fixtures deliberately do not run `derive_box.py`, so the suite does not make it worse |
 | **B5** | the ch08 conformer mutation is invisible on Windows | not in the fix list, and it is a decision rather than a repair: whether a Windows-only run may report success for ch08 at all |
 | **B12** | a box disjoint from the receptor returns affinity `0.0`, exit 0 | not in the fix list |
-| **B13** | ch13 and ch16 exit 0 while reporting they cannot run | not in the fix list. Both chapters' *scripts* exit non-zero and both are now asserted to (`test_it_refuses_rather_than_simulating_a_prediction`, `test_the_gnina_pipeline_refuses_rather_than_pretending`); it is the `|| true` in `run.sh` that still masks it |
+
+**B13 is now closed** — the `|| true` is gone from both `run.sh` files and each
+propagates its script's exit code; both chapters exit **3** here. The footer
+still prints, so a reader without a GPU is still told where the input file they
+*can* check was written. Guarded by
+`test_run_sh_propagates_the_scripts_exit_code` (ch13) and
+`test_run_sh_propagates_the_gnina_pipelines_exit_code` (ch16), which assert the
+wrapper's code *equals* the script's rather than that it is non-zero — so the
+guard still holds on a machine that has a GPU or GNINA.
+
+Note the consequence for check 5 above, which recorded "all 25 chapters run end
+to end from a foreign working directory. **Every one exits 0.**" That is
+deliberately no longer true: two of them now exit 3, because they could not do
+the thing they are for.
 
 ### Check 4, re-run against the new suite
 

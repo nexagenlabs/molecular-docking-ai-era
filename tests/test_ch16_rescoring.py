@@ -72,6 +72,30 @@ def test_gninas_gain_is_real_and_modest(ch16_outputs):
         "of magnitude; a ratio outside 2-3 means the framing has moved"
 
 
+def test_run_sh_propagates_the_gnina_pipelines_exit_code(ch16_outputs):
+    """The arithmetic ran; the rescoring did not. Exit 0 for both puts a thing
+    that happened and a thing that did not on the same footing.
+
+    Asserted as equality rather than as "non-zero", so this still holds on a
+    machine that does have GNINA installed.
+    """
+    import subprocess
+
+    from conftest import REPO
+
+    pipeline = subprocess.run(["bash", "ch16_rescoring/scripts/rescore_with_gnina.sh"],
+                              capture_output=True, text=True, cwd=str(REPO),
+                              timeout=900)
+    wrapper = subprocess.run(["bash", "ch16_rescoring/run.sh"],
+                             capture_output=True, text=True, cwd=str(REPO),
+                             timeout=1800)
+    assert wrapper.returncode == pipeline.returncode, (
+        "rescore_with_gnina.sh exited %d and run.sh exited %d"
+        % (pipeline.returncode, wrapper.returncode))
+    assert "rescoring.md" in wrapper.stdout, \
+        "the footer must still print; the arithmetic did run"
+
+
 def test_the_gnina_pipeline_refuses_rather_than_pretending(ch16_outputs):
     """GNINA is not installed here, and the chapter must not simulate it.
 
