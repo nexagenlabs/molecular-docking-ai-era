@@ -618,3 +618,23 @@ than about the code:
 | B13 | **closed** — both run.sh propagate their exit code |
 | L1, L2, L3 | **new, from the Linux run**; L1 and L3 are documentation defects in the install path |
 | the ratio | **open disagreement with the book**, awaiting a decision |
+
+## Re-verified after the fixes
+
+Second fresh clone on Ubuntu 24.04, at the commit that carries the corrections,
+provisioned by following the **corrected** `environment/README.md` verbatim --
+`python3.12-venv`, the venv, `pip install -r requirements.txt`, the Vina binary
+from the 1.2.7 release, `apt install openbabel`, `fetch.sh`. Every step
+succeeded with no undocumented intervention.
+
+| | Result |
+|---|---|
+| Ubuntu 24.04.4, Python 3.12.3 | **250 tests, exit 0**, 1 xfailed |
+| Windows 11, Python 3.12.10 | **250 tests, exit 0**, 3 xfailed, 2 xpassed |
+
+The single Linux xfail is the exhaustiveness ratio, which is the open
+disagreement above and is meant to be visible. The Windows xfails are the
+platform-dependent values the marker has always covered.
+
+Both platforms pass from a clean clone. The install path is now documented as
+it actually behaves on each.
