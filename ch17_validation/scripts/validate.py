@@ -42,6 +42,7 @@ LIGANDS = REPO / "data" / "ligands"
 sys.path.insert(0, str(REPO / "scripts"))
 from docking_common import (dock, find_tool, find_vina, is_reference_platform,  # noqa: E402
                             platform_banner, vina_version)
+import molfile  # noqa: E402
 
 RDLogger.DisableLog("rdApp.*")
 
@@ -285,8 +286,8 @@ def validate(pdb_id, vina):
     # -- RMSD ---------------------------------------------------------------
     reference, ref_sdf = crystal_reference(
         pdb_id, ligand_name, lig_atoms,
-        Chem.MolToSmiles(Chem.RemoveHs(
-            next(Chem.SDMolSupplier(str(source_sdf), removeHs=False)))))
+        Chem.MolToSmiles(Chem.RemoveHs(molfile.read_one(
+            source_sdf, what="the %s reference copy" % ligand_name))))
 
     pose_sdf = WORK / ("%s_pose.sdf" % pdb_id)
     result = subprocess.run([find_tool("mk_export"), str(pose_pdbqt),
@@ -294,9 +295,7 @@ def validate(pdb_id, vina):
     if not pose_sdf.exists():
         print(result.stdout + result.stderr)
         sys.exit("%s: could not export the docked pose to SDF" % pdb_id)
-    poses = [m for m in Chem.SDMolSupplier(str(pose_sdf), removeHs=True) if m is not None]
-    if not poses:
-        sys.exit("%s: no poses read back from %s" % (pdb_id, pose_sdf))
+    poses = molfile.read_all(pose_sdf, what="%s: the docked poses" % pdb_id)
 
     rmsd_top = symmetry_rmsd(reference, poses[0])
     all_rmsd = [round(symmetry_rmsd(reference, p), 3) for p in poses]

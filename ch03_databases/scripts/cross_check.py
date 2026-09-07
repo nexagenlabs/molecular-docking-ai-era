@@ -29,6 +29,9 @@ OUT = CH / "outputs"
 STRUCTURES = REPO / "data" / "structures"
 LIGANDS = REPO / "data" / "ligands"
 
+sys.path.insert(0, str(REPO / "scripts"))
+import molfile  # noqa: E402
+
 RDLogger.DisableLog("rdApp.*")
 
 ENTRY_API = "https://data.rcsb.org/rest/v1/core/entry/%s"
@@ -164,7 +167,8 @@ def main():
             ours = None
             local = LIGANDS / ("%s.sdf" % ligand)
             if local.exists():
-                mol = next(Chem.SDMolSupplier(str(local), removeHs=False))
+                mol = molfile.read_one(
+                    local, what="the %s reference copy" % ligand)
                 ours = Chem.MolToSmiles(Chem.RemoveHs(mol))
 
             same_skeleton = None

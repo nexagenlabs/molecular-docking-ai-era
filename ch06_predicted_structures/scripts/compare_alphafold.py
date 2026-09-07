@@ -40,6 +40,7 @@ LIGANDS = REPO / "data" / "ligands"
 
 sys.path.insert(0, str(REPO / "scripts"))
 from docking_common import dock, find_tool, find_vina, vina_version  # noqa: E402
+import molfile  # noqa: E402
 import receptor_prep  # noqa: E402
 
 RDLogger.DisableLog("rdApp.*")
@@ -289,15 +290,16 @@ def main():
     fragment.write_text("\n".join(a["line"] for a in lig_atoms) + "\nEND\n",
                         encoding="utf-8")
     raw = Chem.MolFromPDBFile(str(fragment), removeHs=True, sanitize=False)
-    template = Chem.MolToSmiles(Chem.RemoveHs(next(Chem.SDMolSupplier(
-        str(LIGANDS / ("%s.sdf" % LIGAND)), removeHs=False))))
+    template = Chem.MolToSmiles(Chem.RemoveHs(molfile.read_one(
+        LIGANDS / ("%s.sdf" % LIGAND),
+        what="the %s reference copy" % LIGAND)))
     reference = Chem.RemoveHs(AllChem.AssignBondOrdersFromTemplate(
         Chem.MolFromSmiles(template), raw))
 
     pose_sdf = WORK / "af_pose.sdf"
     subprocess.run([find_tool("mk_export"), str(pose), "-s", str(pose_sdf)],
                    capture_output=True, text=True)
-    poses = [m for m in Chem.SDMolSupplier(str(pose_sdf), removeHs=True) if m]
+    poses = molfile.read_all(pose_sdf, what="the docked poses")
 
     from spyrmsd import molecule, rmsd as spyrmsd_rmsd
 

@@ -31,6 +31,7 @@ OUT = CH / "outputs"
 STRUCTURES = REPO / "data" / "structures"
 
 sys.path.insert(0, str(REPO / "scripts"))
+import molfile  # noqa: E402
 import receptor_prep  # noqa: E402
 
 RDLogger.DisableLog("rdApp.*")
@@ -152,10 +153,7 @@ def fingerprint(protein, lig_atoms, lig_rings):
 
 
 def load_pose(path):
-    poses = [m for m in Chem.SDMolSupplier(str(path), removeHs=True) if m]
-    if not poses:
-        sys.exit("no molecule read from %s" % path)
-    return poses[0]
+    return molfile.read_all(path, what="the pose in %s" % path.name)[0]
 
 
 def main():

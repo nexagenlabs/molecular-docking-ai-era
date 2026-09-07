@@ -34,7 +34,9 @@ OUT = CH / "outputs"
 # drift, and a ligand series that disagrees with itself is the failure this
 # whole repository is trying to make impossible.
 sys.path.insert(0, str(REPO / "data" / "ligands"))
+sys.path.insert(0, str(REPO / "scripts"))
 from generate import LIGANDS  # noqa: E402
+import molfile  # noqa: E402
 
 # ETKDGv3 with 300 attempts and a 0.5 A pruning threshold. Every one of those
 # is load-bearing: the version of the algorithm, the attempt budget, and the
@@ -75,7 +77,9 @@ def stereo_round_trip(mol):
     writer = Chem.SDWriter(str(path))
     writer.write(embedded)
     writer.close()
-    back = next(Chem.SDMolSupplier(str(path), removeHs=False))
+    # try_read_one: whether the molecule survives the round trip is what
+    # this function measures, so an unreadable file is an answer, not a stop.
+    back = molfile.try_read_one(path)
     del buffer
     if back is None:
         return before, None, False

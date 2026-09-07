@@ -31,6 +31,9 @@ except ImportError:
              "RDKit happens to be installed.")
 
 HERE = Path(__file__).resolve().parent
+REPO = HERE.parent.parent
+sys.path.insert(0, str(REPO / "scripts"))
+import molfile  # noqa: E402
 
 # Conformer-generation settings. Fixed so the reference copies are reproducible;
 # recorded here because a seed that is not written down is a seed that is lost.
@@ -132,7 +135,9 @@ def main():
             failures += 1
             continue
 
-        committed = next(Chem.SDMolSupplier(str(path), removeHs=False))
+        # try_read_one: --check exists to report which committed copies are
+        # unreadable, so it must survive reading an unreadable one.
+        committed = molfile.try_read_one(path)
         if committed is None:
             print(f"FAIL {name}: {path.name} did not parse")
             failures += 1

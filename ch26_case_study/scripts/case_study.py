@@ -32,6 +32,7 @@ LIGANDS = REPO / "data" / "ligands"
 
 sys.path.insert(0, str(REPO / "scripts"))
 from docking_common import dock, find_tool, find_vina, platform_banner, vina_version  # noqa: E402
+import molfile  # noqa: E402
 import receptor_prep  # noqa: E402
 
 RDLogger.DisableLog("rdApp.*")
@@ -134,8 +135,8 @@ def main():
         boxes[pdb_id] = {"centre": centre, "size": size}
 
         source = LIGANDS / ("%s.sdf" % spec["ligand"])
-        template = Chem.MolToSmiles(Chem.RemoveHs(
-            next(Chem.SDMolSupplier(str(source), removeHs=False))))
+        template = Chem.MolToSmiles(Chem.RemoveHs(molfile.read_one(
+            source, what="the %s reference copy" % spec["ligand"])))
         references[pdb_id] = crystal_reference(pdb_id, spec["ligand"],
                                                lig_atoms, template)
         print("%s: chain %s, %d atoms, %s copy %s/%s at %.2f A from Ser64 OG"
@@ -178,8 +179,9 @@ def main():
                 import subprocess as sp
                 sp.run([find_tool("mk_export"), str(pose), "-s", str(sdf)],
                        capture_output=True, text=True)
-                poses = [m for m in Chem.SDMolSupplier(str(sdf), removeHs=True)
-                         if m is not None]
+                # try_read_all: a cell of the cross-docking matrix that
+                # produced no pose is reported as such, not a reason to stop.
+                poses = molfile.try_read_all(sdf)
                 if poses:
                     entry["rmsd"] = round(symmetry_rmsd(references[pdb_id], poses[0]), 3)
                     entry["rmsd_best_mode"] = round(

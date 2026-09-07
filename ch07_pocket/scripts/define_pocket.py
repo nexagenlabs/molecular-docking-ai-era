@@ -38,6 +38,7 @@ LIGANDS = REPO / "data" / "ligands"
 
 sys.path.insert(0, str(REPO / "scripts"))
 from docking_common import dock, find_tool, find_vina, vina_version  # noqa: E402
+import molfile  # noqa: E402
 import receptor_prep  # noqa: E402
 
 RDLogger.DisableLog("rdApp.*")
@@ -124,8 +125,9 @@ def main():
     fragment = WORK / "crystal_ligand.pdb"
     fragment.write_text("\n".join(a["line"] for a in lig_atoms) + "\nEND\n",
                         encoding="utf-8")
-    template = Chem.MolToSmiles(Chem.RemoveHs(next(Chem.SDMolSupplier(
-        str(LIGANDS / ("%s.sdf" % LIGAND)), removeHs=False))))
+    template = Chem.MolToSmiles(Chem.RemoveHs(molfile.read_one(
+        LIGANDS / ("%s.sdf" % LIGAND),
+        what="the %s reference copy" % LIGAND)))
     reference = Chem.RemoveHs(AllChem.AssignBondOrdersFromTemplate(
         Chem.MolFromSmiles(template),
         Chem.MolFromPDBFile(str(fragment), removeHs=True, sanitize=False)))
@@ -147,7 +149,9 @@ def main():
         sdf = WORK / ("%s_pose.sdf" % name)
         subprocess.run([find_tool("mk_export"), str(pose), "-s", str(sdf)],
                        capture_output=True, text=True)
-        poses = [m for m in Chem.SDMolSupplier(str(sdf), removeHs=True) if m]
+        # try_read_all: this chapter reports a definition that found no
+        # pose rather than stopping the sweep at it.
+        poses = molfile.try_read_all(sdf)
         rmsd = symmetry_rmsd(reference, poses[0]) if poses else None
         best = min((symmetry_rmsd(reference, p) for p in poses), default=None)
 

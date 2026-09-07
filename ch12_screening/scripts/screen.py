@@ -36,6 +36,7 @@ LIGANDS = REPO / "data" / "ligands"
 
 sys.path.insert(0, str(REPO / "scripts"))
 from docking_common import dock, find_tool, find_vina, vina_version  # noqa: E402
+import molfile  # noqa: E402
 import receptor_prep  # noqa: E402
 
 RDLogger.DisableLog("rdApp.*")
@@ -139,7 +140,7 @@ def main():
         if not pdbqt.exists():
             failures.append({"name": name, "reason": "meeko wrote no PDBQT"})
             continue
-        mol = next(Chem.SDMolSupplier(str(source), removeHs=False))
+        mol = molfile.read_one(source, what="the %s reference copy" % name)
         library.append({"name": name, "pdbqt": pdbqt, "active": True,
                         "mw": round(Descriptors.MolWt(Chem.RemoveHs(mol)), 1)})
 

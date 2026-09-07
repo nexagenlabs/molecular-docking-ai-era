@@ -28,6 +28,7 @@ WORK = OUT / "work"
 
 sys.path.insert(0, str(REPO / "scripts"))
 from docking_common import find_tool  # noqa: E402
+import molfile  # noqa: E402
 
 FORMATS = ["pdb", "mol2", "pdbqt", "xyz"]
 NAMES = ["STC", "18U", "1MU"]
@@ -76,7 +77,8 @@ def main():
         source = LIGANDS / ("%s.sdf" % name)
         if not source.exists():
             sys.exit("%s missing -- run: python data/ligands/generate.py" % source)
-        original = next(Chem.SDMolSupplier(str(source), removeHs=False))
+        original = molfile.read_one(
+            source, what="the %s reference copy" % name)
         smiles_before, charge_before, order_before = describe(original)
 
         for fmt in FORMATS:
@@ -85,7 +87,10 @@ def main():
             convert(obabel, source, intermediate)
             convert(obabel, intermediate, returned)
 
-            back = next(Chem.SDMolSupplier(str(returned), removeHs=False))
+            # try_read_one, not read_one: a format that destroys the
+            # molecule is a result this chapter exists to record, not an error
+            # to stop on.
+            back = molfile.try_read_one(returned)
             if back is not None:
                 # Re-perceive stereochemistry from coordinates, which is what
                 # any downstream tool reading the file will do.
