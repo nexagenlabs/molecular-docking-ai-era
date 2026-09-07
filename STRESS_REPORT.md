@@ -3,9 +3,16 @@
 Results of `STRESS_TEST.md`, run against commit `79e26b8` on Windows 11,
 Python 3.12.10.
 
-**All seven checks were attempted. Nothing was fixed.** Every mutation was
-reverted before the next; the clone and the working repository both end clean.
-Total elapsed: 30 minutes of the two-hour budget.
+**All seven checks were attempted. Nothing was fixed** *during the testing
+session this report describes.* Every mutation was reverted before the next;
+the clone and the working repository both end clean. Total elapsed: 30 minutes
+of the two-hour budget.
+
+**Ten of the thirteen findings were fixed afterwards, in commits `c3fda90`
+through `4606bde`. Four remain open.** See **Resolution** at the end. Nothing
+between here and there has been edited: B1–B13 read as they did at `79e26b8`,
+because a report rewritten to describe the repaired code would no longer be
+evidence that the clean-clone test caught anything.
 
 All work happened in a throwaway clone at
 `…/scratchpad/clonetest`, provisioned as `environment/README.md` instructs and
@@ -316,24 +323,117 @@ defect rather than a house style.
 
 ---
 
-## Resume here
+## Resolution
 
-Nothing is outstanding: all seven checks were attempted and the two skipped
-items are skipped on purpose (check 7's subjective half; the Linux install-path
-verification, which this machine cannot perform).
+Everything above is the report as written at `79e26b8` and is unchanged. This
+section is what happened next.
 
-If this is picked up again, the three things worth doing, in order:
+### The three weak tests, re-tested by mutation
 
-1. **Fix B1 and B2 together.** Give the missing log the same `sys.exit` the
-   missing config already gets, and make the ch20 tests either run
-   `ch09_first_run/run.sh` first or pass `--log` explicitly. B2 is the root
-   cause; B1 is what it allowed.
-2. **Verify the documented install on Ubuntu with Python 3.12** — `pip install
-   -r requirements.txt`, then `pytest`. This is the repository's core claim and
-   it has never been executed. B8, B9 and B10 are all in that path.
-3. **Decide what to do about B5.** Keeping the non-strict marker is right; the
-   question is whether a Windows-only run should be allowed to report success
-   for ch08 at all, given it cannot police the protonation order.
+B7 is the finding that mattered most, because a test that reports protection it
+is not providing is worse than no test: it stops anyone looking. So the fix is
+recorded the way the defect was found — by breaking the code and watching,
+rather than by reading the new tests and judging them adequate.
 
-The clone is left provisioned and clean at
-`…/scratchpad/clonetest` for reuse.
+Each mutation was applied to the repaired tree, run against
+`tests/test_gotchas.py`, `tests/test_ch09_first_run.py`,
+`tests/test_ch17_validation.py` and `tests/test_ch20_protocol_record.py`, then
+reverted. Those four files are part of the default `pytest` run, so a failure
+in any of them is a red suite. The tree was confirmed clean and green after all
+three reverts.
+
+| Mutation | At `79e26b8` | Now |
+|---|---|---|
+| `minimize=False` → `minimize=True` in `ch17_validation/scripts/validate.py` | caught by **1** of the 2 intended guards. `test_the_rmsd_call_passes_minimize_false_explicitly` **passed**, because it substring-matched prose | caught by **2**: `test_no_script_uses_minimize` (static) and `test_the_rmsd_function_measures_displacement_rather_than_shape`, which measures a rigid 3.0 Å translation as `0.00000 A` |
+| `seed = 42` → `seed = 0` in `ch09_first_run/config/vina_config.txt` | caught by **1**, and not the intended one: `test_seed_is_cross_checked_between_config_and_log`. The reproducibility test never read the config | caught by **3**: that cross-check, plus `test_no_vina_config_leaves_the_seed_at_the_random_default` (parses the value) and `test_the_configured_seed_actually_reproduces` (docks twice at the config's own seed; two different SHA-256s) |
+| file-order ligand selection | caught by **1**, and by copy identity rather than by distance — the distance assertion held, because 1L2S's first copy is also 2.70 Å from a Ser64 OG | caught by **4**: two in `test_gotchas` on a synthetic case where order and distance disagree, two in `test_ch20` on the worked example |
+
+One correction to the original re-scoping, which still stands: **there is no
+file-order selection in ch05 to mutate.** `qc_report.py` reports every copy and
+iterates `site_ligands`; it never chooses one. The mutation was applied where
+selection actually happens — `receptor_prep.select_copy`, which the seven
+selecting chapters now all call.
+
+Worth recording: under the `minimize=True` mutation the ch17 RMSD-*value* tests
+still pass. Superimposing two different conformers does not give zero, so
+`rmsd > 0` holds. The behavioural test is not duplicating an existing guard.
+
+### Findings closed
+
+| | Finding | Commit |
+|---|---|---|
+| **B1** | ch20's tests asserted a state the suite never built | `26f6dcb` — fixture builds ch09's AmpC branch; verified by deleting `ch09_first_run/outputs/ampc` |
+| **B2** | the loud error message guarded the file that is never missing | `26f6dcb` — both inputs refused alike, naming file and chapter |
+| **B3** | unguarded SDF reads traceback on bad input | `0b5b7ab` — `scripts/molfile.py`; **eleven** call sites, not eight (the report missed ch26 and `data/ligands/generate.py`) |
+| **B6** | ch24's refusal asserted by nothing; 16 chapters had no test file | `783d01d` — all 16 covered, 98 → 247 tests |
+| **B7** | three tests weaker than their names promise | `c3fda90` — see the mutation table above |
+| **B8** | `pip install -r requirements.txt` cannot succeed on Windows | `d177a6a` — and it is worse than reported: pip abandons the transaction, so **nothing** installs, not "everything but Vina" |
+| **B9** | `pytest` missing from `requirements.txt` | `d177a6a` |
+| **B10** | Open Babel on Windows undocumented and misdescribed | `d177a6a` — `openbabel-wheel==3.1.1.23` named, together with the fact that it gives Open Babel **3.1.0**, not the pinned 3.2.1 |
+| **B11** | ten undeclared cross-chapter dependencies | `4606bde` — twelve edges declared, plus two guards derived from the code |
+
+Three defects **not** in the original list were found while fixing B6, all in
+ch02 and all of the same family the report is about — silent degradation that
+leaves a report looking complete:
+
+- Two of seven criteria used `if data is not None:` with no `else`. With ch14 or
+  ch16 unrun their rows vanished entirely: six findings, zero gaps, nothing
+  saying a question had been dropped. The chapter's stated contract is that a
+  missing source reports NOT MEASURED.
+- `ch26_case_study` was listed in `SOURCES` and never loaded, so the chapter
+  advertised a dependency it did not have.
+
+Both were found by parametrizing the missing-source test over every source.
+Testing only the one source that happened to be handled correctly is how they
+survived — the same shape as B7.
+
+### Findings still open
+
+| | Finding | Why it is still here |
+|---|---|---|
+| **B4** | `ch09/run.sh` rewrites a tracked config whose only diff is a timestamp | not in the fix list. The test fixtures deliberately do not run `derive_box.py`, so the suite does not make it worse |
+| **B5** | the ch08 conformer mutation is invisible on Windows | not in the fix list, and it is a decision rather than a repair: whether a Windows-only run may report success for ch08 at all |
+| **B12** | a box disjoint from the receptor returns affinity `0.0`, exit 0 | not in the fix list |
+| **B13** | ch13 and ch16 exit 0 while reporting they cannot run | not in the fix list. Both chapters' *scripts* exit non-zero and both are now asserted to (`test_it_refuses_rather_than_simulating_a_prediction`, `test_the_gnina_pipeline_refuses_rather_than_pretending`); it is the `|| true` in `run.sh` that still masks it |
+
+### Check 4, re-run against the new suite
+
+Of the six §6 values the report found genuinely unchecked, **three are now
+asserted**: ch14's `0.38`, ch16's `0.90`, ch26's published `1.75`/`1.87`.
+
+**Three remain unchecked**, and all three are the synthetic receptor recipe in
+`ch09_first_run/scripts/make_test_system.py` — `SHELL_ATOMS = 140` and the
+9.0–10.5 Å shell. They are named constants that nothing asserts. ch09's timings
+(3.4 s, 14.2 s) remain correctly uncovered: §6 says to assert the ratio, and the
+ratio is asserted.
+
+### What is still not verified
+
+Unchanged from the original report, and worth repeating because the fixes did
+not touch it: **the documented install has still never been run on Linux.** B8,
+B9 and B10 were measured and repaired on Windows. The Ubuntu path — `pip
+install -r requirements.txt`, then `pytest` — remains unexecuted, and it is the
+platform the book's three-decimal values come from.
+
+Also unchanged: the clean-clone test cannot police ch08's protonation order on
+this machine (B5), and check 7's subjective half was skipped on purpose.
+
+### Verification of the fixes
+
+Each of the six commits was followed by a clean-clone run — a fresh `git clone`
+of the committed state, provisioned as `environment/README.md` instructs, with
+`PATH` scrubbed of the parent repository's `.venv/Scripts`. Not `pytest` in the
+working tree, which is the check that failed originally and the only one that
+proves a reader can use this.
+
+The final run, at `4606bde`, re-ran `data/structures/fetch.sh` as well: four
+checksums matching `data/structures/README.md`, then **247 tests, exit 0**, 3
+xfailed and 1 xpassed as before.
+
+The install path was additionally provisioned from scratch once, following the
+newly written Windows section literally rather than reusing a virtualenv:
+`pytest` arrived from `requirements.txt`, `obabel -V` reported 3.1.0, and the
+suite passed. That run is what exposed `requirements-windows.txt` appearing in
+`git status`, fixed in `595cee5`.
+
+The clone is left provisioned and clean at `…/scratchpad/clonetest` for reuse.

@@ -309,3 +309,136 @@ Chapter 9, AmpC system, 4 cores, Windows 11, seed 42:
 
 Ratio 3.7, inside the 3–5 band. The book's 3.4 s and 14.2 s were a different
 machine and a much smaller ligand — the synthetic system, not AmpC.
+
+---
+
+# Session 6 — the stress report's fix list
+
+`STRESS_TEST.md` was run in the previous session and fixed nothing on purpose;
+`STRESS_REPORT.md` is its result. This session worked that list. Ten of the
+thirteen findings are closed, four are open, and three further defects turned up
+while closing them. The report carries the per-finding detail; this is what was
+*measured* here.
+
+Seven commits, `c3fda90` … `4606bde`. **Each was followed by a clean-clone run,
+not by `pytest` in this working tree** — that distinction is the whole reason
+B1 was invisible for a session.
+
+## Measured, not asserted
+
+**The Windows install.** On a fresh Python 3.12.10 venv:
+
+| Command | Result |
+|---|---|
+| `pip install -r requirements.txt` | **exit 1, and `pip list` afterwards is empty** |
+| same file, `vina==` line removed | exit 0, all seven packages land |
+| `pip install openbabel-wheel==3.1.1.23` | exit 0; `obabel -V` then reports **Open Babel 3.1.0** |
+
+The failure is atomic: `vina==1.2.7` has no Windows wheel, pip falls back to the
+sdist, the Boost build fails during resolution and pip abandons everything. So
+`environment/README.md`'s "Everything else installs from `requirements.txt` on
+Windows Python 3.12" was not merely optimistic — there is no "everything else".
+
+The wheel gives **3.1.0, not the pinned 3.2.1**. Open Babel is one of the six
+packages that can move a published value, so the substitution is recorded rather
+than mentioned in passing. `ch04_formats/outputs/expected/results.md` already
+named the version its numbers came from and said no conclusion moves between the
+two; `requirements.txt` and `environment/README.md` now say so too.
+
+**The four ways `next(Chem.SDMolSupplier(path))` fails.** RDKit 2026.03.5:
+
+| Input | Failure |
+|---|---|
+| file absent | `OSError` at construction — "File error: Bad input file" |
+| file empty | `OSError` at construction — "File error: Invalid input file" |
+| not an SDF | `StopIteration` at `next()` — "End of supplier hit" |
+| record truncated | `next()` returns **`None`**, silently |
+
+The fourth is the worst: nothing stops, and the `None` travels until something
+downstream fails for an unrelated-looking reason. No single `try/except` at a
+call site covers all four, which is why they now go through `scripts/molfile.py`.
+
+**The three mutations, re-run against the repaired tree.** All three turn the
+suite red; all three were reverted and the tree confirmed green afterwards.
+
+| Mutation | Failing tests | Signature |
+|---|---|---|
+| `minimize=True` in ch17 | 2 | a rigid 3.0 Å translation measures `0.00000 A` |
+| `seed = 0` in ch09's config | 3 | two runs at the configured seed give different SHA-256s |
+| file-order ligand selection | 4 | selects `A/100` where `B/901` is the nearest in the chain |
+
+Under the `minimize=True` mutation the ch17 RMSD-*value* tests still pass —
+superimposing two different conformers does not give zero, so `rmsd > 0` holds.
+The behavioural test is not duplicating a guard that already existed.
+
+**Suite size and cost.** 98 → 247 tests, wall time ~30 minutes. It runs the
+chapters rather than checking files, and nine of them dock. Slowest fixtures:
+ch02's seven upstream chapters at **264 s**, ch26's nine-cell matrix at
+**217 s**, ch08 at 84 s, ch07 at 76 s. Each chapter runs once for the whole
+suite; the fixtures are session-scoped for that reason.
+
+## What the sixteen new chapter test files assert
+
+One line each, because "98 to 247" is a number and not a claim. **None of these
+is a `run.sh` exit-code test.** Where a value is docking output the assertion is
+on the comparison rather than the third decimal — that is the rule
+`test_ch17_validation` already followed, and the reason is in
+`scripts/docking_common.py`.
+
+| Chapter | What its tests actually assert |
+|---|---|
+| ch02 | every declared source is one a criterion loads; all 7 questions answered; the answers carry their sources' numbers; the ranking verdict is *no*; **removing any one source moves its row to NOT MEASURED and the counts still sum to 7** |
+| ch03 | header resolution/R-free for all four entries; ligand skeletons match the PDB component dictionary; our SMILES carry charges the component does not; 1MU disagrees 26 vs 31 µM; ETP never converted; 1GA9's K⁺ named; phosphate present in three entries and not 1L2S |
+| ch06 | the +16 offset recovered at 100 % identity; **residue 64 of the model is isoleucine, not the serine**; site pLDDT 98.5 with backbone 0.216 Å; and the docked pose still lands further out than the crystal's |
+| ch07 | four box definitions; the ligand box is the zero-offset ceiling; **all four land the top pose inside 2 Å**; the blind box costs time not accuracy; affinities span < 0.5 kcal/mol across a 17× volume range; volume = product of sides |
+| ch11 | ligand uploaded as SDF and **read back at charge −1**; receptor chain B only, no waters; box computed and sourced; 17 audited fields with counts recomputed from the rows; the 3 tier-one fields that cannot be recorded, seed among them |
+| ch12 | 19 compounds with the one failure named and absent from the results; **EF1 % refused at this library size**; actives in the top ranks; decoys measurably lighter than actives; cost extrapolation recomputed in core-hours |
+| ch13 | refuses rather than simulating; 358-residue mature sequence; Ser at UniProt 80; **isoleucine at UniProt 64 — the same trap ch06 demonstrates, in this chapter's own file**; ligand SMILES carries one `[O-]`; the printed command sets seed 42 |
+| ch14 | r² is computed as r × r, not typed in; **squaring reverses which method is ahead**; 0.548 at 0.32 kcal/mol; simulation agrees with Φ(r·Δ/√(2(1−r²))) recomputed in the test |
+| ch15 | every method states which form its number is in; the two correlations compared as variance; the two EFs compared against chance; **an EF is never given a variance or an implied r**; the population-spread assumption is stated |
+| ch16 | the published medians; chance pinned at 1.0; **Vina below it, and costing more than picking at random**; compounds-to-test recomputed from library and hit rate; GNINA's gain is a factor of 2–3, not an order of magnitude |
+| ch22 | spread 0.322 kcal/mol; ΔG recomputed from Ki; σ < 0.116 required, recomputed as Δ/(1.96√2); **the best reported method error, 0.20, is too large**; the sources disagree by a third of the effect |
+| ch23 | refuses when ch17 has not run; recovery recomputed from the three contact lists; **the disagreement runs both ways**; Ser64 keeps its H-bond and loses its hydrophobic contact; and the cutoff is driven, not read — a pair either side of 3.5 Å |
+| ch24 | **exit 2 and no output file** without a background; the refusal names all three choices with sizes; p spans 0.0993 → 4.8e-11; the verdict flips; fold enrichment recomputed; p cross-checked against scipy |
+| ch25 | conversion wrong by 7×/15×/16×, all in the same direction; the conversion is the textbook one and **still fails**; the guess is labelled a guess; the 4-decade range brackets every measured Ki |
+| ch26 | redock under 2 Å against the published 1.75/1.87; **one ligand does not prefer its native receptor**; RMSD only on the diagonal; ChEMBL's tie recorded as a tie; **no reliable ranking to reproduce** |
+| ch27 | the [TODO] gaps visible in the paragraph, not just a table; **no gap filled with a plausible sentence**; every number cross-checked against ch20's record; superposition named as omitted; refuses when ch20 has not run |
+
+### Weakest of them, named rather than counted as coverage
+
+- **ch03's cross-check skips when offline.** Three of its eight tests —
+  including the API-vs-file agreement that is the chapter's whole point — call
+  `pytest.skip` without a network. The header half always runs. An offline run
+  therefore reports success for a chapter whose central claim it did not check.
+- **`ch13::test_it_says_what_would_have_to_be_checked_afterwards`** substring-
+  matches printed prose. It is the weakest test written this session. It stayed
+  because the surrounding six are behavioural, but it is the shape of thing B7
+  was about.
+- **`ch11::test_nothing_is_submitted_anywhere`** is a negative grep over
+  `prepare_upload.py` for a fixed list of network calls. It cannot see a form
+  of submission not on the list.
+- **ch27 matches generated prose** in three places. Defensible — the prose *is*
+  the deliverable and its numbers are cross-checked against the record — but it
+  is text matching.
+
+### Still uncovered
+
+`SHELL_ATOMS = 140` and the 9.0–10.5 Å shell in
+`ch09_first_run/scripts/make_test_system.py`. Named constants defining the
+synthetic receptor that every ch09 number depends on, and nothing asserts them.
+The other three §6 values the stress report flagged are now covered.
+
+## Deviations and decisions taken here
+
+- **`receptor_prep.select_copy` is new, and takes the minimum by distance rather
+  than the first copy that qualifies.** The two agree on every entry in this
+  repository, which is exactly why the rule had to move into code: nothing in
+  the data distinguishes them. Seven chapters now call it.
+- **ch02 no longer declares ch26 as a source.** It never loaded it. The ranking
+  row is answered from ch22's arithmetic and its own table always said so.
+- **`.gitignore` gained `requirements-windows.txt`**, which is a small departure
+  from CLAUDE.md §8's list. The Windows recipe tells a reader to generate that
+  file, and a documented command should not leave anything in `git status`.
+- **The test fixtures deliberately do not run `derive_box.py`.** It regenerates
+  a tracked config whose only diff is an embedded timestamp (B4). Running it in
+  the suite would make every test run dirty the working tree.
