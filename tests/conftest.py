@@ -134,6 +134,95 @@ def read_json(relative):
     return json.loads(path.read_text())
 
 
+# -- shared chapter runs ----------------------------------------------------
+#
+# Several chapters read another chapter's output. Chapter 2 reads eight of
+# them; ch23 and ch16 read ch17's; ch27 reads ch20's, which reads ch09's AmpC
+# branch. A test for any of those has to build what it depends on -- asserting
+# a state the suite never creates is exactly the defect STRESS_REPORT.md B1
+# describes, and it passed here for a session only because an earlier manual
+# run had left the files lying about.
+#
+# Session scope, so a chapter that four test modules depend on is run once and
+# not four times. The docking chapters are the reason: ch26 alone is nine Vina
+# runs at exhaustiveness 32.
+
+@pytest.fixture(scope="session")
+def ch06_outputs():
+    run_script("ch06_predicted_structures/scripts/compare_alphafold.py", timeout=3600)
+    return read_json("ch06_predicted_structures/outputs/alphafold_comparison.json")
+
+
+@pytest.fixture(scope="session")
+def ch07_outputs():
+    run_script("ch07_pocket/scripts/define_pocket.py", timeout=3600)
+    return read_json("ch07_pocket/outputs/pocket.json")
+
+
+@pytest.fixture(scope="session")
+def ch10_outputs():
+    run_script("ch10_flexibility/scripts/torsion_analysis.py")
+    return read_json("ch10_flexibility/outputs/rotamers.json")
+
+
+@pytest.fixture(scope="session")
+def ch12_outputs():
+    run_script("ch12_screening/scripts/screen.py", timeout=3600)
+    return read_json("ch12_screening/outputs/screen.json")
+
+
+@pytest.fixture(scope="session")
+def ch14_outputs():
+    run_script("ch14_boltz2/scripts/correlation.py")
+    return read_json("ch14_boltz2/outputs/correlation.json")
+
+
+@pytest.fixture(scope="session")
+def ch16_outputs():
+    run_script("ch16_rescoring/scripts/enrichment_arithmetic.py")
+    return read_json("ch16_rescoring/outputs/rescoring.json")
+
+
+@pytest.fixture(scope="session")
+def ch17_outputs():
+    run_script("ch17_validation/scripts/validate.py", timeout=3600)
+    return read_json("ch17_validation/outputs/validation.json")
+
+
+@pytest.fixture(scope="session")
+def ch22_outputs():
+    run_script("ch22_free_energy/scripts/power.py")
+    return read_json("ch22_free_energy/outputs/power.json")
+
+
+@pytest.fixture(scope="session")
+def ch26_outputs():
+    run_script("ch26_case_study/scripts/case_study.py", timeout=7200)
+    return read_json("ch26_case_study/outputs/case_study.json")
+
+
+@pytest.fixture(scope="session")
+def ch09_ampc_run():
+    """ch09's AmpC branch: the receptor, the ligand and the run log.
+
+    derive_box.py is deliberately not run -- it regenerates the committed
+    config, whose only diff would be its embedded timestamp, and a suite that
+    dirties a tracked file leaves `git status` unable to distinguish an edit
+    from a run.
+    """
+    run_script("ch09_first_run/scripts/prepare_ampc.py", timeout=1800)
+    run_script("ch09_first_run/scripts/modes.py", "--system", "ampc", timeout=1800)
+    log = REPO / "ch09_first_run" / "outputs" / "ampc" / "logs" / "modes.log"
+    assert log.exists(), "ch09's AmpC branch did not write %s" % log
+    return log
+
+
+@pytest.fixture(scope="session")
+def ch20_outputs(ch09_ampc_run):
+    run_script("ch20_protocol_record/scripts/fill_record.py")
+    return read_json("ch20_protocol_record/outputs/filled_record.json")
+
+
 def repo_text_files(suffixes=(".py", ".sh", ".txt", ".md", ".yml", ".ipynb")):
     """Every text file in the repository, skipping git and local toolchains."""
     skip = {".git", ".venv", ".tools", "outputs", "__pycache__"}

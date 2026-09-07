@@ -29,7 +29,11 @@ SOURCES = {
     "flexibility": ("ch10", "ch10_flexibility/outputs/rotamers.json"),
     "predicted_structure": ("ch06", "ch06_predicted_structures/outputs/alphafold_comparison.json"),
     "redock": ("ch17", "ch17_validation/outputs/validation.json"),
-    "ranking": ("ch26", "ch26_case_study/outputs/case_study.json"),
+    # No ch26 entry. "Can any method rank this series?" is answered from ch22's
+    # arithmetic -- the spread against the precision the methods report -- and
+    # the row's own table says so. ch26 was listed here and never loaded, which
+    # made this file advertise a dependency the chapter did not have and made
+    # `sources` in the output a claim rather than a record.
     "precision": ("ch22", "ch22_free_energy/outputs/power.json"),
     "correlation": ("ch14", "ch14_boltz2/outputs/correlation.json"),
     "screen_cost": ("ch12", "ch12_screening/outputs/screen.json"),
@@ -127,7 +131,9 @@ def main():
             "ch22")
 
     data, why = load("correlation")
-    if data is not None:
+    if data is None:
+        missing("What would a good ML predictor buy here?", why)
+    else:
         pair = data["pairwise"][0]
         add("What would a good ML predictor buy here?",
             "At r = %.2f -- Boltz-2's reported figure, r-squared = %.2f -- two "
@@ -154,7 +160,9 @@ def main():
             "ch12")
 
     data, why = load("rescoring")
-    if data is not None:
+    if data is None:
+        missing("Is the ranking any good?", why)
+    else:
         add("Is the ranking any good?",
             "Published LIT-PCBA medians: Vina EF1%% %.2f, GNINA %.2f to %.2f. "
             "EF = 1.0 is chance."

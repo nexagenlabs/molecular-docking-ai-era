@@ -13,9 +13,9 @@ THRESHOLD = 20.0     # degrees; below this a residue is not moving
 
 
 @pytest.fixture(scope="module")
-def torsions():
-    run_script("ch10_flexibility/scripts/torsion_analysis.py")
-    return read_json("ch10_flexibility/outputs/rotamers.json")
+def torsions(ch10_outputs):
+    """The shared session run. Chapter 2 reads this file too."""
+    return ch10_outputs
 
 
 def test_eight_chains_were_analysed(torsions):

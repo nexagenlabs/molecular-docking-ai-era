@@ -44,7 +44,27 @@ expect, a `run.sh` that goes from nothing to the result in one command, and
 matched without opening the book.
 
 ```bash
-pytest                             # 98 tests across the chapters with expected values
+pytest                             # 247 tests; every chapter has some
+```
+
+**It takes about half an hour**, because it is not checking files — it runs the
+chapters. Nine of them dock, and Vina at exhaustiveness 32 is most of the wall
+time. Each chapter runs once for the whole suite even where four test files
+depend on it.
+
+A test that asserted `run.sh` exits 0 would run in seconds and tell you
+nothing, so these assert what each chapter claims instead: a value, a refusal,
+the contents of a file, a selection made on the right grounds. Where a number
+is docking output it is the *comparison* that is asserted — the AlphaFold pose
+being worse than the crystal one, the undersized box being worse than both
+larger ones — because the third decimal is platform-dependent and the
+conclusion is not.
+
+For a quick check while working, run one chapter:
+
+```bash
+pytest tests/test_ch14_boltz2.py   # a few seconds; pure arithmetic
+pytest tests/test_gotchas.py       # the standing guards, no tools needed
 ```
 
 ## The running system

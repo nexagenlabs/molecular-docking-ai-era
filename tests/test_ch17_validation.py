@@ -9,9 +9,9 @@ from conftest import REPO, read_json, run_script
 
 
 @pytest.fixture(scope="module")
-def validation():
-    run_script("ch17_validation/scripts/validate.py", timeout=3600)
-    return read_json("ch17_validation/outputs/validation.json")
+def validation(ch17_outputs):
+    """The shared session run. ch02, ch16 and ch23 all read this file."""
+    return ch17_outputs
 
 
 def test_selects_the_catalytic_copy_not_the_interface_one(validation):

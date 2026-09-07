@@ -24,26 +24,13 @@ from conftest import REPO, read_json, run_script, run_script_raw
 
 
 @pytest.fixture(scope="module")
-def ampc_run():
-    """ch09's AmpC artefacts, built here because this chapter needs them.
+def record(ch20_outputs):
+    """The shared session run, which builds ch09's AmpC branch first.
 
-    prepare_ampc.py writes receptor.pdbqt, ligand.pdbqt and inputs.json;
-    modes.py --system ampc docks and writes logs/modes.log. derive_box.py is
-    deliberately NOT run: it regenerates the committed config, whose only diff
-    would be its embedded timestamp, and a test suite that dirties a tracked
-    file leaves `git status` unable to say whether anyone edited anything.
+    That fixture lives in conftest because ch27 reads this chapter's output in
+    turn, so the chain ch09 -> ch20 -> ch27 is built once for the whole suite.
     """
-    run_script("ch09_first_run/scripts/prepare_ampc.py")
-    run_script("ch09_first_run/scripts/modes.py", "--system", "ampc")
-    log = REPO / "ch09_first_run" / "outputs" / "ampc" / "logs" / "modes.log"
-    assert log.exists(), "ch09's AmpC branch did not write %s" % log
-    return log
-
-
-@pytest.fixture(scope="module")
-def record(ampc_run):
-    run_script("ch20_protocol_record/scripts/fill_record.py")
-    return read_json("ch20_protocol_record/outputs/filled_record.json")
+    return ch20_outputs
 
 
 def test_the_worked_example_matches_the_book(record):
