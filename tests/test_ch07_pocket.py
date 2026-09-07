@@ -47,20 +47,29 @@ def test_every_definition_finds_the_site(ch07_outputs):
              % (name, entry["modes_in_the_true_site"], entry["modes"]))
 
 
-def test_a_blind_box_costs_time_rather_than_accuracy(ch07_outputs):
+def test_a_blind_box_over_the_whole_chain_still_finds_the_site(ch07_outputs):
     """Nearly seventeen times the volume of the ligand box, and it still works.
 
-    Worth knowing precisely because the folklore says otherwise. What it does
-    cost is search time.
+    Worth knowing precisely because the folklore says otherwise.
+
+    This test used to also assert `blind["seconds"] > ligand["seconds"]`, and
+    that was an over-assertion of mine rather than a claim the chapter makes.
+    It held on Windows (15.7 s against 22.5 s) and failed on Linux, where the
+    blind box came back *faster* -- 18.3 s against 19.5 s. Vina's runtime at
+    fixed exhaustiveness is not a simple function of box volume, and a test
+    that pins an ordering the chapter never claimed is a test that will fail
+    on somebody else's machine for no reason they can act on.
+
+    What the chapter claims, and what is asserted, is that the box you can
+    actually build without knowing the answer still lands the pose.
     """
     ligand = ch07_outputs["definitions"]["ligand"]
     blind = ch07_outputs["definitions"]["blind"]
     assert blind["volume_A3"] > 10 * ligand["volume_A3"]
+    assert blind["offset_from_true_centre"] > 10.0, \
+        "the blind box centre is supposed to be nowhere near the ligand"
     assert blind["rmsd"] < 2.0
-    assert blind["seconds"] > ligand["seconds"], \
-        "the blind box searched a volume %.0fx larger in no more time, which " \
-        "would be surprising enough to check" % (blind["volume_A3"]
-                                                 / ligand["volume_A3"])
+    assert blind["seconds"] > 0
 
 
 def test_the_affinities_barely_move_between_definitions(ch07_outputs):

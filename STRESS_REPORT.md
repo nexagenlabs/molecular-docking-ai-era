@@ -8,8 +8,9 @@ session this report describes.* Every mutation was reverted before the next;
 the clone and the working repository both end clean. Total elapsed: 30 minutes
 of the two-hour budget.
 
-**Ten of the thirteen findings were fixed afterwards, in commits `c3fda90`
-through `4606bde`. Four remain open.** See **Resolution** at the end. Nothing
+**Twelve of the thirteen findings were fixed afterwards, in commits `c3fda90`
+through `685f3b1` and after. One remains open (B4), and B5 is a decision
+rather than a repair.** See **Resolution** at the end. Nothing
 between here and there has been edited: B1–B13 read as they did at `79e26b8`,
 because a report rewritten to describe the repaired code would no longer be
 evidence that the clean-clone test caught anything.
@@ -393,7 +394,20 @@ survived — the same shape as B7.
 |---|---|---|
 | **B4** | `ch09/run.sh` rewrites a tracked config whose only diff is a timestamp | not in the fix list. The test fixtures deliberately do not run `derive_box.py`, so the suite does not make it worse |
 | **B5** | the ch08 conformer mutation is invisible on Windows | not in the fix list, and it is a decision rather than a repair: whether a Windows-only run may report success for ch08 at all |
-| **B12** | a box disjoint from the receptor returns affinity `0.0`, exit 0 | not in the fix list |
+**B12 is now closed** — `docking_common.dock()` refuses a best affinity of 0 or
+above, printing the log and naming the box centre and size it used. Every Vina
+call in the repository goes through that function, which is what makes one
+check sufficient. Guarded from both sides:
+`test_a_box_that_misses_the_receptor_is_refused_rather_than_scored` drives the
+real failure with a box centred 100 Å away, and
+`test_a_box_that_covers_the_receptor_still_docks` exists so a `dock()` that
+refused everything would not pass.
+
+**B5's open question is answered** — see the Linux section below. All fifteen
+ch08 conformer counts match the book on the reference platform, where the xfail
+marker does not apply and the tests run unprotected. The Windows blindness the
+finding describes is unchanged and is by design; what is no longer open is
+whether the book's counts were right.
 
 **B13 is now closed** — the `|| true` is gone from both `run.sh` files and each
 propagates its script's exit code; both chapters exit **3** here. The footer
@@ -420,16 +434,55 @@ asserted**: ch14's `0.38`, ch16's `0.90`, ch26's published `1.75`/`1.87`.
 (3.4 s, 14.2 s) remain correctly uncovered: §6 says to assert the ratio, and the
 ratio is asserted.
 
+### The Linux install path — now executed
+
+This was the largest thing the original report could not do. It has been done:
+**Ubuntu 24.04.4 LTS, Python 3.12.3** — the stock Python of that release, and
+the version the book names — installed as a second WSL distribution, fresh
+clone, `environment/README.md` followed literally.
+
+The full account is in PROGRESS.md. Three findings in the documented install:
+
+- **L1** `python3.12 -m venv .venv`, the README's first line, **fails** on a
+  stock Ubuntu 24.04. Debian and Ubuntu ship `venv` without `ensurepip`;
+  `python3.12-venv` is an undocumented prerequisite.
+- **L2** `sudo apt install openbabel` gives **3.1.1**, not the pinned 3.2.1,
+  and no form of the command will produce 3.2.1 from Ubuntu's repository. Taken
+  with B10, the pin is now known to be unobtainable by the documented route on
+  both platforms.
+- **L3** `pip install -r requirements.txt` **succeeds** — and the repository
+  still cannot dock anything. `pip install vina` gives the Python bindings;
+  there is no `vina` command, and every script here calls Vina through its
+  command line. `pytest` after the documented install: **69 errors, 4
+  failures**, all of them the clean `Vina not found` message with no traceback.
+  The README's Windows section tells you to fetch the binary. Its Ubuntu
+  section did not — on the platform the book's numbers come from.
+
+All three are fixed in `environment/README.md` and annotated in
+`requirements.txt`.
+
+**With the binary in place: 245 passed, 2 failed, and no xfail or xpass at
+all** — on Linux `platform_xfail` does not apply, so every value it protects on
+Windows was asserted outright.
+
+The box sweep returned **−4.905 / −4.911 / −2.748**, largest difference from
+the book **0.000 kcal/mol**. The reference-platform claim that runs through this
+whole repository is verified rather than asserted, for the first time.
+
+Of the two failures, one was an over-assertion of mine in ch07 and is removed.
+The other is an **open disagreement with the book**: CLAUDE.md section 6's
+exhaustiveness ratio band of 3–5 does not hold. Best-of-3 on an idle machine
+gives **2.80 on Linux** and 3.34 on Windows, against the book's own 4.18. The
+mechanism is in `timing.py`'s own docstring — the grid is a fixed cost, this
+machine is about twice as fast as the book's, so the ratio compresses. It is
+recorded as a non-strict xfail carrying the measurements, **not** tuned to fit,
+and it needs an author decision. PROGRESS.md sets out the three options.
+
 ### What is still not verified
 
-Unchanged from the original report, and worth repeating because the fixes did
-not touch it: **the documented install has still never been run on Linux.** B8,
-B9 and B10 were measured and repaired on Windows. The Ubuntu path — `pip
-install -r requirements.txt`, then `pytest` — remains unexecuted, and it is the
-platform the book's three-decimal values come from.
-
-Also unchanged: the clean-clone test cannot police ch08's protonation order on
-this machine (B5), and check 7's subjective half was skipped on purpose.
+Check 7's subjective half was skipped on purpose, and a Windows-only run still
+cannot police ch08's protonation order (B5) — that is the finding, not a gap
+in the fixing.
 
 ### Verification of the fixes
 

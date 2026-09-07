@@ -5,9 +5,16 @@ coordinate file this repository downloaded. Agreement between them is the
 check; where the sources disagree -- 1MU's Ki, 26 uM in ChEMBL and 31 uM in
 PDBbind -- both values are carried rather than one being chosen.
 
-This chapter reaches the network. The header half of every check works
-offline, so the tests are split: the file-header values are asserted always,
-and the API agreement only when the run actually reached RCSB.
+This chapter reaches the network. The header half of every check works offline
+and is asserted always. The half that needs RCSB **fails** when the network was
+unavailable rather than skipping.
+
+That is deliberate, and it is a change from how these were first written. A
+skip is reported as success, and success is the wrong word for "the comparison
+this chapter exists to make did not happen". An offline run would otherwise
+show a green suite for a chapter whose central claim went unchecked -- which is
+the same shape as the three weak tests in STRESS_REPORT.md B7, arrived at from
+a different direction.
 """
 import pytest
 
@@ -21,6 +28,16 @@ HEADER = {
     "4JXV": (1.76, 0.232),
     "1GA9": (2.10, 0.249),
 }
+
+
+OFFLINE = (
+    "cross_check.py could not reach RCSB, so this chapter's central claim -- "
+    "that two independent sources agree -- was not checked. "
+    "This is a FAILURE and not a skip on purpose: a skip reports success, and "
+    "success is the wrong word for a comparison that did not happen. "
+    "Re-run with a network. The header-only assertions in this file passed and "
+    "say nothing about the API."
+)
 
 
 @pytest.fixture(scope="module")
@@ -39,9 +56,13 @@ def test_the_file_header_says_what_the_book_says(cross_check, entry):
 
 @pytest.mark.parametrize("entry", sorted(HEADER))
 def test_the_api_and_the_file_agree(cross_check, entry):
-    """The check itself. Skipped, not faked, when the network was unavailable."""
+    """The check itself: two independent sources, compared.
+
+    Fails rather than skips when the network was unavailable, because a skip
+    would report success for the one comparison this chapter exists to make.
+    """
     if cross_check["offline"]:
-        pytest.skip("cross_check.py ran offline; there is no API value to compare")
+        pytest.fail(OFFLINE)
     record = cross_check["entries"][entry]
     assert record["resolution_agrees"] is True, \
         "%s: API %s, file %s" % (entry, record["api_resolution"],
@@ -60,7 +81,7 @@ def test_the_ligand_skeletons_match_the_pdb_component_dictionary(cross_check):
     the skeleton matches and the charge is expected to differ.
     """
     if cross_check["offline"]:
-        pytest.skip("no chemical component data was fetched")
+        pytest.fail(OFFLINE)
     for name in ("STC", "18U", "1MU"):
         ligand = cross_check["ligands"][name]
         assert ligand["same_neutral_skeleton"] is True, \
@@ -71,7 +92,7 @@ def test_the_ligand_skeletons_match_the_pdb_component_dictionary(cross_check):
 def test_our_smiles_carry_the_charge_the_pdb_component_does_not(cross_check):
     """The difference that makes the neutral-skeleton comparison necessary."""
     if cross_check["offline"]:
-        pytest.skip("no chemical component data was fetched")
+        pytest.fail(OFFLINE)
     charges = {"STC": 1, "18U": 2, "1MU": 2}
     for name, expected in charges.items():
         ours = cross_check["ligands"][name]["our_smiles"]

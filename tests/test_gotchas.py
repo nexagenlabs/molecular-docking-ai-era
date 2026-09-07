@@ -148,6 +148,60 @@ def test_no_vina_config_leaves_the_seed_at_the_random_default():
                 "%s sets seed = %d; Vina wants a positive integer" % (name, value)
 
 
+def test_a_box_that_misses_the_receptor_is_refused_rather_than_scored(tmp_path):
+    """A disjoint box returns affinity 0.000 and exit status 0.
+
+    STRESS_REPORT.md B12. Driving the repository's own dock() with the
+    synthetic system and a box centred 100 A away returned 0.0 and exit 0 --
+    no error, no warning, and a number that reads as a weak result rather than
+    an absent one. Chapter 9 tells a reader to watch for exactly this, so the
+    repository should not be able to produce it quietly.
+
+    The check lives in dock(), because every Vina call here goes through it.
+    This drives the real failure rather than asserting the message exists.
+    """
+    import sys
+
+    sys.path.insert(0, str(REPO / "scripts"))
+    sys.path.insert(0, str(REPO / "ch09_first_run" / "scripts"))
+    import systems
+    from docking_common import dock
+
+    receptor, ligand, centre = systems.get("synthetic")
+
+    # 100 A from the origin, where the shell is. Same receptor, same ligand,
+    # same seed -- only the box moves.
+    with pytest.raises(SystemExit) as excinfo:
+        dock(receptor, ligand, (100.0, 100.0, 100.0), (20, 20, 20),
+             tmp_path / "disjoint.pdbqt", seed=42, exhaustiveness=8)
+
+    message = str(excinfo.value)
+    assert "not a binding result" in message, \
+        "the refusal did not say what was wrong: %r" % message
+    assert "100.000" in message, "the refusal did not name the box it used"
+    assert "Chapter 9" in message, \
+        "the refusal should point at the chapter that explains the trap"
+
+
+def test_a_box_that_covers_the_receptor_still_docks(tmp_path):
+    """The other half: the guard must not refuse legitimate runs.
+
+    A test that only checked the refusal would pass if dock() had been made to
+    refuse everything.
+    """
+    import sys
+
+    sys.path.insert(0, str(REPO / "scripts"))
+    sys.path.insert(0, str(REPO / "ch09_first_run" / "scripts"))
+    import systems
+    from docking_common import dock
+
+    receptor, ligand, centre = systems.get("synthetic")
+    modes, _, _ = dock(receptor, ligand, centre, (20, 20, 20),
+                       tmp_path / "overlapping.pdbqt", seed=42, exhaustiveness=8)
+    assert modes[0][1] < 0
+
+
 def write_pdb(path, records):
     """A minimal PDB from (record, name, res, chain, seq, xyz, element) rows."""
     lines = []

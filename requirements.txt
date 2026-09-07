@@ -13,7 +13,12 @@
 #
 # Six of these can change a published value -- pinned exactly:
 #   rdkit, vina, spyrmsd, meeko, numpy, and Open Babel.
-vina==1.2.7            # NOT 1.2.5 -- superseded February 2025
+vina==1.2.7            # NOT 1.2.5 -- superseded February 2025.
+#                        NOTE: this is the PYTHON BINDING. It gives you no
+#                        `vina` command, and every script here calls Vina
+#                        through its command line. You need the binary too:
+#                        see environment/README.md. Verified on Ubuntu 24.04 --
+#                        pip succeeds and 69 tests then error on "Vina not found".
 rdkit==2026.3.5        # conformer counts in ch08 are version-sensitive
 spyrmsd==0.9.0         # symmetry-corrected RMSD; never run it with --minimize
 meeko==0.8.0           # PDBQT preparation

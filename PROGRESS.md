@@ -442,3 +442,179 @@ The other three §6 values the stress report flagged are now covered.
 - **The test fixtures deliberately do not run `derive_box.py`.** It regenerates
   a tracked config whose only diff is an embedded timestamp (B4). Running it in
   the suite would make every test run dirty the working tree.
+
+---
+
+# Session 7 — the Linux install path, executed at last
+
+The repository's core claim is that its numbers come from Ubuntu, Python
+3.12.3. That path had never been run. B8, B9 and B10 were all found in the
+install path on Windows, which is evidence about where the defects are, not
+about which platform has them.
+
+Environment: **Ubuntu 24.04.4 LTS, Python 3.12.3**, installed as a second WSL
+distribution because this machine's existing one is 22.04 / Python 3.10. 24.04
+is the release whose stock Python is 3.12.3, so it is the reference environment
+rather than an approximation of it.
+
+Method: fresh `git clone` of the committed tree, then `environment/README.md`
+followed literally. Nothing reused, nothing copied from the Windows tree.
+
+## Three findings in the documented install
+
+**L1. `python3.12 -m venv .venv` fails on a stock Ubuntu 24.04.** It is the
+first line of the README:
+
+```
+The virtual environment was not created successfully because ensurepip is not
+available.  On Debian/Ubuntu systems, you need to install the python3-venv
+package using the following command.
+
+    apt install python3.12-venv
+```
+
+Debian and Ubuntu ship `venv` without `ensurepip`. The prerequisite is
+undocumented, and a reader following the README in order hits it before
+anything else.
+
+**L2. `sudo apt install openbabel` gives Open Babel 3.1.1, not the pinned
+3.2.1.** The README says to "confirm it says 3.2.1". On Ubuntu 24.04 it says
+`3.1.1+dfsg-9ubuntu5`, and no version of the instruction will make it say
+otherwise, because 3.2.1 is not in Ubuntu's repository. Open Babel is one of
+the six packages that can move a published value.
+
+So the pinned version is now known to be unobtainable by the documented route
+on **both** platforms: 3.1.0 from `openbabel-wheel` on Windows, 3.1.1 from apt
+on Ubuntu 24.04. ch04's conclusions hold under both, and ch04 records which
+version produced its numbers, but the pin itself is aspirational.
+
+**L3. `pip install -r requirements.txt` succeeds, and the repository still
+cannot run.** This is the significant one.
+
+```
+pip install -r requirements.txt     exit 0
+    vina==1.2.7, rdkit, meeko, spyrmsd, gemmi, numpy, matplotlib, scipy, pytest
+```
+
+Everything installs, including `vina==1.2.7` — which on Linux has a manylinux
+wheel, so B8 really is Windows-only, and B9's `pytest` addition works. But:
+
+```
+python -c "import vina"           works
+ls .venv/bin | grep vina          nothing
+which vina                        nothing
+```
+
+`pip install vina` gives the **Python bindings**. Every script in this
+repository calls Vina through its **command line** — `docking_common.dock()`
+builds an argument list and runs it as a subprocess. There is no binary.
+
+Result of `pytest` after the documented install: **69 errors, 4 failures.**
+The message is clean and correct — `Vina not found. Set $VINA, or see
+environment/README.md.`, no traceback — but the README's Ubuntu section never
+says to fetch a binary. Its Windows section does, at length. The platform the
+book's numbers come from is the one where the instruction is missing.
+
+## With the Vina binary present
+
+`vina_1.2.7_linux_x86_64` from the official 1.2.7 release, dropped in
+`.tools/vina`, which is where `find_vina()` already looks.
+
+**245 passed, 2 failed — and no xfail or xpass at all.** On Linux
+`platform_xfail` does not apply, so every value the marker protects on Windows
+ran as an ordinary assertion.
+
+### The three-decimal values, verified rather than asserted
+
+```
+box 20 A   -4.905      book -4.905
+box 12 A   -4.911      book -4.911
+box  8 A   -2.748      book -2.748
+
+largest difference from the book: 0.000 kcal/mol
+```
+
+First time this has been checked. The platform story in
+`scripts/docking_common.py` — Linux gives the book's values, Windows gives
+−4.910 / −4.903 / −2.686 — is now measured from both ends rather than from one.
+
+### B5, answered
+
+ch08's fifteen conformer counts are protected by a non-strict xfail on Windows,
+where twelve match and three differ. On Linux they ran unprotected and **all
+fifteen passed**. The marker's stated reason was true. A Windows-only run still
+cannot police ch08's protonation order, which is the original point, but the
+question of whether the book's counts are right is now closed.
+
+### `data/structures/fetch.sh`
+
+All four SHA-256 sums identical to the Windows run and to
+`data/structures/README.md`.
+
+### The synthetic receptor is byte-identical across platforms
+
+`rec.pdbqt` sha256 `6fc7bcb24bc4036face0d3f95215b57fb7a3ec2702e53d9fb674b7e0887fa471`
+on Windows 11 / Python 3.12.10 and Ubuntu 24.04 / Python 3.12.3 alike. The
+claim in `make_test_system.py` — that numpy's PCG64 stream and an explicit
+`newline="\n"` make this file portable — is verified, and now asserted.
+
+## The two failures
+
+**One was mine.** `test_a_blind_box_costs_time_rather_than_accuracy` asserted
+`blind["seconds"] > ligand["seconds"]`. That held on Windows (15.7 s against
+22.5 s) and failed on Linux, where the blind box came back *faster*: 18.3 s
+against 19.5 s. Vina's runtime at fixed exhaustiveness is not a simple function
+of box volume, and the chapter never claimed it was. The timing assertion is
+removed; what the chapter does claim — a box built without knowing the answer,
+17x the volume, still lands the pose — is what the test now checks.
+
+**One is an open disagreement with the book.**
+
+## OPEN: the exhaustiveness ratio is below the book's 3-5 band
+
+CLAUDE.md section 6: *"exhaustiveness 8 → 3.4 s; 32 → 14.2 s on 4 cores.
+Absolute times are hardware-specific; assert only that the ratio is 3-5."*
+
+Measured best-of-3 on an idle machine, `timing.py --repeats 3`:
+
+| | exh 8 | exh 32 | ratio |
+|---|---|---|---|
+| the book | 3.4 s | 14.2 s | **4.18** |
+| Windows 11, Python 3.12.10 | — | — | **3.34** |
+| **Ubuntu 24.04, Python 3.12.3** | **1.47 s** | **4.12 s** | **2.80** |
+
+Under load both fall further: 2.49 on Windows, 2.59 on Linux. Twelve cores on
+both; `timing.py` pins `--cpu 4` either way.
+
+**The mechanism is the script's own.** `timing.py`'s docstring already says the
+ratio "is not the factor of 4 the exhaustiveness ratio suggests, because grid
+computation is a fixed cost that does not scale with the search". The book
+measured 3.4 s at exhaustiveness 8; this machine measures 1.47 s. It is roughly
+twice as fast, so the fixed grid cost is a larger share of the short run, and
+the ratio falls out of the band. The band is therefore not hardware-independent
+in the way section 6 claims — which is the specific thing the ratio was
+introduced to be.
+
+**Not tuned.** The test is a non-strict xfail carrying the measurements in its
+reason, not a widened band. Widening it would be adjusting the test until it
+matches the observation, which section 6 forbids. A second test asserts what
+does hold on both platforms and is the actual teaching point: quadrupling
+exhaustiveness costs meaningfully more, and less than four times more.
+
+**This needs an author decision**, and it is a decision about the book rather
+than about the code:
+
+- keep 3-5 and add the hardware caveat, or
+- restate the band from measurement (2.5-4.5 covers everything seen here), or
+- drop the numeric band and keep only "more, but less than 4x".
+
+## Status
+
+| Finding | |
+|---|---|
+| B4 | open, not in the fix list |
+| B5 | **question answered** — the Linux counts all match; the Windows-blindness remains, by design |
+| B12 | **closed** — `dock()` refuses a non-negative best affinity, naming the box |
+| B13 | **closed** — both run.sh propagate their exit code |
+| L1, L2, L3 | **new, from the Linux run**; L1 and L3 are documentation defects in the install path |
+| the ratio | **open disagreement with the book**, awaiting a decision |

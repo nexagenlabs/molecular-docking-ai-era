@@ -99,6 +99,32 @@ def dock(receptor, ligand, centre, size, out_pdbqt, seed=DEFAULT_SEED,
     if not modes:
         print(log)
         sys.exit("no docking modes parsed")
+
+    # A box that does not overlap the receptor returns affinity 0.000 and exit
+    # status 0. Nothing in the log says the ligand had nothing to bind to, and
+    # 0.0 is not obviously wrong the way a positive number would be -- it looks
+    # like a weak result rather than an absent one.
+    #
+    # Chapter 9 tells a reader to watch for exactly this, so the repository
+    # should not be able to produce it quietly. Every Vina call here goes
+    # through this function, which makes it the one place worth checking.
+    #
+    # The threshold is >= 0 rather than == 0 because a positive best affinity
+    # means the same thing: no pose in the box made a favourable contact.
+    best = modes[0][1]
+    if best >= 0:
+        print(log)
+        sys.exit(
+            "vina returned a best affinity of %.3f, which is not a binding "
+            "result.\n"
+            "  centre %.3f, %.3f, %.3f   size %s x %s x %s\n"
+            "  A box that does not overlap the receptor returns 0.000 and "
+            "exits 0. Check that\n"
+            "  the centre is in the same frame as the receptor -- this is the "
+            "failure Chapter 9\n"
+            "  warns about, and the number is the only sign of it."
+            % (best, centre[0], centre[1], centre[2], size[0], size[1], size[2]))
+
     return modes, elapsed, log
 
 

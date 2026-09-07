@@ -1,15 +1,39 @@
 # Environment
 
 **The book's numbers were produced with pip on Ubuntu, Python 3.12.3.** Not
-conda. If you want the published values, reproduce that:
+conda. That is the stock Python of Ubuntu 24.04, and the recipe below was run
+end to end on a fresh 24.04 install: it reproduces the box-sweep scores to
+three decimals, `−4.905 / −4.911 / −2.748`, difference 0.000.
 
 ```bash
+sudo apt install python3.12-venv  # venv on Debian/Ubuntu ships without ensurepip
 python3.12 -m venv .venv
 . .venv/bin/activate
 pip install -r requirements.txt
-sudo apt install openbabel        # 3.2.1, a system binary -- not a pip package
-obabel -V                         # confirm it says 3.2.1
+
+# Vina, as a BINARY. `pip install vina` gives the Python bindings only -- there
+# is no `vina` command afterwards, and every script here calls Vina through its
+# command line. Without this, 69 tests error with "Vina not found".
+curl -sSL -o .tools/vina \
+  https://github.com/ccsb-scripps/AutoDock-Vina/releases/download/v1.2.7/vina_1.2.7_linux_x86_64
+chmod +x .tools/vina
+./.tools/vina --version           # confirm: AutoDock Vina v1.2.7
+
+sudo apt install openbabel
+obabel -V                         # see the note below: you will get 3.1.1
 ```
+
+Two of those lines are there because following the previous version of this
+section on a clean machine did not work. `python3.12 -m venv` fails outright
+without `python3.12-venv`, and `pip install -r requirements.txt` succeeds while
+leaving you unable to dock anything.
+
+**Open Babel: you will get 3.1.1, not the pinned 3.2.1.** Ubuntu 24.04 does not
+package 3.2.1 and no form of the command will produce it. Open Babel is one of
+the six packages that can move a published value, so the difference is recorded
+rather than glossed: `ch04_formats/outputs/expected/results.md` names the
+version its numbers came from, and none of its conclusions change between
+3.1.0, 3.1.1 and 3.2.1. If you need 3.2.1 exactly you will have to build it.
 
 ## On Windows
 
