@@ -77,6 +77,27 @@ def ligand_copies(atoms, ligand_name):
     return out
 
 
+def select_copy(atoms, ligand_name, chain):
+    """The catalytic ligand copy in one chain, chosen **by distance**.
+
+    Returns (chosen, all_copies). `chosen` is None when the chain holds no
+    copy inside SITE_CUTOFF of Ser64 OG; the full list comes back either way so
+    a caller can print what it discarded and a reader can check the choice.
+
+    `min(..., key=distance)` rather than "the first one that qualifies". The
+    two agree on every entry in this repository, which is exactly why the
+    distinction has to live in code rather than in a comment: 1L2S's first STC
+    copy in file order happens to sit 2.70 A from Ser64 OG, so selecting by
+    file order gives the right distance and the wrong chain -- chain A, the one
+    missing Lys290-Ala292. Nothing in a PDB marks which copy you meant.
+    """
+    copies = ligand_copies(atoms, ligand_name)
+    in_site = [c for c in copies if c["in_site"] and c["chain"] == chain]
+    if not in_site:
+        return None, copies
+    return min(in_site, key=lambda c: c["distance_to_ser64_og"]), copies
+
+
 def truncations(atoms, missing, chain):
     present = {}
     for a in atoms:

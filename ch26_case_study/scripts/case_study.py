@@ -117,12 +117,11 @@ def main():
         if not path.exists():
             sys.exit("%s missing -- run: bash data/structures/fetch.sh" % path)
         atoms, _, _ = receptor_prep.parse(path)
-        copies = [c for c in receptor_prep.ligand_copies(atoms, spec["ligand"])
-                  if c["in_site"] and c["chain"] == spec["chain"]]
-        if not copies:
+        copy, _copies = receptor_prep.select_copy(atoms, spec["ligand"],
+                                                  spec["chain"])
+        if copy is None:
             sys.exit("%s: no catalytic %s copy in chain %s"
                      % (pdb_id, spec["ligand"], spec["chain"]))
-        copy = copies[0]
         lig_atoms = copy["atoms"]
         altlocs = sorted({a["altloc"] for a in lig_atoms if a["altloc"] != " "})
         if altlocs:

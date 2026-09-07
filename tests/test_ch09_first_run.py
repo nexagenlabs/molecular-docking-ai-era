@@ -35,6 +35,49 @@ def test_seed_42_is_reproducible(seeds):
     assert seeds["seed42_reproducible"]
 
 
+def test_the_configured_seed_actually_reproduces():
+    """The seed in the config file has to be one that makes a run repeat.
+
+    test_seed_42_is_reproducible proves that 42 works -- but it proves it about
+    the literal 42 inside verify_run.py, not about the number in
+    ch09_first_run/config/vina_config.txt, which is what a reader re-executes
+    from. Changing that file's `seed = 42` to `seed = 0` left every
+    reproducibility test in this suite green.
+
+    So take the seed from the config, dock the synthetic system twice with it,
+    and compare the bytes. At seed 0 the two poses differ and this fails, which
+    is the whole point.
+    """
+    import hashlib
+    import sys
+    from pathlib import Path
+
+    from conftest import REPO, config_seeds
+
+    values = config_seeds().get("ch09_first_run/config/vina_config.txt", [])
+    assert len(values) == 1, "expected exactly one seed in ch09's config"
+    seed = values[0]
+
+    sys.path.insert(0, str(REPO / "scripts"))
+    sys.path.insert(0, str(REPO / "ch09_first_run" / "scripts"))
+    import systems
+    from docking_common import dock
+
+    receptor, ligand, centre = systems.get("synthetic")
+    work = Path(receptor).parent
+    digests = []
+    for repeat in (1, 2):
+        pose = work / ("config_seed_run%d.pdbqt" % repeat)
+        dock(receptor, ligand, centre, (20, 20, 20), pose,
+             seed=seed, exhaustiveness=8)
+        digests.append(hashlib.sha256(pose.read_bytes()).hexdigest())
+
+    assert digests[0] == digests[1], (
+        "two runs at the configured seed (%d) gave different poses. Vina's "
+        "default seed is 0 and it means 'choose one at random'; a config "
+        "carrying it describes a run nobody can repeat." % seed)
+
+
 def test_default_seed_is_not_reproducible(seeds):
     """Seed 0 means random, and two runs at it differ."""
     assert seeds["runs"]["seed0_run1"]["sha256"] != seeds["runs"]["seed0_run2"]["sha256"]

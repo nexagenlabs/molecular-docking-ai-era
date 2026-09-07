@@ -118,9 +118,10 @@ def main():
     if not path.exists():
         sys.exit("%s missing -- run: bash data/structures/fetch.sh" % path)
     atoms, _, _ = receptor_prep.parse(path)
-    copies = [c for c in receptor_prep.ligand_copies(atoms, "STC")
-              if c["in_site"] and c["chain"] == CHAIN]
-    centre, size, _ = receptor_prep.box_from_ligand(copies[0]["atoms"], PADDING)
+    chosen, _copies = receptor_prep.select_copy(atoms, "STC", CHAIN)
+    if chosen is None:
+        sys.exit("%s: no catalytic STC copy in chain %s" % (CRYSTAL, CHAIN))
+    centre, size, _ = receptor_prep.box_from_ligand(chosen["atoms"], PADDING)
     receptor_pdbqt, decisions = receptor_prep.prepare(path, CHAIN, WORK, "receptor")
 
     vina = find_vina()

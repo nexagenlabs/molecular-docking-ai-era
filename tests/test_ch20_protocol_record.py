@@ -37,12 +37,28 @@ def test_no_metal_is_stated_rather_than_omitted(record):
 
 
 def test_the_ligand_copy_was_chosen_by_distance(record):
-    """Three copies in the entry; the one used is 2.70 Å from Ser64 OG."""
+    """Three copies in the entry; the one used is B/2115, 2.70 Å from Ser64 OG.
+
+    The distance alone does not establish the choice, and this test used to
+    assert only the distance. 1L2S's first STC copy in file order, A/1115, is
+    *also* 2.70 Å from a Ser64 OG, so selecting by file order passed here while
+    picking the wrong chain -- chain A, the one missing Lys290-Ala292. The
+    copy's identity is what distinguishes the two, so it is asserted here, and
+    the rule itself is tested on a case where order and distance disagree in
+    test_gotchas.test_the_ligand_copy_is_chosen_by_distance_and_not_by_file_order.
+    """
     copies = record["structure"]["ligand_copies"]
     assert len(copies) == 3
+    assert record["structure"]["chosen_copy"] == "B/2115"
     assert record["structure"]["chosen_distance"] == pytest.approx(2.70, abs=0.01)
     assert any(c["distance_to_ser64_og"] > 20 for c in copies), \
         "the interface copy must still appear, so the choice can be checked"
+    # The decoy: another copy at the same distance, in the chain not used.
+    decoys = [c for c in copies
+              if c["chain"] != "B" and c["distance_to_ser64_og"] < 5.0]
+    assert decoys, ("1L2S must still hold a catalytic copy outside chain B. "
+                    "If it does not, this test no longer distinguishes "
+                    "selection by distance from selection by file order.")
 
 
 def test_every_tier_one_field_is_filled(record):

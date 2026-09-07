@@ -88,9 +88,10 @@ def main():
     if ligand_src.exists():
         shutil.copy(ligand_src, UPLOAD / ("%s.sdf" % LIGAND))
 
-    copies = [c for c in receptor_prep.ligand_copies(atoms, LIGAND)
-              if c["in_site"] and c["chain"] == CHAIN]
-    centre, size, _ = receptor_prep.box_from_ligand(copies[0]["atoms"], PADDING)
+    chosen, _copies = receptor_prep.select_copy(atoms, LIGAND, CHAIN)
+    if chosen is None:
+        sys.exit("%s: no catalytic %s copy in chain %s" % (CRYSTAL, LIGAND, CHAIN))
+    centre, size, _ = receptor_prep.box_from_ligand(chosen["atoms"], PADDING)
 
     box = UPLOAD / "box.txt"
     box.write_text(
@@ -98,7 +99,7 @@ def main():
         "# Paste these into the server's form. Compute them; do not eyeball them.\n"
         "center_x = %.3f\ncenter_y = %.3f\ncenter_z = %.3f\n"
         "size_x = %.2f\nsize_y = %.2f\nsize_z = %.2f\n"
-        % (CRYSTAL, CHAIN, LIGAND, copies[0]["chain"], copies[0]["seq"], PADDING,
+        % (CRYSTAL, CHAIN, LIGAND, chosen["chain"], chosen["seq"], PADDING,
            centre[0], centre[1], centre[2], size[0], size[1], size[2]),
         encoding="utf-8")
 

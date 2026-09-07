@@ -79,9 +79,10 @@ def main():
         sys.exit("%s missing -- run: bash data/structures/fetch.sh" % path)
     atoms, _, _ = receptor_prep.parse(path)
 
-    copies = [c for c in receptor_prep.ligand_copies(atoms, LIGAND)
-              if c["in_site"] and c["chain"] == CHAIN]
-    lig_atoms = copies[0]["atoms"]
+    chosen, _copies = receptor_prep.select_copy(atoms, LIGAND, CHAIN)
+    if chosen is None:
+        sys.exit("%s: no catalytic %s copy in chain %s" % (CRYSTAL, LIGAND, CHAIN))
+    lig_atoms = chosen["atoms"]
     lig_centre, lig_size, _ = receptor_prep.box_from_ligand(lig_atoms, PADDING)
 
     protein = [a for a in atoms if a["rec"] == "ATOM" and a["chain"] == CHAIN]

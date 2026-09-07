@@ -117,8 +117,7 @@ def describe_structure(pdb_id, chain, ligand_name):
     altlocs = sorted({"%s %s%s" % (a["res"], a["chain"], a["seq"])
                       for a in atoms if a["altloc"] != " " and a["chain"] == chain})
     waters = len({(a["chain"], a["seq"]) for a in atoms if a["res"] == "HOH"})
-    copies = receptor_prep.ligand_copies(atoms, ligand_name)
-    chosen = next((c for c in copies if c["in_site"] and c["chain"] == chain), None)
+    chosen, copies = receptor_prep.select_copy(atoms, ligand_name, chain)
 
     # Metals, named explicitly. AmpC is a class C serine hydrolase with no
     # catalytic metal; the class B enzymes are the metallo-beta-lactamases and

@@ -271,9 +271,12 @@ def main():
     if not ligand_pdbqt.exists():
         sys.exit("ligand preparation failed")
 
-    copies = [c for c in receptor_prep.ligand_copies(crystal_atoms, LIGAND)
-              if c["in_site"] and c["chain"] == CRYSTAL_CHAIN]
-    lig_atoms = copies[0]["atoms"]
+    chosen, _copies = receptor_prep.select_copy(crystal_atoms, LIGAND,
+                                                CRYSTAL_CHAIN)
+    if chosen is None:
+        sys.exit("%s: no catalytic %s copy in chain %s"
+                 % (CRYSTAL, LIGAND, CRYSTAL_CHAIN))
+    lig_atoms = chosen["atoms"]
     centre, size, _ = receptor_prep.box_from_ligand(lig_atoms, PADDING)
 
     vina = find_vina()

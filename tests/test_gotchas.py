@@ -5,10 +5,12 @@ mistake that produces a plausible-looking wrong answer rather than an error,
 which is the only kind worth a permanent test.
 """
 import re
+from pathlib import Path
 
 import pytest
 
-from conftest import REPO, repo_text_files, run_script, read_json
+from conftest import (REPO, config_seeds, load_module, repo_text_files,
+                      run_script, read_json)
 
 # Prose may quote the forbidden flag -- explaining why it is forbidden is half
 # the point of this repository. Code may not use it. So Python is checked with
@@ -64,30 +66,168 @@ def test_no_script_uses_minimize():
     assert not offenders,         "--minimize or minimize=True used in: %s" % ", ".join(offenders)
 
 
-def test_the_rmsd_call_passes_minimize_false_explicitly():
-    """Not passing it is not enough; the record has to be able to say so.
+def test_the_rmsd_function_measures_displacement_rather_than_shape():
+    """The gotcha, run rather than read.
 
-    spyrmsd defaults to minimize=False, so an implicit call would be correct
-    today and silently wrong if that default ever changed.
+    CLAUDE.md section 5 states the experiment: a pose displaced 3.0 Å returns
+    3.00000 without --minimize and 0.00000 with it. So displace a pose by
+    exactly 3.0 Å, hand it to ch17's own symmetry_rmsd, and see which number
+    comes back.
+
+    This replaces a test that searched validate.py for the string
+    "minimize=False". That test passed while the code was calling
+    minimize=True, because the file also contains three paragraphs of prose
+    explaining why minimize=False is required, and substring-matching prose is
+    not a test. Calling the function cannot be fooled that way.
     """
-    validate = REPO / "ch17_validation" / "scripts" / "validate.py"
-    if not validate.exists():
-        pytest.skip("ch17 not built yet")
-    assert "minimize=False" in validate.read_text(encoding="utf-8")
+    from rdkit import Chem
+    from rdkit.Chem import AllChem
+    from rdkit.Geometry import Point3D
+
+    validate = load_module("ch17_validation/scripts/validate.py", "ch17_validate")
+
+    mol = Chem.AddHs(Chem.MolFromSmiles("c1ccccc1C(=O)NC"))
+    assert AllChem.EmbedMolecule(mol, randomSeed=11) == 0
+    AllChem.MMFFOptimizeMolecule(mol)
+
+    displaced = Chem.Mol(mol)
+    conf = displaced.GetConformer()
+    for i in range(displaced.GetNumAtoms()):
+        p = conf.GetAtomPosition(i)
+        conf.SetAtomPosition(i, Point3D(p.x + 3.0, p.y, p.z))
+
+    measured = validate.symmetry_rmsd(mol, displaced)
+    assert measured == pytest.approx(3.0, abs=1e-4), (
+        "a rigid 3.0 A translation measured as %.5f A. 0.0 means the two "
+        "structures were superimposed before measuring -- which is what "
+        "--minimize and minimize=True do, and what makes every redock pass."
+        % measured)
 
 
-def test_no_vina_config_leaves_the_seed_unset():
-    """Vina's default seed is 0, which means random.
+def test_the_rmsd_of_a_pose_against_itself_is_zero():
+    """The other half of the pair, so the measurement is not simply broken.
 
-    Two runs at the default differ and nothing in the log says so, so a config
-    without a seed is a config that cannot be re-executed.
+    A symmetry_rmsd that returned 3.0 for everything would satisfy the test
+    above. This one fails if it does.
     """
-    configs = list(REPO.glob("ch*/config/*.txt"))
-    assert configs, "no Vina config files found to check"
-    for config in configs:
-        text = config.read_text(encoding="utf-8")
-        assert re.search(r"^\s*seed\s*=\s*\d+", text, re.MULTILINE), \
-            "%s does not set a seed" % config.relative_to(REPO)
+    from rdkit import Chem
+    from rdkit.Chem import AllChem
+
+    validate = load_module("ch17_validation/scripts/validate.py", "ch17_validate")
+    mol = Chem.AddHs(Chem.MolFromSmiles("c1ccccc1C(=O)NC"))
+    assert AllChem.EmbedMolecule(mol, randomSeed=11) == 0
+    AllChem.MMFFOptimizeMolecule(mol)
+    assert validate.symmetry_rmsd(mol, Chem.Mol(mol)) == pytest.approx(0.0, abs=1e-6)
+
+
+def test_no_vina_config_leaves_the_seed_at_the_random_default():
+    """Vina's default seed is 0, and 0 does not mean "seed zero". It means
+    "choose one at random".
+
+    The previous version of this test asked whether a seed line was *present*.
+    `seed = 0` is present and parses, and is exactly the condition the test
+    exists to prevent -- so changing 42 to 0 in ch09's config left it green.
+    The value is parsed and checked now, not matched.
+
+    That 0 is unusable is not taken from the manual here: ch09's
+    test_default_seed_is_not_reproducible docks twice at seed 0 and gets two
+    different poses, and test_the_configured_seed_actually_reproduces docks
+    twice at whatever this config says. This is the cheap static guard that
+    still runs when no tools are installed.
+    """
+    seeds = config_seeds()
+    assert seeds, "no Vina config files found to check"
+    for name, values in seeds.items():
+        assert values, "%s does not set a seed" % name
+        for value in values:
+            assert value != 0, (
+                "%s sets seed = 0. That is Vina's default and it means 'choose "
+                "one at random': two runs at it differ, and nothing in the log "
+                "tells them apart." % name)
+            assert value > 0, \
+                "%s sets seed = %d; Vina wants a positive integer" % (name, value)
+
+
+def write_pdb(path, records):
+    """A minimal PDB from (record, name, res, chain, seq, xyz, element) rows."""
+    lines = []
+    for serial, (rec, name, res, chain, seq, xyz, element) in enumerate(records, 1):
+        lines.append("%-6s%5d %-4s %3s %s%4s    %8.3f%8.3f%8.3f  1.00  0.00"
+                     "          %2s"
+                     % (rec, serial, name, res, chain, seq,
+                        xyz[0], xyz[1], xyz[2], element))
+    path.write_text("\n".join(lines) + "\nEND\n", encoding="utf-8")
+    return path
+
+
+def test_the_ligand_copy_is_chosen_by_distance_and_not_by_file_order(tmp_path):
+    """Seven chapters select a ligand copy. All seven go through one rule.
+
+    The rule cannot be tested on 1L2S, which is why the previous test did not
+    catch replacing the distance search with `copies[0]`: 1L2S's first STC copy
+    in file order happens to sit 2.70 Å from Ser64 OG, so the distance
+    assertion held while the code was picking the wrong chain -- chain A, the
+    one missing Lys290-Ala292.
+
+    So this builds a case where file order and distance disagree, which no
+    entry in this repository does:
+
+        A/100   2.60 Å   in the site, but the WRONG CHAIN -- and first in file
+        B/899   4.00 Å   in the site, right chain, but not the nearest
+        B/901   2.70 Å   the answer
+
+    Selecting by file order returns A/100. Taking the first qualifying copy in
+    the chain returns B/899. Only distance returns B/901.
+    """
+    import sys
+    sys.path.insert(0, str(REPO / "scripts"))
+    import receptor_prep
+
+    pdb = write_pdb(tmp_path / "synthetic.pdb", [
+        ("ATOM", " OG ", "SER", "A", "64", (0.0, 0.0, 0.0), " O"),
+        ("ATOM", " OG ", "SER", "B", "64", (100.0, 0.0, 0.0), " O"),
+        ("HETATM", " C1 ", "LIG", "A", "100", (2.60, 0.0, 0.0), " C"),
+        ("HETATM", " C1 ", "LIG", "B", "899", (104.0, 0.0, 0.0), " C"),
+        ("HETATM", " C1 ", "LIG", "B", "901", (102.70, 0.0, 0.0), " C"),
+    ])
+    atoms, _, _ = receptor_prep.parse(pdb)
+
+    copies = receptor_prep.ligand_copies(atoms, "LIG")
+    assert [c["seq"] for c in copies] == ["100", "899", "901"], \
+        "file order must be what it is, or the test proves nothing"
+
+    chosen, reported = receptor_prep.select_copy(atoms, "LIG", "B")
+    assert chosen is not None
+    assert (chosen["chain"], chosen["seq"]) == ("B", "901"), \
+        ("selected %s/%s. B/901 is the nearest copy in chain B; A/100 is what "
+         "file order gives and B/899 is what 'first one in the chain that "
+         "qualifies' gives." % (chosen["chain"], chosen["seq"]))
+    assert chosen["distance_to_ser64_og"] == pytest.approx(2.70, abs=0.01)
+    assert len(reported) == 3, \
+        "the discarded copies must come back too, so the choice can be checked"
+
+
+def test_no_catalytic_copy_in_the_chain_returns_nothing_rather_than_the_nearest():
+    """A chain with no copy inside the site must not fall back to a far one.
+
+    22.7 Å from any active site is where 1L2S's third STC copy sits. Returning
+    it because it was the closest thing available is the failure mode this
+    whole rule exists to prevent.
+    """
+    import sys
+    sys.path.insert(0, str(REPO / "scripts"))
+    import receptor_prep
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as tmp:
+        pdb = write_pdb(Path(tmp) / "synthetic.pdb", [
+            ("ATOM", " OG ", "SER", "A", "64", (0.0, 0.0, 0.0), " O"),
+            ("HETATM", " C1 ", "LIG", "B", "900", (22.7, 0.0, 0.0), " C"),
+        ])
+        atoms, _, _ = receptor_prep.parse(pdb)
+        chosen, copies = receptor_prep.select_copy(atoms, "LIG", "B")
+    assert chosen is None
+    assert len(copies) == 1 and copies[0]["in_site"] is False
 
 
 def test_every_vina_invocation_passes_a_seed():
