@@ -13,19 +13,44 @@ obabel -V                         # confirm it says 3.2.1
 
 ## On Windows
 
-`pip install vina==1.2.7` **fails on Windows**: the PyPI package is a source
-distribution that needs Boost, and there is no Windows wheel. Use the official
-binary of the same release instead —
-`vina_1.2.7_win.exe` from the
+**`pip install -r requirements.txt` does not work on Windows.** Not "works
+except for Vina" — it installs *nothing at all*. `vina==1.2.7` publishes
+manylinux and musllinux wheels for cp38–cp312 and no Windows wheel, so pip
+falls back to the source distribution, which needs Boost. The build fails while
+pip is still resolving, and pip abandons the whole transaction. Measured on a
+fresh Python 3.12.10 venv: `pip list` afterwards is empty.
+
+This works:
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+# every line of requirements.txt except the vina pin
+findstr /v /b "vina==" requirements.txt > requirements-windows.txt
+pip install -r requirements-windows.txt
+pip install openbabel-wheel==3.1.1.23
+```
+
+(In Git Bash: `grep -v '^vina==' requirements.txt > requirements-windows.txt`.)
+
+Then get Vina itself as a binary — `vina_1.2.7_win.exe` from the
 [AutoDock Vina 1.2.7 release](https://github.com/ccsb-scripps/AutoDock-Vina/releases/tag/v1.2.7)
-— and confirm it reports `AutoDock Vina v1.2.7`. Scripts here call Vina through
-its command line, so the binary and the Python bindings are interchangeable for
-this purpose; it is the same upstream code at the same version.
+— put it on `PATH`, or in `.tools/vina.exe`, or point `$VINA` at it, and
+confirm it reports `AutoDock Vina v1.2.7`. Scripts here call Vina through its
+command line, so the binary and the Python bindings are interchangeable for
+this purpose: same upstream code, same version.
 
-Everything else installs from `requirements.txt` on Windows Python 3.12.
+**Open Babel on Windows comes from `openbabel-wheel`,** the pip package in the
+recipe above, and that is what this repository's own Windows environment uses.
+It is not the system binary and it is not the pinned version: it gives **Open
+Babel 3.1.0, not 3.2.1**, because openbabel-wheel ships no 3.2.1 build for
+Windows. Open Babel is on the list of six things that can move a published
+value, so the difference is recorded rather than glossed —
+`ch04_formats/outputs/expected/results.md` names the version its numbers were
+produced with, and none of its conclusions change between the two.
 
-Open Babel is a separate install on Windows too, and ch04's format round-trips
-are its output, so `ch04_formats` cannot run without it.
+Without Open Babel, `ch04_formats` cannot run: its round-trips are that
+program's output.
 
 `environment/environment.yml` is provided as a convenience for conda users. It
 carries the same version pins, but **conda-forge may resolve transitive
