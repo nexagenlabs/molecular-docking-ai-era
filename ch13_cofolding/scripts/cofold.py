@@ -146,7 +146,7 @@ def main():
         print("  was being built. It succeeds, and it downgrades numpy to 1.26,")
         print("  gemmi to 0.6.5 and scipy to 1.13 -- silently breaking the pinned")
         print("  environment every other chapter depends on. Install it in a")
-        print("  SEPARATE environment. See PROGRESS.md.")
+        print("  SEPARATE environment. See build-record/PROGRESS.md.")
         print("\nThe command this chapter would run:\n")
         print("  boltz predict %s \\" % path)
         print("        --use_msa_server \\")

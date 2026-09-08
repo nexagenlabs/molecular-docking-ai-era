@@ -151,7 +151,7 @@ def test_no_vina_config_leaves_the_seed_at_the_random_default():
 def test_a_box_that_misses_the_receptor_is_refused_rather_than_scored(tmp_path):
     """A disjoint box returns affinity 0.000 and exit status 0.
 
-    STRESS_REPORT.md B12. Driving the repository's own dock() with the
+    build-record/STRESS_REPORT.md B12. Driving the repository's own dock() with the
     synthetic system and a box centred 100 A away returned 0.0 and exit 0 --
     no error, no warning, and a number that reads as a weak result rather than
     an absent one. Chapter 9 tells a reader to watch for exactly this, so the
@@ -415,6 +415,7 @@ def test_the_declared_dependencies_are_the_ones_that_exist():
 
 def test_no_fabricated_values_remain():
     """TODO(value) marks a gap. A plausible placeholder would survive review."""
+    # Bare filenames, not build-record/ paths: this compares path.name.
     outstanding = []
     for path in repo_text_files():
         text = path.read_text(encoding="utf-8", errors="replace")

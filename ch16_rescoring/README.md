@@ -72,4 +72,4 @@ would run, including two flags worth knowing:
 - `--seed 42` — GNINA inherits Vina's default-seed behaviour, so the rule from
   Chapter 9 applies unchanged: set it and record it.
 
-Recorded in `PROGRESS.md` under what could not run here.
+Recorded in `build-record/PROGRESS.md` under what could not run here.

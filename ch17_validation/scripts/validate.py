@@ -445,7 +445,7 @@ def write_record(results, meta, sensitivity=None):
         "| Platform | %s |" % meta["platform"],
         "| Python | %s |" % meta["python"],
         "| Reference platform for exact values | %s |"
-        % ("yes" if meta["reference_platform"] else "no — see PROGRESS.md"),
+        % ("yes" if meta["reference_platform"] else "no — see build-record/PROGRESS.md"),
         "| Resolved packages | `environment/resolved.txt` |",
         "",
     ]

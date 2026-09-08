@@ -71,7 +71,7 @@ atoms, which leaves two defensible treatments:
 
   PDBFixer is a conda-forge package and pulls in OpenMM, which is why this
   repository does not depend on it. **It is not installed here**, so the code
-  above is documented rather than run — see `PROGRESS.md`.
+  above is documented rather than run — see `build-record/PROGRESS.md`.
 
 Deleting the residue is the option to avoid anywhere near the site: it takes
 the backbone with it and leaves a hole that nothing in the output mentions. In

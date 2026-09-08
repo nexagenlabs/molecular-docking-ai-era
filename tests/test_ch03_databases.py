@@ -13,7 +13,7 @@ That is deliberate, and it is a change from how these were first written. A
 skip is reported as success, and success is the wrong word for "the comparison
 this chapter exists to make did not happen". An offline run would otherwise
 show a green suite for a chapter whose central claim went unchecked -- which is
-the same shape as the three weak tests in STRESS_REPORT.md B7, arrived at from
+the same shape as the three weak tests in build-record/STRESS_REPORT.md B7, arrived at from
 a different direction.
 """
 import pytest

@@ -1,6 +1,6 @@
 """Adversarial inputs: every script must refuse with a sentence, not a traceback.
 
-STRESS_TEST.md section 3 fed six bad inputs to this repository. Four were
+build-record/STRESS_TEST.md section 3 fed six bad inputs to this repository. Four were
 refused cleanly -- a nonexistent PDB entry, a structure with no ligand, an
 unparseable SMILES, and a run.sh invoked from a foreign working directory.
 The fifth, an empty SDF, produced a raw OSError traceback out of

@@ -3,7 +3,7 @@
 **This chapter reads seven other chapters.** The fixture builds all seven,
 because a test that asserts the seven verdicts while the source files happen
 to be lying around from an earlier run is asserting a state the suite never
-creates -- STRESS_REPORT.md B1, in the chapter with the most exposure to it.
+creates -- build-record/STRESS_REPORT.md B1, in the chapter with the most exposure to it.
 
 The chapter's other claim is what it does when a source is absent: it reports
 NOT MEASURED and counts the gap, rather than falling back to a default. A

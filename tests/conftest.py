@@ -31,7 +31,7 @@ def on_reference_platform():
     give -4.905/-4.911/-2.748 on Linux and -4.910/-4.903/-2.686 on Windows,
     for two measured reasons: the RDKit build's MMFF optimisation lands on a
     different conformer, and the Vina build scores differently on identical
-    files. See PROGRESS.md.
+    files. See build-record/PROGRESS.md.
     """
     return sys.platform.startswith("linux")
 
@@ -52,7 +52,7 @@ def platform_xfail(what):
     return pytest.mark.xfail(
         not on_reference_platform(),
         reason="%s is exact only on Linux; this is %s. The difference is "
-               "measured and recorded in PROGRESS.md, not tuned away."
+               "measured and recorded in build-record/PROGRESS.md, not tuned away."
                % (what, sys.platform),
         strict=False,
     )
@@ -139,7 +139,7 @@ def read_json(relative):
 # Several chapters read another chapter's output. Chapter 2 reads eight of
 # them; ch23 and ch16 read ch17's; ch27 reads ch20's, which reads ch09's AmpC
 # branch. A test for any of those has to build what it depends on -- asserting
-# a state the suite never creates is exactly the defect STRESS_REPORT.md B1
+# a state the suite never creates is exactly the defect build-record/STRESS_REPORT.md B1
 # describes, and it passed here for a session only because an earlier manual
 # run had left the files lying about.
 #

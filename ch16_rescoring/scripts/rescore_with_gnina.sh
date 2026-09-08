@@ -37,7 +37,7 @@ The command this chapter would run:
   --seed 42               GNINA inherits Vina's default-seed behaviour, so
                           the same rule applies: set it and record it.
 
-Nothing here is simulated. See ch16_rescoring/README.md and PROGRESS.md.
+Nothing here is simulated. See ch16_rescoring/README.md and build-record/PROGRESS.md.
 MSG
   exit 3
 fi

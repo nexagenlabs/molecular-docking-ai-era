@@ -6,7 +6,7 @@ the protocol and three things in it are easy to get wrong and impossible to
 notice afterwards: the signal peptide, the numbering, and the charge.
 
 Those three are what these tests hold. The chapter also must not simulate the
-prediction it cannot run -- STRESS_REPORT.md B13 notes the exit code was the
+prediction it cannot run -- build-record/STRESS_REPORT.md B13 notes the exit code was the
 one thing its run.sh obscured, so the script's own exit status is asserted
 here rather than run.sh's.
 """

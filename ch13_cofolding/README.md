@@ -58,7 +58,7 @@ to be reinstalled and the full test suite re-run to confirm the repair.
 
 **Install co-folding models in a separate environment.** That is a specific,
 reproducible finding from this build rather than general hygiene advice, and it
-is recorded in `PROGRESS.md`.
+is recorded in `build-record/PROGRESS.md`.
 
 ## What would have to be checked
 

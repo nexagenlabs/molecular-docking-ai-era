@@ -72,7 +72,7 @@ def main():
             print("  This is not the book's reference platform (Linux). Windows")
             print("  RDKit gives a different MMFF conformer and the Windows Vina")
             print("  build scores differently even on identical input files, so")
-            print("  a difference of this size is expected. See PROGRESS.md.")
+            print("  a difference of this size is expected. See build-record/PROGRESS.md.")
 
     result = {"system": args.system, "seed": SEED,
               "exhaustiveness": EXHAUSTIVENESS,

@@ -86,7 +86,7 @@ that means nothing.
 |---|---|
 | Platform | Windows-11-10.0.26200-SP0 |
 | Python | 3.12.10 |
-| Reference platform for exact values | no — see PROGRESS.md |
+| Reference platform for exact values | no — see build-record/PROGRESS.md |
 | Resolved packages | `environment/resolved.txt` |
 
 ## 6a. Sensitivity of the chain choice

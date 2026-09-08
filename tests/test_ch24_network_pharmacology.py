@@ -1,6 +1,6 @@
 """Chapter 24: the refusal, and what the background does to a p-value.
 
-STRESS_REPORT.md B6: this chapter's refusal was asserted by nothing. There was
+build-record/STRESS_REPORT.md B6: this chapter's refusal was asserted by nothing. There was
 no test file at all, so removing the refusal -- the one behaviour the chapter
 exists to demonstrate -- would have gone unnoticed. That is what these are for.
 

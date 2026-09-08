@@ -1,100 +1,35 @@
-# Molecular Docking in the AI Era — companion repository
+# Molecular Docking in the AI Era
 
-Code and data for *Molecular Docking in the AI Era* (Suryaprakash Tripathy,
-NexaGenLabs).
+Companion code for *Molecular Docking in the AI Era* by Suryaprakash Tripathy
+(NexaGenLabs).
 
 **The book is forthcoming.** This repository is published ahead of it, so the
-chapter numbers and the values below refer to a text that is not out yet. The
-code runs and the numbers reproduce on their own; you do not need the book to
-use it.
-
-The book makes quantitative claims. Every one is either computed from public
-data or cited to a source. This repository lets you obtain the inputs and
-reproduce the computed ones.
-
-**The test it has to pass:** a stranger on a clean machine can clone it, run
-one command per chapter, and get the numbers printed in the book.
-
-## Install
+chapter numbers refer to a text that is not out yet. The code runs and the
+numbers reproduce on their own; you do not need the book to use it.
 
 ```bash
 git clone https://github.com/nexagenlabs/molecular-docking-ai-era.git
 cd molecular-docking-ai-era
-
 python3.12 -m venv .venv && . .venv/bin/activate
 pip install -r requirements.txt
-sudo apt install openbabel         # 3.2.1 — confirm with obabel -V
+sudo apt install openbabel          # 3.2.1 -- confirm with obabel -V
 ```
 
-The book's numbers were produced with **pip on Ubuntu, Python 3.12.3**.
-`environment/environment.yml` exists for conda users and carries the same pins,
-but conda-forge can resolve transitive dependencies differently — see
+Windows needs two changes to that: `pip install vina` has no wheel and fails,
+and Open Babel comes from pip instead. See
 [`environment/README.md`](environment/README.md).
 
-**Vina must report 1.2.7.** On Windows, `pip install vina` fails (the sdist
-needs Boost and there is no wheel); use the official
-`vina_1.2.7_win.exe` binary instead.
-
-## Run
+Then fetch the inputs and run the sample chapter:
 
 ```bash
-bash data/structures/fetch.sh      # 1L2S, 4JXS, 4JXV, 1GA9
-python data/ligands/generate.py    # the three reference SDFs
-bash ch09_first_run/run.sh         # the sample chapter
+bash data/structures/fetch.sh       # 1L2S, 4JXS, 4JXV, 1GA9
+python data/ligands/generate.py     # the three reference SDFs
+bash ch09_first_run/run.sh
 ```
 
-Every chapter directory holds a `README.md` saying what it does and what to
-expect, a `run.sh` that goes from nothing to the result in one command, and
-`outputs/expected/` with reference results — so you can tell whether your run
-matched without opening the book.
-
-```bash
-pytest                             # 247 tests; every chapter has some
-```
-
-**It takes about half an hour**, because it is not checking files — it runs the
-chapters. Nine of them dock, and Vina at exhaustiveness 32 is most of the wall
-time. Each chapter runs once for the whole suite even where four test files
-depend on it.
-
-A test that asserted `run.sh` exits 0 would run in seconds and tell you
-nothing, so these assert what each chapter claims instead: a value, a refusal,
-the contents of a file, a selection made on the right grounds. Where a number
-is docking output it is the *comparison* that is asserted — the AlphaFold pose
-being worse than the crystal one, the undersized box being worse than both
-larger ones — because the third decimal is platform-dependent and the
-conclusion is not.
-
-For a quick check while working, run one chapter:
-
-```bash
-pytest tests/test_ch14_boltz2.py   # a few seconds; pure arithmetic
-pytest tests/test_gotchas.py       # the standing guards, no tools needed
-```
-
-## The running system
-
-**AmpC β-lactamase from *Escherichia coli*** (UniProt P00811), a class C serine
-hydrolase. **No catalytic metal** — the zinc enzymes are the class B
-metallo-β-lactamases, a different protein. Three congeneric inhibitors sharing
-an 18-heavy-atom core, spanning charges of −1 and −2 and affinities from 18 to
-31 µM.
-
-| Entry | Res. | Ligand | Role |
-|---|---|---|---|
-| 1L2S | 1.94 Å | STC | redocking target |
-| 4JXS | 1.90 Å | 18U | cross-docking |
-| 4JXV | 1.76 Å | 1MU | cross-docking |
-| 1GA9 | 2.10 Å | ETP | **excluded** — covalent to Ser64 |
-
-**Numbering trap: UniProt number = PDB number + 16.** Ser64 in the coordinate
-files is Ser80 in UniProt and in the AlphaFold model. Chapter 6 shows what
-happens otherwise: ask the model for residue 64 and it returns isoleucine, with
-no error.
-
-See [`data/structures/README.md`](data/structures/README.md) for the
-per-structure details the scripts depend on, all measured from the files rather
-than assumed.
+Every chapter directory holds a `README.md`, a `run.sh` that goes from nothing
+to the result in one command, and `outputs/expected/` with reference results —
+so you can tell whether your run matched without opening the book.
 
 ## Chapters
 
@@ -128,54 +63,47 @@ than assumed.
 
 Chapters 1 and 19 have no code.
 
-## Three things that will silently ruin a result
+## Run the tests
 
-1. **Never use `--minimize` when computing RMSD.** It superimposes before
-   measuring, which discards the thing a redock tests. A pose displaced 3.0 Å
-   returns `3.00000` without the flag and `0.00000` with it. `pytest` fails the
-   build if the flag — or `minimize=True` — appears in any code here.
-2. **Vina's default seed is 0, which means random.** Two runs at the default
-   differ; two at seed 42 are byte-identical. Nothing in the log distinguishes
-   them. Every run in this repository sets a seed, and `pytest` checks it.
-3. **PDBQT loses formal charge and reorders atoms.** Round-tripping the 18U
-   dianion returns the neutral diacid in a different atom order. Keep an SDF as
-   the reference copy and convert outward only.
+```bash
+pytest                              # 253 tests; every chapter has some
+```
 
-And one more this build discovered: **seed 42 is byte-identical within a build,
-not across builds.** The same Vina 1.2.7 and RDKit 2026.3.5 give different
-answers on Windows and Linux, for two measured reasons. See Chapter 9.
+**It takes about half an hour**, because it runs the chapters rather than
+checking that files exist. Nine of them dock, and Vina at exhaustiveness 32 is
+most of the wall time. These assert what each chapter claims — a value, a
+refusal, a selection made on the right grounds — not that `run.sh` exits 0.
+Where a number is docking output it is the *comparison* that is asserted,
+because the third decimal is platform-dependent and the conclusion is not.
 
-## Licence
+## Versions
 
-**Code: MIT**, in [`LICENSE`](LICENSE) — the scripts and data-preparation code
-only.
+Six packages can move a published number and are pinned exactly: **vina 1.2.7**
+(not 1.2.5, superseded February 2025), **rdkit 2026.3.5**, **spyrmsd 0.9.0**,
+**meeko 0.8.0**, **numpy 2.4.4** and **Open Babel 3.2.1**. `requirements.txt`
+is authoritative; `environment/environment.yml` carries the same pins for conda
+users, but conda-forge can resolve transitive dependencies differently.
 
-**The book's text and figures are not covered by it** and remain all rights
-reserved. No figure images are committed here; each chapter's script draws its
-own, so what you get is the figure regenerated from your run.
+The book's numbers were produced with pip on **Ubuntu, Python 3.12.3**. Seed 42
+is byte-identical within a build, not across builds: the same Vina and RDKit
+give different third decimals on Windows and Linux, for two measured reasons.
+See Chapter 9.
 
 ## Errata
 
 Corrections to the book are collected in [`errata.md`](errata.md). Where this
-repository disagrees with the book, both numbers are recorded in
-[`PROGRESS.md`](PROGRESS.md) with a diagnosis, and neither is edited to match
-the other.
+repository disagrees with the book, both numbers are recorded with a diagnosis
+and neither is edited to match the other.
 
-## How this repository was built and checked
+## How this was built
 
-These files are the build record, kept because a repository claiming to verify
-rather than assert should show its working.
+[`build-record/`](build-record/) holds the plan, the defect reports and the
+adversarial test of this repository against itself. None of it is needed to run
+the code.
 
-- [`BUILD_REPORT.md`](BUILD_REPORT.md) lists the defects the expected values
-  caught while the chapters were written, every one of which returned a
-  plausible wrong answer rather than an error.
-- [`STRESS_REPORT.md`](STRESS_REPORT.md) records an adversarial test of this
-  repository against itself, including two tests that passed only on
-  accumulated state and one that reported protection it was not providing.
-- [`PROGRESS.md`](PROGRESS.md) is a working log and reads like one.
-- [`SESSION_PLAN.md`](SESSION_PLAN.md) is the plan the repository was built
-  to, and [`STRESS_TEST.md`](STRESS_TEST.md) the checks it was tested against;
-  `STRESS_REPORT.md` is the answer to the latter. Neither is instructions to a
-  reader.
+## Licence
 
-None of these is required to use the code.
+**Code: MIT**, in [`LICENSE`](LICENSE) — the scripts and data-preparation code
+only. **The book's text and figures are not covered by it** and remain all
+rights reserved. No figure images are committed here; each chapter's script
+draws its own.
