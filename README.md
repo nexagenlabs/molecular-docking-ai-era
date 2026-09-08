@@ -18,7 +18,7 @@ one command per chapter, and get the numbers printed in the book.
 ## Install
 
 ```bash
-git clone <this repo>
+git clone https://github.com/nexagenlabs/molecular-docking-ai-era.git
 cd molecular-docking-ai-era
 
 python3.12 -m venv .venv && . .venv/bin/activate
@@ -160,3 +160,18 @@ Corrections to the book are collected in [`errata.md`](errata.md). Where this
 repository disagrees with the book, both numbers are recorded in
 [`PROGRESS.md`](PROGRESS.md) with a diagnosis, and neither is edited to match
 the other.
+
+## How this repository was built and checked
+
+These files are the build record, kept because a repository claiming to verify
+rather than assert should show its working.
+
+- [`BUILD_REPORT.md`](BUILD_REPORT.md) lists the defects the expected values
+  caught while the chapters were written, every one of which returned a
+  plausible wrong answer rather than an error.
+- [`STRESS_REPORT.md`](STRESS_REPORT.md) records an adversarial test of this
+  repository against itself, including two tests that passed only on
+  accumulated state and one that reported protection it was not providing.
+- [`PROGRESS.md`](PROGRESS.md) is a working log and reads like one.
+
+None of these is required to use the code.
