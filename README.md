@@ -76,6 +76,12 @@ refusal, a selection made on the right grounds — not that `run.sh` exits 0.
 Where a number is docking output it is the *comparison* that is asserted,
 because the third decimal is platform-dependent and the conclusion is not.
 
+## Three things that silently ruin a result
+
+- **`--minimize` on an RMSD call** superimposes before measuring, so every redock passes; a test enforces its absence.
+- **Vina's default seed of 0 means random, not zero**, so an unseeded run cannot be repeated.
+- **PDBQT drops formal charge and reorders atoms**, so keep an SDF as the reference copy.
+
 ## Versions
 
 Six packages can move a published number and are pinned exactly: **vina 1.2.7**
