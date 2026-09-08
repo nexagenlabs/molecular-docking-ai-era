@@ -173,5 +173,9 @@ rather than assert should show its working.
   repository against itself, including two tests that passed only on
   accumulated state and one that reported protection it was not providing.
 - [`PROGRESS.md`](PROGRESS.md) is a working log and reads like one.
+- [`SESSION_PLAN.md`](SESSION_PLAN.md) is the plan the repository was built
+  to, and [`STRESS_TEST.md`](STRESS_TEST.md) the checks it was tested against;
+  `STRESS_REPORT.md` is the answer to the latter. Neither is instructions to a
+  reader.
 
 None of these is required to use the code.
