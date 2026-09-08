@@ -86,9 +86,11 @@ log tells you which situation you are in. Record the platform next to the seed.
 Vina 1.2.7, synthetic system, box centre (0, 0, 0), seed 42:
 
 - Seed 0 twice → different. Seed 42 twice → byte-identical.
-- Exhaustiveness 8 → 3.4 s, 32 → 14.2 s on 4 cores. **Absolute times are
-  hardware-specific; only the ratio, 3–5, is asserted.** This machine: 2.31 s
-  and 8.20 s, ratio 3.55.
+- Exhaustiveness 8 → 3.4 s, 32 → 14.2 s on 4 cores, ratio 4.18. **Absolute
+  times are hardware-specific; only the band — greater than 1.5, less than 4.0
+  — is asserted.** 4.0 is exact linearity, and a faster machine amortises less
+  of the fixed grid cost, so the ratio falls: 4.18 on the book's machine, 3.34
+  on Windows, 2.80 on Ubuntu 24.04. This machine: 2.31 s and 8.20 s, ratio 3.55.
 - Box 20 / 12 / 8 Å → −4.905 / −4.911 / −2.748, **no error raised**.
 - Mode 1 always reports RMSD `0.000 0.000` — distance from mode 1, not from a
   crystal pose.

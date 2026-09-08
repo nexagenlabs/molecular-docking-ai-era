@@ -3,6 +3,11 @@
 Code and data for *Molecular Docking in the AI Era* (Suryaprakash Tripathy,
 NexaGenLabs).
 
+**The book is forthcoming.** This repository is published ahead of it, so the
+chapter numbers and the values below refer to a text that is not out yet. The
+code runs and the numbers reproduce on their own; you do not need the book to
+use it.
+
 The book makes quantitative claims. Every one is either computed from public
 data or cited to a source. This repository lets you obtain the inputs and
 reproduce the computed ones.

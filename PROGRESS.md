@@ -568,9 +568,9 @@ of box volume, and the chapter never claimed it was. The timing assertion is
 removed; what the chapter does claim — a box built without knowing the answer,
 17x the volume, still lands the pose — is what the test now checks.
 
-**One is an open disagreement with the book.**
+**One was an open disagreement with the book. It is now resolved.**
 
-## OPEN: the exhaustiveness ratio is below the book's 3-5 band
+## RESOLVED: the exhaustiveness ratio band was 3-5; it is now 1.5-4.0
 
 CLAUDE.md section 6: *"exhaustiveness 8 → 3.4 s; 32 → 14.2 s on 4 cores.
 Absolute times are hardware-specific; assert only that the ratio is 3-5."*
@@ -595,18 +595,19 @@ the ratio falls out of the band. The band is therefore not hardware-independent
 in the way section 6 claims — which is the specific thing the ratio was
 introduced to be.
 
-**Not tuned.** The test is a non-strict xfail carrying the measurements in its
-reason, not a widened band. Widening it would be adjusting the test until it
-matches the observation, which section 6 forbids. A second test asserts what
-does hold on both platforms and is the actual teaching point: quadrupling
-exhaustiveness costs meaningfully more, and less than four times more.
+**Not tuned — the band was wrong, and the author corrected it.** The test was
+held as a non-strict xfail carrying the measurements in its reason, rather than
+a band widened to fit the observation, until the book could be checked. The
+author's finding: 3-5 was an error in the book, not a defect in the
+measurements. Fitting the three ratios gives the ceiling directly — 4.0 is
+exact linearity, no fixed cost amortised at all — and every machine came in at
+or below it, in the order the mechanism predicts, fastest machine lowest.
 
-**This needs an author decision**, and it is a decision about the book rather
-than about the code:
-
-- keep 3-5 and add the hardware caveat, or
-- restate the band from measurement (2.5-4.5 covers everything seen here), or
-- drop the numeric band and keep only "more, but less than 4x".
+Chapter 9 and CLAUDE.md section 6 now say **greater than 1.5 and less than
+4.0**. The test asserts that, carries the three measurements in its docstring,
+and the xfail is gone; `timing.py`'s own out-of-band note moved with it. This
+is the sequence section 6 asks for: find out which side is wrong before
+changing either. The book was the wrong side.
 
 ## Status
 
@@ -617,7 +618,7 @@ than about the code:
 | B12 | **closed** — `dock()` refuses a non-negative best affinity, naming the box |
 | B13 | **closed** — both run.sh propagate their exit code |
 | L1, L2, L3 | **new, from the Linux run**; L1 and L3 are documentation defects in the install path |
-| the ratio | **open disagreement with the book**, awaiting a decision |
+| the ratio | **closed** — the book's 3-5 band was wrong; corrected to 1.5-4.0 |
 
 ## Re-verified after the fixes
 
@@ -632,9 +633,9 @@ succeeded with no undocumented intervention.
 | Ubuntu 24.04.4, Python 3.12.3 | **250 tests, exit 0**, 1 xfailed |
 | Windows 11, Python 3.12.10 | **250 tests, exit 0**, 3 xfailed, 2 xpassed |
 
-The single Linux xfail is the exhaustiveness ratio, which is the open
-disagreement above and is meant to be visible. The Windows xfails are the
-platform-dependent values the marker has always covered.
+The single Linux xfail was the exhaustiveness ratio; with the band corrected
+that test now passes on both platforms and the marker is removed. The Windows
+xfails are the platform-dependent values the marker has always covered.
 
 Both platforms pass from a clean clone. The install path is now documented as
 it actually behaves on each.

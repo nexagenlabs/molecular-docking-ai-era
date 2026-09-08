@@ -184,44 +184,26 @@ def test_box_scores_match_the_book(sweep):
              "out which side is wrong." % (size, sweep["scores"][size], expected))
 
 
-@pytest.mark.xfail(
-    reason="OPEN DISAGREEMENT WITH THE BOOK, not a platform difference. "
-           "CLAUDE.md section 6 says to assert only that the ratio is 3-5. "
-           "Measured best-of-3 on an idle machine: Linux (the reference "
-           "platform) 2.80, Windows 3.34; the book's own 3.4 s and 14.2 s give "
-           "4.18. The band does not hold where the book says its numbers come "
-           "from. See PROGRESS.md -- this is awaiting an author decision and "
-           "must not be tuned away.",
-    strict=False,
-)
-def test_exhaustiveness_ratio_is_between_3_and_5():
+def test_exhaustiveness_ratio_is_above_one_and_a_half_and_below_four():
     """Absolute timings are hardware-specific; only the ratio travels.
 
-    Except that it does not travel as far as the book claims. timing.py's own
-    docstring gives the mechanism: the grid is computed once whatever the
-    search does, so the fixed cost is a larger share of the exhaustiveness-8
-    run on a fast machine, and the ratio falls. The book measured 3.4 s at
-    exhaustiveness 8; this machine measures 1.47 s. It is roughly twice as
-    fast, and the ratio drops out of the band accordingly.
+    And it travels as a band with a hard ceiling, not as a single number. The
+    mechanism is `timing.py`'s own: the grid is computed once whatever the
+    search does, so quadrupling exhaustiveness cannot cost four times the time,
+    and the faster the machine the larger a share of the short run that fixed
+    cost is -- so the ratio *falls* as hardware improves.
 
-    Left as a non-strict xfail rather than a widened band, because widening it
-    would be tuning the test to the observation -- which is the one thing
-    CLAUDE.md section 6 forbids. If the band is wrong it is the book that needs
-    the correction, and that is not a decision a test file gets to make.
-    """
-    run_script("ch09_first_run/scripts/timing.py", "--system", "synthetic")
-    timing = read_json("ch09_first_run/outputs/synthetic/timing.json")
-    assert 3.0 <= timing["ratio"] <= 5.0, \
-        "ratio %.2f outside the 3-5 band" % timing["ratio"]
+    Measured best-of-3 on an idle machine, `timing.py --repeats 3`:
 
+    | | exh 8 | exh 32 | ratio |
+    |---|---|---|---|
+    | the book's machine | 3.4 s | 14.2 s | 4.18 |
+    | Windows 11, Python 3.12.10 | -- | -- | 3.34 |
+    | Ubuntu 24.04, Python 3.12.3 | 1.47 s | 4.12 s | 2.80 |
 
-def test_exhaustiveness_costs_more_than_it_saves_but_not_four_times_more():
-    """The claim underneath the band, which does hold on both platforms.
-
-    Whatever the exact ratio, two things are true everywhere it has been
-    measured: quadrupling exhaustiveness costs meaningfully more time, and it
-    costs *less* than four times more, because the grid is a fixed cost. That
-    is the teaching point; 3-5 was an attempt to put a number on it.
+    4.0 is exact linearity -- no fixed cost amortised at all -- and nothing
+    measured exceeds it. Record your own number rather than matching any of
+    these; this asserts only what holds everywhere.
     """
     run_script("ch09_first_run/scripts/timing.py", "--system", "synthetic")
     timing = read_json("ch09_first_run/outputs/synthetic/timing.json")

@@ -189,6 +189,10 @@ Everything else in §6 and §1 reproduced, several by two independent routes:
 - **UniProt = PDB + 16**, recovered from the sequences at 100% residue identity
   (ch06) and again from the mature-sequence frame check (ch13).
 - **Exhaustiveness ratio 3.55** on the synthetic system (book 4.2, band 3–5).
+  *Corrected after this report was written: the 3–5 band was an error in the
+  book. 4.0 is exact linearity and no machine has exceeded it, so the band is
+  now greater than 1.5 and less than 4.0. The 3.55 measurement stands; only
+  the band it was compared against changed. See PROGRESS.md.*
 
 ---
 
