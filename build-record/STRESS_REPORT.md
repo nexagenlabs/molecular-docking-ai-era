@@ -484,6 +484,45 @@ Check 7's subjective half was skipped on purpose, and a Windows-only run still
 cannot police ch08's protonation order (B5) — that is the finding, not a gap
 in the fixing.
 
+### B7's shape, found twice in the tooling
+
+Two errors during the root restructure had the same shape as B7, and neither
+was in the repository's code — both were in how its state was being checked.
+
+**A pipeline's exit code is the last command's.** Three full-suite runs were
+reported as `exit 0` on the strength of `pytest -q | tail`, which reports
+`tail`'s status. `tail` cannot fail. The runs happened to be clean, so nothing
+false was recorded, but the evidence cited was not evidence, and the third run
+printed a complete `AssertionError` traceback *underneath* the same `exit 0`.
+
+**A byte count read through a formatter is not a byte count.** `od -c | grep -o
+'\\r'` reported 56 CR bytes in a shell script that `bash -n` had just parsed
+without complaint. Counting the bytes directly gave zero. The formatter's
+rendering, not the file, was being matched.
+
+The defect they hid was real: rewriting files with Python's `write_text` on
+Windows translates `\n` to `\r\n`, and `.gitattributes` here says
+`* text=auto eol=lf` precisely because `ch16_rescoring/scripts/rescore_with_gnina.sh`
+fails at `set -euo pipefail` with `invalid option name` when it carries CRs.
+Committed content was never at risk — git normalises on commit — but the
+working tree was broken, and **only the full suite catches this class of error,
+because only it executes the `.sh` files.**
+
+**What caught both was contradiction, not care.** A traceback beside a success
+status; a CR count beside a file bash had just parsed. Re-reading either
+command would not have helped — both were doing exactly what they said. The
+general rule, which is `CLAUDE.md`'s *compute a number twice by different
+routes* applied to tooling rather than to chemistry:
+
+> When a tool's output is a summary rather than the thing itself, verify it by
+> a differently-shaped route.
+
+An exit status summarises a run; read the run. A formatter's rendering
+summarises bytes; count the bytes. This is the same failure B7 names — a check
+that reports protection it is not providing — and it is worth recording that it
+appeared in the instruments rather than in the code, where the suite cannot
+reach it.
+
 ### Verification of the fixes
 
 Each of the six commits was followed by a clean-clone run — a fresh `git clone`
