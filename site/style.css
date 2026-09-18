@@ -1,0 +1,87 @@
+/* dock.nexagenlabs.com
+   One stylesheet, no framework, no build step. Modelled on lab.nexagenlabs.com,
+   which inlines the same rules per page; they are shared here instead so that a
+   change to the type scale does not have to be made five times.
+
+   Readers arrive by typing an address off a printed page, often on a phone.
+   Everything below is sized so that a printed URL stays legible at 320px wide
+   and no table forces the page itself to scroll sideways. */
+
+:root {
+  color-scheme: light dark;
+  --measure: 42rem;
+}
+
+body {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 2rem 1.1rem 4rem;
+  font: 1rem/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Wider for the two pages that are mostly table. */
+body.wide { --measure: 46rem; }
+/* Narrower for the 404, which is a short piece of prose. */
+body.narrow { --measure: 38rem; }
+
+h1 { font-size: 1.6rem; margin: 0 0 .3rem; }
+h2 { font-size: 1.1rem; margin: 2.2rem 0 .6rem; }
+h3 { font-size: 1rem; margin: 1.6rem 0 .4rem; }
+
+.sub { margin: 0 0 1.6rem; }
+.note { opacity: .8; }
+
+a { color: inherit; }
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .875em;
+}
+
+/* Printed addresses and shell commands must never be broken across a line in a
+   way that hides a character, so they wrap only at a boundary that survives
+   being retyped. */
+code, .url code { overflow-wrap: break-word; }
+
+pre {
+  overflow-x: auto;
+  padding: .8rem 1rem;
+  border: 1px solid currentColor;
+  font-size: .875rem;
+  line-height: 1.5;
+}
+pre code { font-size: 1em; }
+
+.start {
+  border: 1px solid currentColor;
+  padding: .8rem 1rem;
+  margin: 1.5rem 0 0;
+}
+.start p { margin: 0; }
+
+ul { padding-left: 1.2rem; }
+li { margin: .25rem 0; }
+
+ul.chapters { list-style: none; padding: 0; margin: 0; }
+ul.chapters li { margin: 0 0 1.15rem; }
+.name { font-weight: 600; }
+.url { display: block; margin-top: .15rem; opacity: .75; }
+
+/* Tables scroll inside their own box rather than widening the page. */
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: .95rem; }
+th, td {
+  border: 1px solid currentColor;
+  padding: .45rem .6rem;
+  text-align: left;
+  vertical-align: top;
+}
+th { font-weight: 600; }
+td.empty { text-align: center; opacity: .75; padding: 1.2rem .6rem; }
+/* The "checked" column holds a date and should not wrap mid-date. */
+td.date, th.date { white-space: nowrap; }
+
+.hub { margin: 1.6rem 0; font-size: 1.05rem; }
+
+footer { margin-top: 3rem; font-size: .9rem; opacity: .8; }

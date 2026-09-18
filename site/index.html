@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Molecular Docking in the AI Era</title>
+<meta name="description" content="Companion code for Molecular Docking in the AI Era: A Hands-On Handbook for Structure-Based Drug Discovery. Twenty-five chapters, one folder each.">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<h1>Molecular Docking in the AI Era</h1>
+<p class="sub">
+  Companion code for <em>Molecular Docking in the AI Era: A Hands-On Handbook
+  for Structure-Based Drug Discovery</em>, by Suryaprakash Tripathy.
+</p>
+
+<p>
+  Twenty-five chapters ship code, one folder each, in
+  <a href="https://github.com/nexagenlabs/molecular-docking-ai-era">one repository</a>.
+  Clone it once and you have everything in the book. Each chapter stands alone:
+  open its folder, run <code>run.sh</code>, and the numbers printed in that
+  chapter come out.
+</p>
+
+<div class="start">
+  <p>
+    <strong>Start here.</strong> Setup, the pinned environment, and the
+    structures the book uses:
+    <a href="/setup"><code>dock.nexagenlabs.com/setup</code></a>
+  </p>
+</div>
+
+<h2>Every number in the book is asserted by a test</h2>
+
+<p>
+  The book prints measured values rather than illustrative ones. Those values
+  live in the repository as expected results, and the test suite asserts them,
+  so a divergence between page and code shows up as a failing build rather than
+  as a reader's afternoon.
+</p>
+
+<p>
+  Two hundred and fifty-three tests run from a fresh clone and the suite passes,
+  on Windows and on Ubuntu. A few are marked expected-to-fail where different
+  RDKit and AutoDock Vina builds produce slightly different coordinates &mdash;
+  which few depends on the platform, and the reason is attached to each. Nothing
+  is tuned to match.
+</p>
+
+<h2>Three things that silently ruin a result</h2>
+
+<p>
+  <code>--minimize</code> on an RMSD call superimposes before measuring, so
+  every redock passes. Vina's default seed of 0 means random, not zero, so an
+  unseeded run cannot be repeated. And PDBQT drops formal charge and reorders
+  atoms, so keep an SDF as the reference copy. None of the three produces an
+  error.
+</p>
+
+<h2>One system, all the way through</h2>
+
+<p>
+  Every chapter from 5 onward uses
+  <strong>AmpC &beta;-lactamase from <em>Escherichia coli</em></strong>
+  (UniProt P00811): four public crystal structures, a congeneric series of
+  inhibitors with measured affinities, and five published prospective screening
+  campaigns with experimental follow-up. Everything that can be reproduced from
+  public files, can be.
+</p>
+
+<h2>The chapters</h2>
+
+<ul class="chapters">
+  <li>
+    <span class="name">2 &middot; Choosing a method</span><br>
+    Cost comparison across docking, co-folding and free energy methods.
+    <span class="url"><code>dock.nexagenlabs.com/ch02</code></span>
+  </li>
+  <li>
+    <span class="name">3 &middot; Databases</span><br>
+    Provenance recorder, and a check for whether your target is in PDBbind.
+    <span class="url"><code>dock.nexagenlabs.com/ch03</code></span>
+  </li>
+  <li>
+    <span class="name">4 &middot; File formats</span><br>
+    Format round-trips, measured. What PDBQT loses and PDB does not.
+    <span class="url"><code>dock.nexagenlabs.com/ch04</code></span>
+  </li>
+  <li>
+    <span class="name">5 &middot; Receptor preparation</span><br>
+    Receptor QC: gaps, altlocs, ligand copies, bridging waters, buffer.
+    <span class="url"><code>dock.nexagenlabs.com/ch05</code></span>
+  </li>
+  <li>
+    <span class="name">6 &middot; Predicted structures</span><br>
+    Per-residue confidence for a predicted structure's binding site.
+    <span class="url"><code>dock.nexagenlabs.com/ch06</code></span>
+  </li>
+  <li>
+    <span class="name">7 &middot; Defining the pocket</span><br>
+    Box definition from a reference ligand, with the derivation recorded.
+    <span class="url"><code>dock.nexagenlabs.com/ch07</code></span>
+  </li>
+  <li>
+    <span class="name">8 &middot; Ligand preparation</span><br>
+    Protonation, stereochemistry round-trip, conformer generation.
+    <span class="url"><code>dock.nexagenlabs.com/ch08</code></span>
+  </li>
+  <li>
+    <span class="name">9 &middot; Your first docking run</span><br>
+    A reproducible run: the seed, the box, and what silence looks like.
+    <span class="url"><code>dock.nexagenlabs.com/ch09</code></span>
+  </li>
+  <li>
+    <span class="name">10 &middot; Flexible residues</span><br>
+    Side-chain torsions across structures: which residues actually move.
+    <span class="url"><code>dock.nexagenlabs.com/ch10</code></span>
+  </li>
+  <li>
+    <span class="name">11 &middot; Web servers</span><br>
+    Turning a server result into something a protocol record can hold.
+    <span class="url"><code>dock.nexagenlabs.com/ch11</code></span>
+  </li>
+  <li>
+    <span class="name">12 &middot; Screening</span><br>
+    Parallel screening with checkpointing, and the filter cascade.
+    <span class="url"><code>dock.nexagenlabs.com/ch12</code></span>
+  </li>
+  <li>
+    <span class="name">13 &middot; Co-folding</span><br>
+    Co-folding submission and confidence parsing for the binding site.
+    <span class="url"><code>dock.nexagenlabs.com/ch13</code></span>
+  </li>
+  <li>
+    <span class="name">14 &middot; Boltz-2</span><br>
+    Affinity prediction, and the squared-correlation diagnostic.
+    <span class="url"><code>dock.nexagenlabs.com/ch14</code></span>
+  </li>
+  <li>
+    <span class="name">15 &middot; The co-folding field</span><br>
+    Running two co-folding models and reporting where they disagree.
+    <span class="url"><code>dock.nexagenlabs.com/ch15</code></span>
+  </li>
+  <li>
+    <span class="name">16 &middot; Rescoring</span><br>
+    Rescoring, and a check for training-set overlap with your target.
+    <span class="url"><code>dock.nexagenlabs.com/ch16</code></span>
+  </li>
+  <li>
+    <span class="name">17 &middot; Validation</span><br>
+    Redocking and cross-docking, with symmetry-corrected RMSD.
+    <span class="url"><code>dock.nexagenlabs.com/ch17</code></span>
+  </li>
+  <li>
+    <span class="name">18 &middot; Enrichment</span><br>
+    Two screens with identical AUC and opposite early enrichment.
+    <span class="url"><code>dock.nexagenlabs.com/ch18</code></span>
+  </li>
+  <li>
+    <span class="name">20 &middot; The protocol record</span><br>
+    The protocol record, blank and filled, populated from a run log.
+    <span class="url"><code>dock.nexagenlabs.com/ch20</code></span>
+  </li>
+  <li>
+    <span class="name">21 &middot; Molecular dynamics</span><br>
+    Why a flat RMSD trace is not a converged one.
+    <span class="url"><code>dock.nexagenlabs.com/ch21</code></span>
+  </li>
+  <li>
+    <span class="name">22 &middot; Free energy</span><br>
+    Free energy with replicates, and standard errors that mean something.
+    <span class="url"><code>dock.nexagenlabs.com/ch22</code></span>
+  </li>
+  <li>
+    <span class="name">23 &middot; Interaction fingerprints</span><br>
+    Interaction geometry alongside interaction names.
+    <span class="url"><code>dock.nexagenlabs.com/ch23</code></span>
+  </li>
+  <li>
+    <span class="name">24 &middot; Network pharmacology</span><br>
+    Enrichment that refuses to run without an explicit background.
+    <span class="url"><code>dock.nexagenlabs.com/ch24</code></span>
+  </li>
+  <li>
+    <span class="name">25 &middot; Hit to bench</span><br>
+    Dose-response fitting that reports the Hill slope beside the
+    IC<sub>50</sub>.
+    <span class="url"><code>dock.nexagenlabs.com/ch25</code></span>
+  </li>
+  <li>
+    <span class="name">26 &middot; Case study</span><br>
+    Three reproduction tests with published answers.
+    <span class="url"><code>dock.nexagenlabs.com/ch26</code></span>
+  </li>
+  <li>
+    <span class="name">27 &middot; The methods section</span><br>
+    Methods paragraphs drafted from a protocol record.
+    <span class="url"><code>dock.nexagenlabs.com/ch27</code></span>
+  </li>
+</ul>
+
+<p class="note">
+  Chapters 1 and 19 ship no code, so there is no <code>/ch01</code> or
+  <code>/ch19</code>. If you typed one, you are in the right place already.
+</p>
+
+<h2>Versions</h2>
+<p>
+  Parts of this book date faster than the rest. Model releases, licences and
+  tool versions are listed with a dated changelog at
+  <a href="/versions"><code>dock.nexagenlabs.com/versions</code></a>.
+  Chapters 13 to 16 point here for a reason.
+</p>
+
+<h2>References</h2>
+<p>
+  The reference list as machine-readable data, with a DOI on every entry that
+  has one:
+  <a href="/references"><code>dock.nexagenlabs.com/references</code></a>
+</p>
+
+<h2>Errata</h2>
+<p>
+  Corrections to the printed book are listed on the
+  <a href="/errata">errata page</a>. If you have found an error in the book or
+  the code, please report it: the page says how.
+</p>
+
+<footer>
+  Code is MIT licensed. Book text and figures are not.
+</footer>
+
+</body>
+</html>

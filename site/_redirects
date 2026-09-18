@@ -1,0 +1,36 @@
+# dock.nexagenlabs.com -- chapter routes.
+#
+# 302, not 301. These addresses are printed in a book and cannot be recalled,
+# so the destination has to stay changeable. A 301 is cached by the browser
+# and by intermediaries indefinitely, which would make a reader who visited
+# once unreachable by a later correction.
+#
+# Generated from the chapter directories that exist on main; every target was
+# confirmed to resolve before this file was written. There is deliberately no
+# /ch01 or /ch19 -- those chapters ship no code, and 404.html says so.
+
+/ch02    https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/ch02_method_choice    302
+/ch03    https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/ch03_databases    302
+/ch04    https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/ch04_formats    302
+/ch05    https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/ch05_receptor_prep    302
+/ch06    https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/ch06_predicted_structures    302
+/ch07    https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/ch07_pocket    302
+/ch08    https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/ch08_ligand_prep    302
+/ch09    https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/ch09_first_run    302
+/ch10    https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/ch10_flexibility    302
+/ch11    https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/ch11_web_servers    302
+/ch12    https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/ch12_screening    302
+/ch13    https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/ch13_cofolding    302
+/ch14    https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/ch14_boltz2    302
+/ch15    https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/ch15_cofolding_field    302
+/ch16    https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/ch16_rescoring    302
+/ch17    https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/ch17_validation    302
+/ch18    https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/ch18_enrichment    302
+/ch20    https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/ch20_protocol_record    302
+/ch21    https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/ch21_molecular_dynamics    302
+/ch22    https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/ch22_free_energy    302
+/ch23    https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/ch23_interactions    302
+/ch24    https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/ch24_network_pharmacology    302
+/ch25    https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/ch25_hit_to_bench    302
+/ch26    https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/ch26_case_study    302
+/ch27    https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/ch27_methods    302

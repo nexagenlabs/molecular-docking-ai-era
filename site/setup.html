@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Setup &middot; Molecular Docking in the AI Era</title>
+<meta name="description" content="Clone, install, and check the environment for the companion code to Molecular Docking in the AI Era.">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<h1>Setup</h1>
+<p class="sub">
+  <a href="/">Back to the hub</a>.
+</p>
+
+<p>
+  Everything in this book runs on free software. One environment covers every
+  chapter except the three noted at the bottom.
+</p>
+
+<h2>Clone and install</h2>
+
+<pre><code>git clone https://github.com/nexagenlabs/molecular-docking-ai-era.git
+cd molecular-docking-ai-era
+python3.12 -m venv .venv &amp;&amp; source .venv/bin/activate
+pip install -r requirements.txt</code></pre>
+
+<p>
+  Python 3.12 specifically. The pinned RDKit does not resolve on 3.14. The
+  repository's
+  <a href="https://github.com/nexagenlabs/molecular-docking-ai-era/blob/main/environment/README.md">environment/README.md</a>
+  carries the exact per-platform recipe, including the AutoDock Vina binary,
+  which pip does not provide on every platform.
+</p>
+
+<p>
+  Two things about those four lines are worth knowing before you run them, both
+  because following them on a clean machine did not work.
+</p>
+
+<ul>
+  <li>
+    <strong>On Ubuntu</strong>, <code>python3.12 -m venv</code> fails outright
+    unless <code>python3.12-venv</code> is installed first, and
+    <code>pip install -r requirements.txt</code> then succeeds while leaving you
+    unable to dock anything, because it installs Vina's Python bindings and not
+    the <code>vina</code> command that every script here calls.
+  </li>
+  <li>
+    <strong>On Windows the install above does not work at all.</strong> Not
+    "works except for Vina" &mdash; it installs nothing. The <code>vina</code>
+    pin publishes no Windows wheel, pip falls back to the source distribution,
+    the build fails during resolution, and pip abandons the whole transaction.
+    <code>environment/README.md</code> gives the two-command version that works.
+  </li>
+</ul>
+
+<h2>Check it worked</h2>
+
+<pre><code>bash ch09_first_run/run.sh</code></pre>
+
+<p>
+  That is the sample chapter. It docks a small synthetic system, demonstrates
+  that the default seed is not reproducible and a fixed one is, and prints three
+  box-size results. Those three numbers are in Chapter 9. If they match, your
+  environment is correct.
+</p>
+
+<h2>The structures</h2>
+
+<p>
+  The book uses four PDB entries: 1L2S, 4JXS, 4JXV and 1GA9. They are downloaded
+  rather than committed, so that you get them from the source:
+</p>
+
+<pre><code>bash data/structures/fetch.sh</code></pre>
+
+<p>
+  Checksums are in
+  <a href="https://github.com/nexagenlabs/molecular-docking-ai-era/blob/main/data/structures/README.md">data/structures/README.md</a>.
+</p>
+
+<h2>Why the versions are pinned exactly</h2>
+
+<p>
+  Six packages can change a number printed in the book: RDKit, AutoDock Vina,
+  spyrmsd, Meeko, NumPy and Open Babel. They are pinned exactly. Matplotlib and
+  SciPy affect only plots and carry minimum bounds.
+</p>
+
+<p>
+  If your numbers differ from the book's, that is information rather than a
+  fault. The
+  <a href="https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/build-record">build record</a>
+  in the repository lists the differences already found, and what caused them.
+  What each pin is currently at upstream is on the
+  <a href="/versions">versions page</a>.
+</p>
+
+<h2>What does not run everywhere</h2>
+
+<p>
+  Three chapters need software that may not install on your machine: GNINA
+  (Chapter 16), Boltz-2 (Chapter 14) and PDBFixer (Chapters 5 and 6). Each
+  pipeline is written and each exits with the exact command it would have run,
+  so you can see what was intended without installing anything.
+</p>
+
+<p>
+  <strong>Do not install Boltz-2 into this environment.</strong> It succeeds and
+  silently downgrades NumPy, gemmi and SciPy, which changes the conformer counts
+  in Chapter 8 and the RMSD values in Chapter 17. Use a separate environment.
+</p>
+
+<footer>
+  Code is MIT licensed. Book text and figures are not.
+</footer>
+
+</body>
+</html>

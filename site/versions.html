@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Versions &middot; Molecular Docking in the AI Era</title>
+<meta name="description" content="Current tool versions and model licences for Molecular Docking in the AI Era, each read from the project's own release page or licence file, with the date it was checked.">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body class="wide">
+
+<h1>Versions</h1>
+<p class="sub">
+  <a href="/">Back to the hub</a>.
+</p>
+
+<p>
+  Part IV of this book covers software that changes faster than a book can be
+  reprinted. This page carries the current state and a dated record of what has
+  moved, so that a chapter written in 2026 stays usable.
+</p>
+
+<p>
+  Where this page and the printed book disagree, this page is current and the
+  book records what was true when it was checked. <strong>Checked</strong> is
+  the date someone last read the upstream source, not the date the version was
+  released: a row checked long ago is a row you should verify yourself.
+</p>
+
+<h2>How these were checked</h2>
+
+<p>
+  Every value below was read from the project's own repository, release page or
+  licence file. No summary site, package-tracker or blog post was used, because
+  those are exactly the sources that go stale without saying so. The
+  <strong>Source</strong> column is the page actually read, so you can repeat the
+  check rather than trust it.
+</p>
+
+<p>
+  Where a value could not be found, the row says <strong>not found</strong> and
+  where the search was made. Where two primary sources disagree, both are
+  recorded.
+</p>
+
+<h2>Tools</h2>
+
+<div class="scroll">
+<table>
+  <thead>
+    <tr>
+      <th>Tool</th>
+      <th>Version in the book</th>
+      <th>Current</th>
+      <th class="date">Released</th>
+      <th class="date">Checked</th>
+      <th>Source</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>AutoDock Vina</td>
+      <td>1.2.7</td>
+      <td>1.2.7 &mdash; unchanged</td>
+      <td class="date">2025-02-26</td>
+      <td class="date">2026-09-18</td>
+      <td><a href="https://github.com/ccsb-scripps/AutoDock-Vina/releases/tag/v1.2.7">ccsb-scripps/AutoDock-Vina releases</a></td>
+    </tr>
+    <tr>
+      <td>smina</td>
+      <td>&mdash;</td>
+      <td>
+        <strong>Version not found.</strong> smina publishes no versioned
+        release. Its SourceForge files page carries dated binaries, the newest
+        being <code>smina.osx.12</code>; the Linux <code>smina.static</code>
+        build is dated 2019-10-15. The GitHub mirror has no tags and its last
+        commit is 2018-11-18.
+      </td>
+      <td class="date">2021-12-01<br><span class="note">(newest file)</span></td>
+      <td class="date">2026-09-18</td>
+      <td>
+        <a href="https://sourceforge.net/projects/smina/files/">sourceforge.net/projects/smina/files</a>,
+        <a href="https://github.com/mwojcikowski/smina">mwojcikowski/smina</a>
+      </td>
+    </tr>
+    <tr>
+      <td>RDKit</td>
+      <td>2026.3.5</td>
+      <td><strong>2026.3.6</strong> &mdash; one patch ahead of the pin</td>
+      <td class="date">2026-08-28<br><span class="note">(PyPI 2026-09-03)</span></td>
+      <td class="date">2026-09-18</td>
+      <td><a href="https://github.com/rdkit/rdkit/releases/tag/Release_2026_03_6">rdkit/rdkit releases</a></td>
+    </tr>
+    <tr>
+      <td>Open Babel</td>
+      <td>3.2.1 pinned; 3.1.x is what installs</td>
+      <td>3.2.1 &mdash; unchanged, and still not what most package managers give you</td>
+      <td class="date">2026-07-11</td>
+      <td class="date">2026-09-18</td>
+      <td><a href="https://github.com/openbabel/openbabel/releases/tag/openbabel-3-2-1">openbabel/openbabel releases</a></td>
+    </tr>
+    <tr>
+      <td>spyrmsd</td>
+      <td>0.9.0</td>
+      <td>0.9.0 &mdash; unchanged</td>
+      <td class="date">2025-05-07</td>
+      <td class="date">2026-09-18</td>
+      <td><a href="https://github.com/RMeli/spyrmsd/releases/tag/0.9.0">RMeli/spyrmsd releases</a></td>
+    </tr>
+    <tr>
+      <td>Meeko</td>
+      <td>0.8.0</td>
+      <td>0.8.0 &mdash; unchanged</td>
+      <td class="date">2026-08-27</td>
+      <td class="date">2026-09-18</td>
+      <td><a href="https://github.com/forlilab/Meeko/releases/tag/v0.8.0">forlilab/Meeko releases</a></td>
+    </tr>
+    <tr>
+      <td>gemmi</td>
+      <td>0.7.5</td>
+      <td>0.7.5 &mdash; unchanged</td>
+      <td class="date">2026-03-02</td>
+      <td class="date">2026-09-18</td>
+      <td><a href="https://pypi.org/project/gemmi/">pypi.org/project/gemmi</a></td>
+    </tr>
+    <tr>
+      <td>NumPy</td>
+      <td>2.4.4</td>
+      <td><strong>2.5.3</strong> &mdash; ahead of the pin</td>
+      <td class="date">2026-09-06</td>
+      <td class="date">2026-09-18</td>
+      <td><a href="https://pypi.org/project/numpy/">pypi.org/project/numpy</a></td>
+    </tr>
+    <tr>
+      <td>GNINA</td>
+      <td>&mdash;</td>
+      <td>1.3.3</td>
+      <td class="date">2026-06-29</td>
+      <td class="date">2026-09-18</td>
+      <td><a href="https://github.com/gnina/gnina/releases/tag/v1.3.3">gnina/gnina releases</a></td>
+    </tr>
+    <tr>
+      <td>PLIP</td>
+      <td>&mdash;</td>
+      <td>3.0.1</td>
+      <td class="date">2026-07-03</td>
+      <td class="date">2026-09-18</td>
+      <td><a href="https://github.com/pharmai/plip/releases/tag/v3.0.1">pharmai/plip releases</a></td>
+    </tr>
+    <tr>
+      <td>GROMACS</td>
+      <td>&mdash;</td>
+      <td>
+        2026.3. Note that the 2025 branch is still maintained: 2025.5 was
+        published later, on 2026-08-31.
+      </td>
+      <td class="date">2026-06-25</td>
+      <td class="date">2026-09-18</td>
+      <td><a href="https://ftp.gromacs.org/gromacs/">ftp.gromacs.org/gromacs</a></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p class="note">
+  An em dash in the second column means the repository does not pin that tool.
+  smina, GNINA, PLIP and GROMACS appear in the book's prose but are not part of
+  the pinned environment, so there is no version for them to be measured
+  against. The eight that are pinned are in
+  <a href="https://github.com/nexagenlabs/molecular-docking-ai-era/blob/main/requirements.txt">requirements.txt</a>,
+  which is authoritative; six of those can move a published number.
+</p>
+
+<p class="note">
+  Two dates are given for RDKit because its GitHub release and its PyPI upload
+  are five days apart. Same version, different publication events; neither is
+  wrong. gemmi and NumPy were read from PyPI, which is where the pinned
+  artefact actually comes from.
+</p>
+
+<p>
+  A pin sitting behind the current release is the expected state, not a defect.
+  The pins reproduce the book's numbers; upgrading is what changes them. The
+  <a href="https://github.com/nexagenlabs/molecular-docking-ai-era/tree/main/build-record">build record</a>
+  lists the differences already found and what caused them.
+</p>
+
+<h2>Models and their terms</h2>
+
+<p>
+  Each licence below was read from the project's own <code>LICENSE</code> file
+  or terms document, not from a third party's description of it.
+</p>
+
+<div class="scroll">
+<table>
+  <thead>
+    <tr>
+      <th>Model</th>
+      <th>Licence in the book</th>
+      <th>Current</th>
+      <th class="date">Checked</th>
+      <th>Source</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>AlphaFold 3 code</td>
+      <td>CC BY-NC-SA 4.0</td>
+      <td>
+        <strong>Apache 2.0.</strong> Changed on 2026-06-09. See
+        <a href="#contradicts">Contradicts the book</a>.
+      </td>
+      <td class="date">2026-09-18</td>
+      <td><a href="https://github.com/google-deepmind/alphafold3/blob/main/LICENSE">alphafold3/LICENSE</a></td>
+    </tr>
+    <tr>
+      <td>AlphaFold 3 weights</td>
+      <td>By request, non-commercial organisations only</td>
+      <td>
+        <strong>Terms unchanged; access changed.</strong> The Terms of Use still
+        read <em>Last Modified: 2024-11-09</em> and still restrict the parameters
+        to &ldquo;non-commercial use by, or on behalf of, non-commercial
+        organizations&rdquo;. But the request form was removed on 2026-07-23 and
+        the weights are now a direct download. See
+        <a href="#contradicts">Contradicts the book</a>, items 2 and 3.
+      </td>
+      <td class="date">2026-09-18</td>
+      <td>
+        <a href="https://github.com/google-deepmind/alphafold3/blob/main/WEIGHTS_TERMS_OF_USE.md">WEIGHTS_TERMS_OF_USE.md</a>,
+        <a href="https://github.com/google-deepmind/alphafold3/blob/main/WEIGHTS_PROHIBITED_USE_POLICY.md">WEIGHTS_PROHIBITED_USE_POLICY.md</a>
+      </td>
+    </tr>
+    <tr>
+      <td>Boltz-2</td>
+      <td>MIT</td>
+      <td>MIT &mdash; unchanged. Latest release 2.2.1, 2025-09-08.</td>
+      <td class="date">2026-09-18</td>
+      <td><a href="https://github.com/jwohlwend/boltz/blob/main/LICENSE">boltz/LICENSE</a></td>
+    </tr>
+    <tr>
+      <td>Chai-1</td>
+      <td>Apache 2.0</td>
+      <td>Apache 2.0 &mdash; unchanged. Latest release 0.6.1, 2025-03-18.</td>
+      <td class="date">2026-09-18</td>
+      <td><a href="https://github.com/chaidiscovery/chai-lab/blob/main/LICENSE">chai-lab/LICENSE</a></td>
+    </tr>
+    <tr>
+      <td>Protenix</td>
+      <td>Apache 2.0</td>
+      <td>Apache 2.0 &mdash; unchanged. Latest release 2.0.0, 2026-04-07.</td>
+      <td class="date">2026-09-18</td>
+      <td><a href="https://github.com/bytedance/Protenix/blob/main/LICENSE">Protenix/LICENSE</a></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+  Chapter 14 reports Boltz-2 benchmarks that predate Boltz-2.1, which was
+  released on 2025-06-11; the current release is 2.2.1. Chapter 15 says
+  explicitly that something will have been released between writing and reading.
+</p>
+
+<h2 id="contradicts">Contradicts the book</h2>
+
+<p>
+  The four findings below are not page corrections. They are chapter edits,
+  listed here so they are not lost among values that merely moved. The
+  <em>Version in the book</em> and <em>Licence in the book</em> columns above
+  are deliberately left as the book printed them.
+</p>
+
+<p>
+  Three concern Chapter 13 and one concerns Chapter 15, which repeats two of the
+  same errors in a different form. Two of the four are changes upstream and
+  appear in the changelog; the other two are wording that has been wrong since
+  the book was written, and do not.
+</p>
+
+<h3>1. AlphaFold 3's code licence changed, and the book's statement is now wrong</h3>
+
+<div class="scroll">
+<table>
+  <tbody>
+    <tr><th>The book says</th><td>CC BY-NC-SA 4.0</td></tr>
+    <tr><th>The project says</th><td>Apache License 2.0</td></tr>
+    <tr><th>Changed</th><td class="date">2026-06-09</td></tr>
+    <tr>
+      <th>Evidence</th>
+      <td>
+        Commit <code>7b197fe</code>, whose message is
+        &ldquo;Change the code license from CC BY-NC-SA 4.0 to Apache 2.0&rdquo;.
+        The <code>LICENSE</code> file at <code>main</code> is the Apache License
+        2.0.
+      </td>
+    </tr>
+    <tr>
+      <th>Read at</th>
+      <td>
+        <a href="https://github.com/google-deepmind/alphafold3/commit/7b197fe859">github.com/google-deepmind/alphafold3/commit/7b197fe859</a><br>
+        <a href="https://github.com/google-deepmind/alphafold3/blob/main/LICENSE">github.com/google-deepmind/alphafold3/blob/main/LICENSE</a>
+      </td>
+    </tr>
+    <tr><th>Affects</th><td>Chapter 13</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p class="note">
+  This affects the <em>code</em> only. The weights are governed by a separate
+  Terms of Use, which did not change: the same commit edited that file only to
+  update its cross-reference to the code licence, five lines, leaving the
+  restriction itself untouched.
+</p>
+
+<h3>2. The weights are no longer obtained by request</h3>
+
+<p>
+  The book describes the weights as available <em>by request</em>. That was
+  accurate when written and is not any more: the request form was removed on
+  2026-07-23 and replaced with a public download URL. The non-commercial
+  restriction is unaffected &mdash; use is still governed by the Terms of Use
+  &mdash; but nothing now gates the download itself.
+</p>
+
+<div class="scroll">
+<table>
+  <tbody>
+    <tr>
+      <th>The book says</th>
+      <td>By request, non-commercial organisations only</td>
+    </tr>
+    <tr>
+      <th>Was</th>
+      <td>
+        &ldquo;To request access &hellip; please complete this form. Access will
+        be granted at Google DeepMind's sole discretion &hellip; within 2&ndash;3
+        business days. You may only use AlphaFold 3 model parameters if received
+        directly from Google.&rdquo;
+      </td>
+    </tr>
+    <tr>
+      <th>Is now</th>
+      <td>
+        &ldquo;You can download the AlphaFold 3 model parameters from
+        <code>https://storage.googleapis.com/alphafold3/af3.bin.zst</code>. Use
+        is subject to these terms of use.&rdquo; A request for that URL returns
+        <code>200 OK</code> with no authentication, checked 2026-09-18.
+      </td>
+    </tr>
+    <tr><th>Changed</th><td class="date">2026-07-23</td></tr>
+    <tr>
+      <th>Read at</th>
+      <td>
+        <a href="https://github.com/google-deepmind/alphafold3/commit/dd1a7bad">commit <code>dd1a7bad</code></a>,
+        &ldquo;Update the instructions on how to obtain AlphaFold 3 weights&rdquo;,
+        which edited <code>README.md</code> and <code>docs/installation.md</code>
+      </td>
+    </tr>
+    <tr><th>Affects</th><td>Chapter 13</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p class="note">
+  The half of the book's sentence that still holds is the important half. Who may
+  use the weights has not changed; only how you get hold of them.
+</p>
+
+<h3>3. The weights are restricted by organisation type <em>and</em> by activity</h3>
+
+<p>
+  Chapter 13 states that AlphaFold 3's weights are restricted by organisation
+  type <em>rather than</em> by activity. The first half is right and is the part
+  most readers get wrong &mdash; but &ldquo;rather than&rdquo; is too strong,
+  because the policy restricts on both axes at once.
+</p>
+
+<div class="scroll">
+<table>
+  <tbody>
+    <tr>
+      <th>Organisation type</th>
+      <td>
+        &ldquo;only non-commercial organizations &hellip; may use the AlphaFold 3
+        Assets &hellip; The AlphaFold 3 Assets are not available for any other
+        types of organization, even if conducting non-commercial work.&rdquo;
+      </td>
+    </tr>
+    <tr>
+      <th>Activity</th>
+      <td>
+        The same clause prohibits use &ldquo;in connection with any commercial
+        activities&rdquo;, and permits a non-commercial organisation to use the
+        assets for &ldquo;their non-commercial activities&rdquo;.
+      </td>
+    </tr>
+    <tr>
+      <th>Read at</th>
+      <td>
+        <a href="https://github.com/google-deepmind/alphafold3/blob/main/WEIGHTS_PROHIBITED_USE_POLICY.md">WEIGHTS_PROHIBITED_USE_POLICY.md</a>,
+        clause 1 and sub-clauses 1.1&ndash;1.3
+      </td>
+    </tr>
+    <tr><th>Checked</th><td class="date">2026-09-18</td></tr>
+    <tr><th>Affects</th><td>Chapter 13</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p class="note">
+  <strong>This one did not move.</strong> The wording has stood since the initial
+  release on 2024-11-11, so it is a reading to correct rather than a change to
+  record, and it has no changelog row below. The chapter's point survives, but
+  for a more precise reason than it gives: the organisation test binds
+  <em>independently</em> &mdash; a commercial organisation is excluded even when
+  the work is non-commercial &mdash; not because activity is irrelevant. Both
+  tests must be met.
+</p>
+
+<h3>4. Chapter 15 repeats both weights errors in Table 15.1</h3>
+
+<p>
+  Table 15.1 lists AlphaFold 3 as <em>&ldquo;Gated; weights by request,
+  non-commercial organisations&rdquo;</em>, and the sentence above it repeats
+  that the weights are <em>available by request</em>. Findings 2 and 3 apply
+  again, in a different place.
+</p>
+
+<div class="scroll">
+<table>
+  <tbody>
+    <tr>
+      <th>&ldquo;Gated&rdquo; and &ldquo;by request&rdquo;</th>
+      <td>
+        No longer true as of 2026-07-23. The request form was removed and the
+        weights are a public download; the URL returns <code>200 OK</code> with
+        no authentication. Nothing gates the file. Same correction as
+        finding 2, and the same changelog row covers it.
+      </td>
+    </tr>
+    <tr>
+      <th>&ldquo;non-commercial organisations&rdquo;</th>
+      <td>
+        Incomplete in the same way as finding 3. The organisation test is
+        necessary but not sufficient: a non-commercial organisation is still
+        confined to its non-commercial activities. Not a change &mdash; this has
+        been the wording since 2024-11-11.
+      </td>
+    </tr>
+    <tr>
+      <th>Read at</th>
+      <td>
+        <a href="https://github.com/google-deepmind/alphafold3/commit/dd1a7bad">commit <code>dd1a7bad</code></a>
+        and
+        <a href="https://github.com/google-deepmind/alphafold3/blob/main/WEIGHTS_PROHIBITED_USE_POLICY.md">WEIGHTS_PROHIBITED_USE_POLICY.md</a>
+      </td>
+    </tr>
+    <tr><th>Checked</th><td class="date">2026-09-18</td></tr>
+    <tr><th>Affects</th><td>Chapter 15, Table 15.1 and the sentence above it</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p class="note">
+  Finding 1 bears on this table directly. Table 15.1 sets AlphaFold 3's row
+  against Apache 2.0 and MIT rows for the other models, and AlphaFold 3's
+  <em>code</em> is now Apache 2.0 like the rest &mdash; only the weights are
+  restricted. The contrast the table needs survives, because Apache 2.0 code is
+  no use without weights you cannot obtain.
+</p>
+
+<h2>Changelog</h2>
+
+<p>
+  What has moved since the book went to print, newest first. Only changes to the
+  software and its terms are recorded here; a correction to something the book
+  misread is an erratum, not a change, and is listed above instead.
+</p>
+
+<div class="scroll">
+<table>
+  <thead>
+    <tr>
+      <th class="date">Date</th>
+      <th>What changed</th>
+      <th>Affects</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="date">2026-07-23</td>
+      <td>
+        AlphaFold 3's model parameters stopped being gated behind a request
+        form and became a direct download
+        (commit <code>dd1a7bad</code>). Who may use them did not change; the
+        Terms of Use still restrict them to non-commercial organisations.
+        <span class="note">Recorded 2026-09-18.</span>
+      </td>
+      <td>Chapters 13 and 15</td>
+    </tr>
+    <tr>
+      <td class="date">2026-06-09</td>
+      <td>
+        AlphaFold 3's code licence changed from CC BY-NC-SA 4.0 to Apache 2.0
+        (commit <code>7b197fe</code>). The weights Terms of Use were edited in
+        the same commit, but only to update the cross-reference; the
+        non-commercial restriction is unchanged.
+        <span class="note">Recorded 2026-09-18.</span>
+      </td>
+      <td>Chapter 13</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<footer>
+  Code is MIT licensed. Book text and figures are not.
+</footer>
+
+</body>
+</html>
