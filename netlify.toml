@@ -1,0 +1,21 @@
+# dock.nexagenlabs.com -- the companion site in site/.
+#
+# Paths in this file are relative to `base`, so base = "site" with
+# publish = "." publishes <repo root>/site. That is the same directory the
+# dashboard publishes with its publish directory set to "site"; the two agree,
+# which matters because this file overrides the dashboard rather than merging
+# with it, and a publish path that resolves somewhere empty deploys a working
+# build of nothing.
+#
+# `base` is doing a second job. Netlify decides whether to install
+# dependencies by looking for manifests in the base directory, and
+# requirements.txt sits at the repository root. Pointing base at site/, which
+# contains only HTML, CSS and _redirects, keeps the deploy from trying to pip
+# install the docking environment -- which would fail, because vina publishes
+# no wheel for the Python the build image selects.
+#
+# No build command: the site is static files, served as they are committed.
+
+[build]
+  base = "site"
+  publish = "."
