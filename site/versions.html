@@ -7,7 +7,7 @@
 <meta name="description" content="Current tool versions and model licences for Molecular Docking in the AI Era, each read from the project's own release page or licence file, with the date it was checked.">
 <link rel="stylesheet" href="/style.css">
 </head>
-<body class="wide">
+<body>
 
 <h1>Versions</h1>
 <p class="sub">
@@ -15,14 +15,15 @@
 </p>
 
 <p>
-  Part IV of this book covers software that changes faster than a book can be
-  reprinted. This page carries the current state and a dated record of what has
-  moved, so that a chapter written in 2026 stays usable.
+  Part IV of <em>Molecular Docking in the AI Era</em> covers software that
+  changes faster than a book can be reprinted. This page carries the current
+  state and a dated record of what has moved, so that a chapter written in 2026
+  stays usable.
 </p>
 
 <p>
-  Where this page and the printed book disagree, this page is current and the
-  book records what was true when it was checked. <strong>Checked</strong> is
+  Where this page and the book disagree, this page is current and the book
+  records what was true when it was checked. <strong>Checked</strong> is
   the date someone last read the upstream source, not the date the version was
   released: a row checked long ago is a row you should verify yourself.
 </p>
@@ -69,13 +70,7 @@
     <tr>
       <td>smina</td>
       <td>&mdash;</td>
-      <td>
-        <strong>Version not found.</strong> smina publishes no versioned
-        release. Its SourceForge files page carries dated binaries, the newest
-        being <code>smina.osx.12</code>; the Linux <code>smina.static</code>
-        build is dated 2019-10-15. The GitHub mirror has no tags and its last
-        commit is 2018-11-18.
-      </td>
+      <td><strong>Not found</strong> &mdash; no versioned release. See below.</td>
       <td class="date">2021-12-01<br><span class="note">(newest file)</span></td>
       <td class="date">2026-09-18</td>
       <td>
@@ -94,7 +89,7 @@
     <tr>
       <td>Open Babel</td>
       <td>3.2.1 pinned; 3.1.x is what installs</td>
-      <td>3.2.1 &mdash; unchanged, and still not what most package managers give you</td>
+      <td>3.2.1 &mdash; unchanged</td>
       <td class="date">2026-07-11</td>
       <td class="date">2026-09-18</td>
       <td><a href="https://github.com/openbabel/openbabel/releases/tag/openbabel-3-2-1">openbabel/openbabel releases</a></td>
@@ -150,10 +145,7 @@
     <tr>
       <td>GROMACS</td>
       <td>&mdash;</td>
-      <td>
-        2026.3. Note that the 2025 branch is still maintained: 2025.5 was
-        published later, on 2026-08-31.
-      </td>
+      <td>2026.3</td>
       <td class="date">2026-06-25</td>
       <td class="date">2026-09-18</td>
       <td><a href="https://ftp.gromacs.org/gromacs/">ftp.gromacs.org/gromacs</a></td>
@@ -166,16 +158,36 @@
   An em dash in the second column means the repository does not pin that tool.
   smina, GNINA, PLIP and GROMACS appear in the book's prose but are not part of
   the pinned environment, so there is no version for them to be measured
-  against. The eight that are pinned are in
-  <a href="https://github.com/nexagenlabs/molecular-docking-ai-era/blob/main/requirements.txt">requirements.txt</a>,
-  which is authoritative; six of those can move a published number.
+  against. The other seven are pinned, and
+  <a href="https://github.com/nexagenlabs/molecular-docking-ai-era/blob/main/requirements.txt">requirements.txt</a>
+  is authoritative for them: six carry an exact <code>==</code> pin there and
+  can each move a number the book prints. Open Babel is the seventh, pinned by
+  the instructions in that file rather than by a line pip can install, because
+  the version you get depends on your platform.
 </p>
 
 <p class="note">
   Two dates are given for RDKit because its GitHub release and its PyPI upload
   are five days apart. Same version, different publication events; neither is
   wrong. gemmi and NumPy were read from PyPI, which is where the pinned
-  artefact actually comes from.
+  artefact actually comes from. <strong>Open Babel</strong> 3.2.1 is current
+  upstream but is still not what most package managers install, which is why the
+  book's column names both numbers.
+</p>
+
+<p class="note">
+  <strong>smina</strong> is the one row with no version, because it publishes no
+  versioned release at all. Its SourceForge files page carries dated binaries
+  rather than releases: the newest is <code>smina.osx.12</code>, dated
+  2021-12-01, and the Linux <code>smina.static</code> build is dated 2019-10-15.
+  The GitHub mirror has no tags and its last commit is 2018-11-18. A date is the
+  most precise thing that can honestly be recorded.
+</p>
+
+<p class="note">
+  <strong>GROMACS</strong> maintains more than one branch at a time, so the
+  newest release is not always the newest upload: 2025.5 was published on
+  2026-08-31, after 2026.3.
 </p>
 
 <p>
@@ -219,13 +231,7 @@
       <td>AlphaFold 3 weights</td>
       <td>Non-commercial organisations only; direct download</td>
       <td>
-        Matches. The Terms of Use still read
-        <em>Last Modified: 2024-11-09</em> and restrict the parameters to
-        &ldquo;non-commercial use by, or on behalf of, non-commercial
-        organizations&rdquo;, for their non-commercial activities. The request
-        form that once gated the download was removed on 2026-07-23; the
-        chapters were
-        <a href="#corrections">corrected before printing</a>.
+        Matches &mdash; restricted as the book says. See below.
       </td>
       <td class="date">2026-09-18</td>
       <td>
@@ -257,6 +263,20 @@
   </tbody>
 </table>
 </div>
+
+<p>
+  <strong>The AlphaFold 3 weights</strong> are the one entry where two documents
+  have to be read together. The Terms of Use, still marked
+  <em>Last Modified: 2024-11-09</em>, restrict the parameters to
+  &ldquo;non-commercial use by, or on behalf of, non-commercial
+  organizations&rdquo;; the Prohibited Use Policy adds that those organisations
+  may use them only for their non-commercial activities. Both tests must be met,
+  and a commercial organisation is excluded even when the work is
+  non-commercial. What changed in 2026 was not who may use the weights but how
+  they are obtained: the request form was removed on 2026-07-23 and the download
+  is now public. The chapters were
+  <a href="#corrections">corrected before printing</a>.
+</p>
 
 <p>
   Chapter 14 reports Boltz-2 benchmarks that predate Boltz-2.1, which was

@@ -20,7 +20,7 @@ been a 302 shows up here rather than in a reader's cache.
 """
 import sys
 from functools import partial
-from http.server import HTTPServer, SimpleHTTPRequestHandler
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site").resolve()
@@ -91,7 +91,10 @@ def main():
     print(f"Serving {ROOT} at http://localhost:{PORT}/")
     print(f"{len(REDIRECTS)} redirect routes loaded. Ctrl-C to stop.")
     try:
-        HTTPServer(("127.0.0.1", PORT), handler).serve_forever()
+        # Threading, not plain HTTPServer: a single-threaded server serialises
+        # requests, so one slow or half-open connection stalls every other one.
+        # A browser opening the page and its stylesheet at once is enough.
+        ThreadingHTTPServer(("127.0.0.1", PORT), handler).serve_forever()
     except KeyboardInterrupt:
         print("\nstopped")
 
