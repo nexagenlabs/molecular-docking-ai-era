@@ -11,8 +11,10 @@ to use the code** — start at the [root README](../README.md) instead.
 | [`STRESS_TEST.md`](STRESS_TEST.md) | The checks `STRESS_REPORT.md` answers — written before the results were known, so the report could not quietly become a list of things that happened to pass. |
 | [`SESSION_PLAN.md`](SESSION_PLAN.md) | The plan the repository was built to. |
 | [`PROGRESS.md`](PROGRESS.md) | A working log. It reads like one. |
+| [`SITE_CONTENT.md`](SITE_CONTENT.md) | The draft the companion site at `dock.nexagenlabs.com` was written from, open questions and all. It lived in `site/` until the first deploy showed it publishing itself at `/SITE_CONTENT.md`. |
 
-Neither `SESSION_PLAN.md` nor `STRESS_TEST.md` is instructions to a reader.
+None of `SESSION_PLAN.md`, `STRESS_TEST.md` or `SITE_CONTENT.md` is instructions
+to a reader.
 
 Where this repository disagrees with the book, both numbers are recorded in
 `PROGRESS.md` with a diagnosis, and neither is edited to match the other. The
