@@ -206,24 +206,26 @@
   <tbody>
     <tr>
       <td>AlphaFold 3 code</td>
-      <td>CC BY-NC-SA 4.0</td>
+      <td>Apache 2.0</td>
       <td>
-        <strong>Apache 2.0.</strong> Changed on 2026-06-09. See
-        <a href="#contradicts">Contradicts the book</a>.
+        Apache 2.0 &mdash; matches. It was CC BY-NC-SA 4.0 until 2026-06-09;
+        the chapters were
+        <a href="#corrections">corrected before printing</a>.
       </td>
       <td class="date">2026-09-18</td>
       <td><a href="https://github.com/google-deepmind/alphafold3/blob/main/LICENSE">alphafold3/LICENSE</a></td>
     </tr>
     <tr>
       <td>AlphaFold 3 weights</td>
-      <td>By request, non-commercial organisations only</td>
+      <td>Non-commercial organisations only; direct download</td>
       <td>
-        <strong>Terms unchanged; access changed.</strong> The Terms of Use still
-        read <em>Last Modified: 2024-11-09</em> and still restrict the parameters
-        to &ldquo;non-commercial use by, or on behalf of, non-commercial
-        organizations&rdquo;. But the request form was removed on 2026-07-23 and
-        the weights are now a direct download. See
-        <a href="#contradicts">Contradicts the book</a>, items 2 and 3.
+        Matches. The Terms of Use still read
+        <em>Last Modified: 2024-11-09</em> and restrict the parameters to
+        &ldquo;non-commercial use by, or on behalf of, non-commercial
+        organizations&rdquo;, for their non-commercial activities. The request
+        form that once gated the download was removed on 2026-07-23; the
+        chapters were
+        <a href="#corrections">corrected before printing</a>.
       </td>
       <td class="date">2026-09-18</td>
       <td>
@@ -262,221 +264,31 @@
   explicitly that something will have been released between writing and reading.
 </p>
 
-<h2 id="contradicts">Contradicts the book</h2>
+<h2 id="corrections">Chapters 13 and 15 were corrected before printing</h2>
 
 <p>
-  The four findings below are not page corrections. They are chapter edits,
-  listed here so they are not lost among values that merely moved. The
-  <em>Version in the book</em> and <em>Licence in the book</em> columns above
-  are deliberately left as the book printed them.
+  AlphaFold 3 moved twice in 2026. Its code licence became Apache 2.0 in June,
+  and its weights stopped being gated behind a request form in July. Both
+  changes landed while this book was still in draft, so Chapters 13 and 15 were
+  corrected to match before any reader saw them. No copy of the book states the
+  older position, and neither change is an erratum.
 </p>
 
 <p>
-  Three concern Chapter 13 and one concerns Chapter 15, which repeats two of the
-  same errors in a different form. Two of the four are changes upstream and
-  appear in the changelog; the other two are wording that has been wrong since
-  the book was written, and do not.
-</p>
-
-<h3>1. AlphaFold 3's code licence changed, and the book's statement is now wrong</h3>
-
-<div class="scroll">
-<table>
-  <tbody>
-    <tr><th>The book says</th><td>CC BY-NC-SA 4.0</td></tr>
-    <tr><th>The project says</th><td>Apache License 2.0</td></tr>
-    <tr><th>Changed</th><td class="date">2026-06-09</td></tr>
-    <tr>
-      <th>Evidence</th>
-      <td>
-        Commit <code>7b197fe</code>, whose message is
-        &ldquo;Change the code license from CC BY-NC-SA 4.0 to Apache 2.0&rdquo;.
-        The <code>LICENSE</code> file at <code>main</code> is the Apache License
-        2.0.
-      </td>
-    </tr>
-    <tr>
-      <th>Read at</th>
-      <td>
-        <a href="https://github.com/google-deepmind/alphafold3/commit/7b197fe859">github.com/google-deepmind/alphafold3/commit/7b197fe859</a><br>
-        <a href="https://github.com/google-deepmind/alphafold3/blob/main/LICENSE">github.com/google-deepmind/alphafold3/blob/main/LICENSE</a>
-      </td>
-    </tr>
-    <tr><th>Affects</th><td>Chapter 13</td></tr>
-  </tbody>
-</table>
-</div>
-
-<p class="note">
-  This affects the <em>code</em> only. The weights are governed by a separate
-  Terms of Use, which did not change: the same commit edited that file only to
-  update its cross-reference to the code licence, five lines, leaving the
-  restriction itself untouched.
-</p>
-
-<h3>2. The weights are no longer obtained by request</h3>
-
-<p>
-  The book describes the weights as available <em>by request</em>. That was
-  accurate when written and is not any more: the request form was removed on
-  2026-07-23 and replaced with a public download URL. The non-commercial
-  restriction is unaffected &mdash; use is still governed by the Terms of Use
-  &mdash; but nothing now gates the download itself.
-</p>
-
-<div class="scroll">
-<table>
-  <tbody>
-    <tr>
-      <th>The book says</th>
-      <td>By request, non-commercial organisations only</td>
-    </tr>
-    <tr>
-      <th>Was</th>
-      <td>
-        &ldquo;To request access &hellip; please complete this form. Access will
-        be granted at Google DeepMind's sole discretion &hellip; within 2&ndash;3
-        business days. You may only use AlphaFold 3 model parameters if received
-        directly from Google.&rdquo;
-      </td>
-    </tr>
-    <tr>
-      <th>Is now</th>
-      <td>
-        &ldquo;You can download the AlphaFold 3 model parameters from
-        <code>https://storage.googleapis.com/alphafold3/af3.bin.zst</code>. Use
-        is subject to these terms of use.&rdquo; A request for that URL returns
-        <code>200 OK</code> with no authentication, checked 2026-09-18.
-      </td>
-    </tr>
-    <tr><th>Changed</th><td class="date">2026-07-23</td></tr>
-    <tr>
-      <th>Read at</th>
-      <td>
-        <a href="https://github.com/google-deepmind/alphafold3/commit/dd1a7bad">commit <code>dd1a7bad</code></a>,
-        &ldquo;Update the instructions on how to obtain AlphaFold 3 weights&rdquo;,
-        which edited <code>README.md</code> and <code>docs/installation.md</code>
-      </td>
-    </tr>
-    <tr><th>Affects</th><td>Chapter 13</td></tr>
-  </tbody>
-</table>
-</div>
-
-<p class="note">
-  The half of the book's sentence that still holds is the important half. Who may
-  use the weights has not changed; only how you get hold of them.
-</p>
-
-<h3>3. The weights are restricted by organisation type <em>and</em> by activity</h3>
-
-<p>
-  Chapter 13 states that AlphaFold 3's weights are restricted by organisation
-  type <em>rather than</em> by activity. The first half is right and is the part
-  most readers get wrong &mdash; but &ldquo;rather than&rdquo; is too strong,
-  because the policy restricts on both axes at once.
-</p>
-
-<div class="scroll">
-<table>
-  <tbody>
-    <tr>
-      <th>Organisation type</th>
-      <td>
-        &ldquo;only non-commercial organizations &hellip; may use the AlphaFold 3
-        Assets &hellip; The AlphaFold 3 Assets are not available for any other
-        types of organization, even if conducting non-commercial work.&rdquo;
-      </td>
-    </tr>
-    <tr>
-      <th>Activity</th>
-      <td>
-        The same clause prohibits use &ldquo;in connection with any commercial
-        activities&rdquo;, and permits a non-commercial organisation to use the
-        assets for &ldquo;their non-commercial activities&rdquo;.
-      </td>
-    </tr>
-    <tr>
-      <th>Read at</th>
-      <td>
-        <a href="https://github.com/google-deepmind/alphafold3/blob/main/WEIGHTS_PROHIBITED_USE_POLICY.md">WEIGHTS_PROHIBITED_USE_POLICY.md</a>,
-        clause 1 and sub-clauses 1.1&ndash;1.3
-      </td>
-    </tr>
-    <tr><th>Checked</th><td class="date">2026-09-18</td></tr>
-    <tr><th>Affects</th><td>Chapter 13</td></tr>
-  </tbody>
-</table>
-</div>
-
-<p class="note">
-  <strong>This one did not move.</strong> The wording has stood since the initial
-  release on 2024-11-11, so it is a reading to correct rather than a change to
-  record, and it has no changelog row below. The chapter's point survives, but
-  for a more precise reason than it gives: the organisation test binds
-  <em>independently</em> &mdash; a commercial organisation is excluded even when
-  the work is non-commercial &mdash; not because activity is irrelevant. Both
-  tests must be met.
-</p>
-
-<h3>4. Chapter 15 repeats both weights errors in Table 15.1</h3>
-
-<p>
-  Table 15.1 lists AlphaFold 3 as <em>&ldquo;Gated; weights by request,
-  non-commercial organisations&rdquo;</em>, and the sentence above it repeats
-  that the weights are <em>available by request</em>. Findings 2 and 3 apply
-  again, in a different place.
-</p>
-
-<div class="scroll">
-<table>
-  <tbody>
-    <tr>
-      <th>&ldquo;Gated&rdquo; and &ldquo;by request&rdquo;</th>
-      <td>
-        No longer true as of 2026-07-23. The request form was removed and the
-        weights are a public download; the URL returns <code>200 OK</code> with
-        no authentication. Nothing gates the file. Same correction as
-        finding 2, and the same changelog row covers it.
-      </td>
-    </tr>
-    <tr>
-      <th>&ldquo;non-commercial organisations&rdquo;</th>
-      <td>
-        Incomplete in the same way as finding 3. The organisation test is
-        necessary but not sufficient: a non-commercial organisation is still
-        confined to its non-commercial activities. Not a change &mdash; this has
-        been the wording since 2024-11-11.
-      </td>
-    </tr>
-    <tr>
-      <th>Read at</th>
-      <td>
-        <a href="https://github.com/google-deepmind/alphafold3/commit/dd1a7bad">commit <code>dd1a7bad</code></a>
-        and
-        <a href="https://github.com/google-deepmind/alphafold3/blob/main/WEIGHTS_PROHIBITED_USE_POLICY.md">WEIGHTS_PROHIBITED_USE_POLICY.md</a>
-      </td>
-    </tr>
-    <tr><th>Checked</th><td class="date">2026-09-18</td></tr>
-    <tr><th>Affects</th><td>Chapter 15, Table 15.1 and the sentence above it</td></tr>
-  </tbody>
-</table>
-</div>
-
-<p class="note">
-  Finding 1 bears on this table directly. Table 15.1 sets AlphaFold 3's row
-  against Apache 2.0 and MIT rows for the other models, and AlphaFold 3's
-  <em>code</em> is now Apache 2.0 like the rest &mdash; only the weights are
-  restricted. The contrast the table needs survives, because Apache 2.0 code is
-  no use without weights you cannot obtain.
+  The changelog below dates those two changes to when they happened upstream,
+  not to when the chapters were edited. That is the date worth having. It tells
+  you how old the situation a chapter describes actually is, which is what you
+  need in order to judge whether a chapter written in 2026 still holds when you
+  are reading it.
 </p>
 
 <h2>Changelog</h2>
 
 <p>
-  What has moved since the book went to print, newest first. Only changes to the
-  software and its terms are recorded here; a correction to something the book
-  misread is an erratum, not a change, and is listed above instead.
+  What has moved upstream, newest first. The date is when the change happened,
+  not when this page or a chapter was edited. Only changes to the software and
+  its terms are recorded here; a correction to something the book itself got
+  wrong belongs on the <a href="/errata">errata page</a>.
 </p>
 
 <div class="scroll">
@@ -509,7 +321,7 @@
         non-commercial restriction is unchanged.
         <span class="note">Recorded 2026-09-18.</span>
       </td>
-      <td>Chapter 13</td>
+      <td>Chapters 13 and 15</td>
     </tr>
   </tbody>
 </table>
