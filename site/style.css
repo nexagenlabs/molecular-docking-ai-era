@@ -71,6 +71,33 @@ ul.chapters li { margin: 0 0 1.15rem; }
 /* Tables scroll inside their own box rather than widening the page. */
 .scroll { overflow-x: auto; }
 
+/* A table that scrolls sideways gives no sign that it does, and on a phone the
+   cut-off column is simply invisible. These four backgrounds are the standard
+   pure-CSS answer: two covers painted in the page colour and anchored to the
+   scrolling content (background-attachment: local), and two shadows anchored to
+   the box (scroll). Unscrolled, each cover sits on top of its shadow and hides
+   it; scroll, and the cover slides away to reveal the shadow on that side. So
+   the shadow appears only on an edge with content beyond it, with no JavaScript
+   and no scroll listener.
+
+   Canvas and CanvasText are the system colours the UA already uses for this
+   page, so the covers keep matching the background and the shadows stay visible
+   under `color-scheme: light dark` without either being written down twice.
+   Declared after overflow-x, so a browser that cannot parse color-mix drops
+   only the shadows and keeps the scrolling. */
+.scroll {
+  background:
+    linear-gradient(to right, Canvas 30%, rgb(0 0 0 / 0)) left center,
+    linear-gradient(to left, Canvas 30%, rgb(0 0 0 / 0)) right center,
+    radial-gradient(farthest-side at 0 50%,
+      color-mix(in srgb, CanvasText 22%, transparent), rgb(0 0 0 / 0)) left center,
+    radial-gradient(farthest-side at 100% 50%,
+      color-mix(in srgb, CanvasText 22%, transparent), rgb(0 0 0 / 0)) right center;
+  background-repeat: no-repeat;
+  background-size: 2.5rem 100%, 2.5rem 100%, 0.85rem 100%, 0.85rem 100%;
+  background-attachment: local, local, scroll, scroll;
+}
+
 /* A six-column table does not fit a prose column. Where the viewport has the
    room, let the table's box extend past the text on both sides; below that it
    stays within the column and scrolls inside itself, which is what .scroll is
