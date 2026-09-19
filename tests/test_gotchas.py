@@ -5,12 +5,13 @@ mistake that produces a plausible-looking wrong answer rather than an error,
 which is the only kind worth a permanent test.
 """
 import re
+import subprocess
 from pathlib import Path
 
 import pytest
 
-from conftest import (REPO, config_seeds, load_module, repo_text_files,
-                      run_script, read_json)
+from conftest import (REPO, bash_exe, config_seeds, load_module,
+                      repo_text_files, run_script, read_json)
 
 # Prose may quote the forbidden flag -- explaining why it is forbidden is half
 # the point of this repository. Code may not use it. So Python is checked with
@@ -426,3 +427,88 @@ def test_no_fabricated_values_remain():
             outstanding.append(path.relative_to(REPO).as_posix())
     if outstanding:
         pytest.fail("unresolved TODO(value) in: %s" % ", ".join(outstanding))
+
+
+# -- the interpreter probe --------------------------------------------------
+#
+# Not one of CLAUDE.md's three gotchas, but the same species: a check that is
+# true in a case it does not cover. `[ -x ".venv/Scripts/python.exe" ]` is
+# true in any shell that can *see* the file, including one that cannot *run*
+# it, so a WSL bash against a Windows-side clone selected the Windows
+# interpreter and exited 126 -- in every chapter, naming neither the chapter
+# nor the cause. Settled by not supporting that configuration and saying so
+# once; see environment/README.md and scripts/run_common.sh.
+
+
+def test_no_wrapper_probes_for_the_interpreter_itself():
+    """One helper resolves PYTHON, so there is one place the execute test can live.
+
+    A wrapper that grew its own probe back would be unguarded again, and
+    `Exec format error` is not a message a reader can act on.
+    """
+    scripts = sorted(REPO.glob("ch*/run.sh"))
+    assert len(scripts) == 25, "expected 25 wrappers, found %d" % len(scripts)
+    own_probe, unsourced = [], []
+    for script in scripts:
+        text = script.read_text(encoding="utf-8")
+        if ".venv/Scripts/python.exe" in text or ".venv/bin/python" in text:
+            own_probe.append(script.relative_to(REPO).as_posix())
+        if "scripts/run_common.sh" not in text:
+            unsourced.append(script.relative_to(REPO).as_posix())
+    assert not own_probe, "these probe for the interpreter themselves: %s" % own_probe
+    assert not unsourced, "these do not source the helper: %s" % unsourced
+
+
+def _fake_clone(tmp_path, posix_python=False):
+    """A tree whose Windows interpreter exists, is -x, and will not exec.
+
+    The DrvFs shape without needing WSL installed to produce it.
+    """
+    helper = tmp_path / "scripts" / "run_common.sh"
+    helper.parent.mkdir(parents=True)
+    helper.write_bytes((REPO / "scripts" / "run_common.sh").read_bytes())
+    windows = tmp_path / ".venv" / "Scripts" / "python.exe"
+    windows.parent.mkdir(parents=True)
+    windows.write_bytes(b"MZ" + bytes(2) + b" not a program for this shell")
+    windows.chmod(0o755)
+    if posix_python:
+        posix = tmp_path / ".venv" / "bin" / "python"
+        posix.parent.mkdir(parents=True)
+        posix.write_bytes(b"#!/bin/sh" + bytes([10]) + b"exit 0" + bytes([10]))
+        posix.chmod(0o755)
+    return tmp_path
+
+
+def _source_helper(tree):
+    return subprocess.run(
+        [bash_exe(), "-c", ". scripts/run_common.sh; echo PYTHON=$PYTHON"],
+        capture_output=True, text=True, cwd=str(tree), timeout=120)
+
+
+def test_the_helper_refuses_an_interpreter_it_cannot_execute(tmp_path):
+    """Once, naming the configuration -- not exit 126 with nothing said."""
+    result = _source_helper(_fake_clone(tmp_path))
+    assert result.returncode == 1, (
+        "expected a clean refusal, got %d\nstdout: %s\nstderr: %s"
+        % (result.returncode, result.stdout, result.stderr))
+    assert "PYTHON=" not in result.stdout, \
+        "the helper selected an interpreter anyway: %s" % result.stdout
+    message = result.stderr
+    for phrase in ("cannot execute", "not supported", "WSL"):
+        assert phrase in message, \
+            "the refusal does not mention %r:\n%s" % (phrase, message)
+    assert message.count("cannot execute") == 1, \
+        "the refusal is repeated; a shared helper exists to say it once:\n%s" % message
+
+
+def test_the_helper_keeps_looking_when_a_usable_interpreter_exists(tmp_path):
+    """The guard on the guard: it must not refuse a configuration that works.
+
+    A tree provisioned under both platforms carries both candidates, and the
+    one this shell can run may be the second. Refusing here would be the same
+    defect pointed the other way -- a check firing on a case it does not cover.
+    """
+    result = _source_helper(_fake_clone(tmp_path, posix_python=True))
+    assert result.returncode == 0, \
+        "refused a usable tree: %d\n%s" % (result.returncode, result.stderr)
+    assert "PYTHON=.venv/bin/python" in result.stdout, "picked %r" % result.stdout

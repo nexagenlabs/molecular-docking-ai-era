@@ -543,6 +543,61 @@ Two of the seven were caught before they ever ran and five only afterwards,
 which is the one encouraging thing here: the shape is becoming recognisable
 early.
 
+**The ch16 entry is a different species from the other six, and the general
+rule does not catch it.** The other six are checks reporting protection they
+were not providing: the name claims one thing, the assertion tests a weaker
+thing, and the gap between them is where the defect lives. ch16's assertion
+had no gap. `wrapper.returncode == pipeline.returncode` is exactly the
+property the test is named for, and it was true. It was true because both
+operands were **equally broken** — a WSL that would not start returned 1 for
+each — so the equality held while neither side of it ran.
+
+*When a tool's output is a summary rather than the thing itself, verify it by
+a differently-shaped route* is the wrong instrument here. Both operands came
+from the same route already, and a second route onto either one reports the
+same 1. Nothing about the comparison is a summary. The check is a relation
+between two measurements, and a relation can be satisfied by two measurements
+that failed identically.
+
+What catches it is a different question: **what would a wrong answer look
+like?** For an equality, the answer is uncomfortable — a wrong answer looks
+exactly like a right one, because equality is preserved by any failure that
+hits both sides. That question is what caught the site's link check in the
+row above, before it ever ran, and it is the only one of the two questions
+that reaches this row.
+
+Worth being exact about what the repair did and did not do. ch16's assertion
+is **still an unpinned equality**: `wrapper.returncode == pipeline.returncode`,
+with neither side compared to a value known in advance. What changed is the
+cause, not the shape — `bash_exe()` resolves a shell that starts, so "both
+operands returned 1 because neither process ran" is no longer available, and
+the companion assertion that `rescoring.md` appears in the wrapper's stdout
+gives one side an independent reason to believe it executed. Pinning the
+equality itself would cost the property the test was written for: asserting
+`== 3` would break on a machine that has GNINA, which is exactly the
+non-portable assertion the equality replaced.
+
+So the entry stays in the list as a live shape rather than a closed one, and
+the general lesson is the one to carry: **a test whose subject is agreement
+between two measurements needs a separate reason to believe the two were
+separately produced.** An equality supplies no such reason on its own. Here
+that reason is the stdout check beside it; elsewhere it might be pinning one
+operand, or producing the two by routes that cannot fail together. Whichever
+it is, it has to be named, because the equality will not announce its absence.
+
+**And the false-negative mutation, which is the guard on the guard.** The
+first attempt at mutating `bash_exe()` left both tests passing. That was read
+for a moment as the tests being weak, which it was not — the edit had never
+reached the file, eaten by shell quoting in a one-line `python -c`. **A
+mutation that fails to fail is indistinguishable from a guard that works**,
+and it is the more dangerous of the two readings, because it invites
+strengthening a test that was already correct while the mutation tooling goes
+on being broken. The same question settles it: what would a wrong answer look
+like? For a mutation, a wrong answer looks like a pass. So a mutation is not
+evidence until the marker has been confirmed *in the file*, and reverting has
+been confirmed to restore the pass. Both halves, every time; one alone proves
+only that something changed, or that nothing did.
+
 **The ch25 entry is the one where the claim, not the check, was the defect.**
 The guess is 10 µM against measured 18, 26 and 26 — low by 0.26 to 0.41
 decades, not two. `DECADES_BELOW = 2` describes how far the *design* extends
@@ -638,13 +693,31 @@ than the thing itself, verify it by a differently-shaped route* applies to a
 mutation as much as to an exit code: a mutation that changes nothing is
 indistinguishable from a guard that works.
 
-**Still open, and a scope decision rather than a repair.** Every chapter's
-`run.sh` probes for its interpreter with `[ -x ".venv/Scripts/python.exe" ]`,
-which is true in any shell that can *see* the file, including one that cannot
-*run* it. A reader using WSL against a Windows-side clone gets
-`Exec format error` and exit 126 from every chapter. Testing that the candidate
-executes rather than that it exists is one line per wrapper; whether that
-configuration is supported at all is the question to settle first.
+**Settled, and settled by scope rather than by accommodation.** Every
+chapter's `run.sh` probed for its interpreter with
+`[ -x ".venv/Scripts/python.exe" ]`, which is true in any shell that can *see*
+the file, including one that cannot *run* it. A reader using WSL against a
+Windows-side clone got `Exec format error` and exit 126 from every chapter.
+
+**WSL against a Windows-side clone is not supported.** It cannot be made to
+work — a Windows `.exe` is not executable from a Linux shell and a Linux venv
+is not executable from Windows — so supporting it would mean every wrapper
+carrying a probe for a configuration nobody should be in. The decision is to
+fail once and clearly instead.
+
+The execute test therefore went into a shared helper, `scripts/run_common.sh`,
+rather than into twenty-five wrappers: one message naming the shell, the
+interpreter and the fix, not `Exec format error` twenty-five times. All 25
+wrappers now source it and none carries its own probe, which
+`test_no_wrapper_probes_for_the_interpreter_itself` holds in place. It is
+recorded as unsupported in `environment/README.md`.
+
+Mutation-checked in both directions, because a guard that refuses too much is
+the same defect pointed the other way. With the execute test replaced by
+`true` — marker confirmed in the file first — the helper selects the
+unrunnable `.exe` and both new tests fail; reverted, both pass. The second
+test is the one that matters for over-refusal: a tree carrying both a Windows
+and a POSIX venv must select the POSIX one and proceed, not stop.
 
 ### Verification of the fixes
 

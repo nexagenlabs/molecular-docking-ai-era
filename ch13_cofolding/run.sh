@@ -8,9 +8,7 @@
 # reader can check either way.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-if [ -x ".venv/Scripts/python.exe" ]; then PYTHON=".venv/Scripts/python.exe"
-elif [ -x ".venv/bin/python" ]; then PYTHON=".venv/bin/python"
-else PYTHON="${PYTHON:-python3}"; fi
+. scripts/run_common.sh   # sets PYTHON, or stops with one message
 # The exit code is propagated, not swallowed. `|| true` used to sit here, so
 # the chapter exited 0 while its own script exited 3 saying it could not run --
 # the prose was honest and the exit code was not, and a machine reading exit

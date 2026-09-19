@@ -7,9 +7,7 @@
 # shows as "not measured" rather than as a default.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-if [ -x ".venv/Scripts/python.exe" ]; then PYTHON=".venv/Scripts/python.exe"
-elif [ -x ".venv/bin/python" ]; then PYTHON=".venv/bin/python"
-else PYTHON="${PYTHON:-python3}"; fi
+. scripts/run_common.sh   # sets PYTHON, or stops with one message
 $PYTHON ch02_method_choice/scripts/choose_method.py
 echo
 echo "Results:  ch02_method_choice/outputs/method_choice.md"

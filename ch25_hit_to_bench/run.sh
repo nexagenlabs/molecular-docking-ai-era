@@ -4,9 +4,7 @@
 #   bash ch25_hit_to_bench/run.sh
 set -euo pipefail
 cd "$(dirname "$0")/.."
-if [ -x ".venv/Scripts/python.exe" ]; then PYTHON=".venv/Scripts/python.exe"
-elif [ -x ".venv/bin/python" ]; then PYTHON=".venv/bin/python"
-else PYTHON="${PYTHON:-python3}"; fi
+. scripts/run_common.sh   # sets PYTHON, or stops with one message
 
 $PYTHON ch25_hit_to_bench/scripts/design_assay.py
 echo

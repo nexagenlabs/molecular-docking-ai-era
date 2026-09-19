@@ -76,6 +76,26 @@ produced with, and none of its conclusions change between the two.
 Without Open Babel, `ch04_formats` cannot run: its round-trips are that
 program's output.
 
+### WSL against a Windows-side clone is not supported
+
+Running the chapter scripts from a WSL shell against a clone that lives on the
+Windows side — under `/mnt/c`, or reached through `//wsl.localhost` from the
+other direction — **cannot work, and is not worked around.** A Windows
+`python.exe` is not executable from a Linux shell, and a Linux venv is not
+executable from Windows. The two halves have to be on the same side.
+
+It is worth naming because the failure used to be mute. `[ -x
+".venv/Scripts/python.exe" ]` is true in any shell that can *see* the file,
+and WSL can see a DrvFs mount perfectly well, so every wrapper selected the
+Windows interpreter and exited 126 with `Exec format error` — once per
+chapter, twenty-five times, never saying why. `scripts/run_common.sh` now
+tests that the interpreter *executes* rather than that it exists, and stops
+on the first chapter with a message naming the configuration.
+
+Either clone inside WSL and provision it there with the Linux recipe above,
+or run on Windows in the Git for Windows bash. Both are supported. Mixing
+them is not.
+
 `environment/environment.yml` is provided as a convenience for conda users. It
 carries the same version pins, but **conda-forge may resolve transitive
 dependencies differently even at an identical pin**, so it is not a guarantee

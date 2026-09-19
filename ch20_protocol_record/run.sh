@@ -6,13 +6,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-if [ -x ".venv/Scripts/python.exe" ]; then
-  PYTHON=".venv/Scripts/python.exe"
-elif [ -x ".venv/bin/python" ]; then
-  PYTHON=".venv/bin/python"
-else
-  PYTHON="${PYTHON:-python3}"
-fi
+. scripts/run_common.sh   # sets PYTHON, or stops with one message
 
 # This chapter reads two files ch09 leaves behind. The config is committed, so
 # it is present in a fresh clone and testing for it proves nothing; the run log

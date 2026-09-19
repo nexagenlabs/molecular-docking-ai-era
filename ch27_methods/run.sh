@@ -4,9 +4,7 @@
 #   bash ch27_methods/run.sh
 set -euo pipefail
 cd "$(dirname "$0")/.."
-if [ -x ".venv/Scripts/python.exe" ]; then PYTHON=".venv/Scripts/python.exe"
-elif [ -x ".venv/bin/python" ]; then PYTHON=".venv/bin/python"
-else PYTHON="${PYTHON:-python3}"; fi
+. scripts/run_common.sh   # sets PYTHON, or stops with one message
 if [ ! -f ch20_protocol_record/outputs/filled_record.json ]; then
   echo "protocol record not present; running ch20."
   bash ch20_protocol_record/run.sh
