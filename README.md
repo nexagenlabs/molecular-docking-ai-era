@@ -66,7 +66,7 @@ Chapters 1 and 19 have no code.
 ## Run the tests
 
 ```bash
-pytest                              # 253 tests; every chapter has some
+pytest                              # 256 tests; every chapter has some
 ```
 
 **It takes about half an hour**, because it runs the chapters rather than

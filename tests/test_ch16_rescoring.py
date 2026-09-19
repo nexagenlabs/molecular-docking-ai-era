@@ -81,12 +81,12 @@ def test_run_sh_propagates_the_gnina_pipelines_exit_code(ch16_outputs):
     """
     import subprocess
 
-    from conftest import REPO
+    from conftest import REPO, bash_exe
 
-    pipeline = subprocess.run(["bash", "ch16_rescoring/scripts/rescore_with_gnina.sh"],
+    pipeline = subprocess.run([bash_exe(), "ch16_rescoring/scripts/rescore_with_gnina.sh"],
                               capture_output=True, text=True, cwd=str(REPO),
                               timeout=900)
-    wrapper = subprocess.run(["bash", "ch16_rescoring/run.sh"],
+    wrapper = subprocess.run([bash_exe(), "ch16_rescoring/run.sh"],
                              capture_output=True, text=True, cwd=str(REPO),
                              timeout=1800)
     assert wrapper.returncode == pipeline.returncode, (
@@ -105,9 +105,9 @@ def test_the_gnina_pipeline_refuses_rather_than_pretending(ch16_outputs):
     """
     import subprocess
 
-    from conftest import REPO
+    from conftest import REPO, bash_exe
 
-    result = subprocess.run(["bash", "ch16_rescoring/scripts/rescore_with_gnina.sh"],
+    result = subprocess.run([bash_exe(), "ch16_rescoring/scripts/rescore_with_gnina.sh"],
                             capture_output=True, text=True, cwd=str(REPO),
                             timeout=300)
     message = result.stdout + result.stderr

@@ -6,6 +6,8 @@ subprocess call fails cleanly with a missing-file error, which is the failure
 you want while a repository is being built.
 """
 import json
+import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -22,6 +24,55 @@ def python_exe():
         if candidate.exists():
             return str(candidate)
     return sys.executable
+
+
+def bash_exe():
+    """The bash a reader runs, resolved deliberately rather than by CreateProcess.
+
+    `subprocess.run(["bash", ...])` on Windows goes through CreateProcess, which
+    searches the **System32 directory before PATH**. `shutil.which()` walks PATH
+    only. The two therefore disagree the moment WSL is installed, because WSL
+    puts a `bash.exe` launcher in System32: `which` goes on reporting Git Bash
+    while a bare "bash" reaches Linux.
+
+    That is not academic here. Under WSL the chapter wrappers still select
+    `.venv/Scripts/python.exe`, because `[ -x ... ]` is true for a Windows file
+    on a DrvFs mount, and then exit **126** trying to exec a PE binary from a
+    Linux shell. Both platforms ran 250 tests green on 2026-09-07; WSL arrived
+    on this machine on 2026-09-09, and from that day the two exit-code tests
+    were driving a shell no reader of this book uses. One of them failed. The
+    other passed, because both sides of its equality were broken identically.
+
+    Resolved once, here, for the reason python_exe() is: a test that drives
+    `run.sh` has to drive the `run.sh` a reader drives.
+    """
+    if os.name != "nt":
+        found = shutil.which("bash")
+        if found:
+            return found
+        pytest.fail("no bash on PATH; every chapter's run.sh needs one")
+
+    blocked = ("/windows/system32/", "/windowsapps/")
+    seen = []
+    for entry in os.environ.get("PATH", "").split(os.pathsep):
+        if not entry:
+            continue
+        candidate = Path(entry) / "bash.exe"
+        if not candidate.is_file():
+            continue
+        seen.append(str(candidate))
+        flat = candidate.as_posix().lower()
+        if not any(b in flat for b in blocked):
+            return str(candidate)
+    for candidate in (Path("C:/Program Files/Git/bin/bash.exe"),
+                      Path("C:/Program Files/Git/usr/bin/bash.exe")):
+        if candidate.is_file():
+            return str(candidate)
+    pytest.fail(
+        "the only bash found is a WSL launcher (%s). The chapter wrappers "
+        "select .venv/Scripts/python.exe, which a Linux bash cannot execute. "
+        "Install the Git for Windows bash that environment/README.md "
+        "documents." % (", ".join(seen) or "none"))
 
 
 def on_reference_platform():

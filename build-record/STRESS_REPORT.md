@@ -537,8 +537,9 @@ name claimed. None was found by reading it.
 | `python -m http.server` as a site preview | that the site serves | a different site. No clean URLs, `_redirects` ignored, its own 404 in place of `404.html` — so the three things a printed address depends on are the three it cannot show | `/setup` and `/ch09` 404ing locally while being correct; replaced by `scripts/preview_site.py` |
 | `test_the_guess_was_wrong_by_about_two_decades` | that the ch25 guess was two decades low | `ki / guess > 1.5`, which 1.8× satisfies | the pre-publication prose review |
 | `test_the_conversion_is_the_textbook_one_and_still_fails` | that ch25 converts ΔG with the textbook constant | agreement to `rel=0.02` — and a wrong RT fits inside 2% with room to spare | fixing the row above it |
+| `test_run_sh_propagates_the_gnina_pipelines_exit_code` | that ch16's `run.sh` hands back the pipeline's exit code | that two subprocesses returned the same number. Under a WSL that would not start, both returned 1 and the equality held while neither side ran | its ch13 sibling failing on the same machine |
 
-Two of the six were caught before they ever ran and four only afterwards,
+Two of the seven were caught before they ever ran and five only afterwards,
 which is the one encouraging thing here: the shape is becoming recognisable
 early.
 
@@ -590,6 +591,60 @@ was stored as `round(x, 1)` and then formatted `%.0f`, so 16.52 became 16.5
 became **16×** in the written report while stdout formatted the raw value to
 **17×** — one run, one quantity, two published numbers. The payload now carries
 raw floats and rounding happens once, where a number is displayed.
+
+### The seventh, and the machine that changed under it
+
+Found because `test_run_sh_propagates_the_scripts_exit_code` in ch13 started
+failing: `cofold.py` exits 3, `run.sh` returned 126. The chapter was not at
+fault and neither was Windows. **Both platforms ran 250 tests green on
+2026-09-07, and `C:\Windows\System32\bash.exe` has a creation date of
+2026-09-09.** WSL was installed on this machine two days after the green run.
+
+The mechanism is in `conftest.bash_exe`'s docstring and is not repeated here.
+In short: `subprocess.run(["bash", ...])` reaches `CreateProcess`, which
+searches System32 *before* PATH, while `shutil.which()` walks PATH only — so
+once WSL exists the two disagree, and the tests had been taking the one no
+reader uses. WSL's bash then selects `.venv/Scripts/python.exe`, because
+`[ -x ... ]` is true for a Windows file on a DrvFs mount, and exits 126 unable
+to exec a PE binary. Driven by the Git Bash that `environment/README.md`
+documents, `run.sh` returns 3 on every run.
+
+So this was never a platform difference in a chapter, and an xfail marker would
+have been the wrong instrument twice over: it would have recorded a Windows
+failure that does not exist — `run.sh` is correct on Windows — and it would
+have frozen a test that had stopped exercising its subject. Marking is for a
+measured difference in what the code does. This was a difference in what the
+test was pointing at.
+
+**ch16 is the entry in the list, not ch13.** ch13's test failed, which is a
+test doing its job badly but doing it. ch16's has the same three bare-`bash`
+calls and *passed* the full suite run of the same day, because WSL was in its
+failing-to-start state and returned 1 for both operands of
+`wrapper.returncode == pipeline.returncode`. An equality satisfied by both
+sides being equally broken. When WSL recovered it became 126 against 3 and
+failed honestly.
+
+Fixed at the source rather than marked: `conftest.bash_exe()` resolves bash
+deliberately, the way `python_exe()` resolves the interpreter, rejecting the
+System32 and WindowsApps launchers and falling back to the documented Git Bash.
+All four call sites use it and no bare `"bash"` remains in `tests/`.
+
+Mutation-checked, and the first attempt is worth recording. Forcing
+`bash_exe()` to return the WSL launcher left both tests **passing**, which was
+the wrong answer — the edit had silently not applied, eaten by shell quoting in
+a one-line `python -c`. Re-applied with the marker verified in the file first,
+both tests fail; reverted, both pass. *When a tool's output is a summary rather
+than the thing itself, verify it by a differently-shaped route* applies to a
+mutation as much as to an exit code: a mutation that changes nothing is
+indistinguishable from a guard that works.
+
+**Still open, and a scope decision rather than a repair.** Every chapter's
+`run.sh` probes for its interpreter with `[ -x ".venv/Scripts/python.exe" ]`,
+which is true in any shell that can *see* the file, including one that cannot
+*run* it. A reader using WSL against a Windows-side clone gets
+`Exec format error` and exit 126 from every chapter. Testing that the candidate
+executes rather than that it exists is one line per wrapper; whether that
+configuration is supported at all is the question to settle first.
 
 ### Verification of the fixes
 

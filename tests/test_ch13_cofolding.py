@@ -14,7 +14,7 @@ import re
 
 import pytest
 
-from conftest import REPO, run_script_raw
+from conftest import REPO, bash_exe, run_script_raw
 
 YAML = REPO / "ch13_cofolding" / "outputs" / "ampc_stc.yaml"
 
@@ -58,7 +58,7 @@ def test_run_sh_propagates_the_scripts_exit_code():
     from conftest import REPO
 
     script = run_script_raw("ch13_cofolding/scripts/cofold.py")
-    wrapper = subprocess.run(["bash", "ch13_cofolding/run.sh"],
+    wrapper = subprocess.run([bash_exe(), "ch13_cofolding/run.sh"],
                              capture_output=True, text=True, cwd=str(REPO),
                              timeout=900)
     assert wrapper.returncode == script.returncode, (
