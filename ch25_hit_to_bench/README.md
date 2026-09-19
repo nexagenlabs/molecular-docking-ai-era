@@ -15,9 +15,9 @@ gives:
 
 | Ligand | Docking score | Ki if converted | Measured Ki | Out by |
 |---|---|---|---|---|
-| STC | −7.377 | 3.86 µM | 26 µM | 7× |
-| 18U | −8.090 | 1.16 µM | 18 µM | 16× |
-| 1MU | −7.916 | 1.55 µM | 26 µM | 17× |
+| STC | −7.377 | 3.91 µM | 26 µM | 7× |
+| 18U | −8.090 | 1.17 µM | 18 µM | 15× |
+| 1MU | −7.916 | 1.57 µM | 26 µM | 17× |
 
 Wrong by roughly an order of magnitude, in the same direction, for all three. A
 Vina score is a ranking device on an energy-like scale. It is not a free energy
@@ -37,10 +37,18 @@ wide enough to be wrong.
 | Well volume | 100 µL |
 | Compound needed | **5.25 mg** |
 
-All three measured Ki values fall inside the range, with room either side. The
-guess was two decades low and the design still worked, **because the range is
-four decades wide**. The cost of an extra decade is a few wells; the cost of
-missing the curve is the whole experiment.
+All three measured Ki values fall inside the range, with room either side — and
+the guess was low by 0.26 to 0.41 decades, roughly the gap between two adjacent
+points in the series.
+
+The width is not earned by that. How wrong the guess is cannot be known while
+the plate is being designed, which is the only time the width can be chosen. It
+is earned by what *was* available then, and by how little that bounded: the
+naive conversion in the table above offers 1.17 to 3.91 µM and is itself wrong
+by roughly an order of magnitude, and the docking score on its own bounds
+nothing at all. **Four decades is what covers an error you have no way to
+estimate.** The cost of an extra decade is a few wells; the cost of missing the
+curve is the whole experiment.
 
 Compound quantity assumes a 10× stock and 5× the assay volume: enough to
 pipette, and enough left when the first plate goes wrong. It is not a

@@ -64,9 +64,9 @@ BACKGROUNDS = {
 def hypergeometric_sf(overlap, background, pathway, hits):
     """P(X >= overlap) for a hypergeometric draw. Exact, no approximation.
 
-    Summed as integers and divided as a Fraction. comb(20000, 120) has some
-    four hundred digits, so dividing in floating point raises OverflowError --
-    which is the good outcome. The bad one is a library that quietly returns
+    Summed as integers and divided as a Fraction. comb(20000, 120) has 318
+    digits, so dividing in floating point raises OverflowError -- which is the
+    good outcome. The bad one is a library that quietly returns
     inf or 0.0 and lets a p-value of zero into a figure.
     """
     denominator = comb(background, hits)

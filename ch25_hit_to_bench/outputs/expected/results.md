@@ -9,9 +9,9 @@ series that gives:
 |---|---|---|---|---|
 | STC | -7.377 | 3.91 µM | 26 µM | 7× |
 | 18U | -8.090 | 1.17 µM | 18 µM | 15× |
-| 1MU | -7.916 | 1.57 µM | 26 µM | 16× |
+| 1MU | -7.916 | 1.57 µM | 26 µM | 17× |
 
-Wrong by roughly two orders of magnitude, in the same direction, for
+Wrong by roughly an order of magnitude, in the same direction, for
 all three. A Vina score is a ranking device on an energy-like scale. It
 is not a free energy and it does not convert.
 
@@ -41,10 +41,17 @@ theoretical minimum.
 | 18U | 18 µM | yes |
 | 1MU | 26 µM | yes |
 
-The guess was two decades low and the design still worked, because the
-range is four decades wide. That is the argument for the width: the
-cost of an extra decade is a few wells, and the cost of missing the
-curve is the whole experiment.
+All three are inside, with room either side — and the guess was low
+by 0.26 to 0.41 decades, roughly the gap between two adjacent points.
+
+The width is not earned by that. How wrong the guess is cannot be known
+while the plate is being designed, which is the only time the width can
+be chosen. It is earned by what *was* available then, and by how little
+that bounded: the naive conversion in the table above offers 1.17–3.91
+µM and is itself wrong by 7× to 17×, and the docking score on its
+own bounds nothing at all. **Four decades is what covers an error you
+have no way to estimate.** The cost of an extra decade is a few wells;
+the cost of missing the curve is the whole experiment.
 
 ## What counts as confirmation
 

@@ -58,10 +58,10 @@ kills the result.
 ## Arithmetic
 
 The hypergeometric survival function is summed in exact integer arithmetic and
-divided as a `Fraction`. `comb(20000, 120)` has some four hundred digits, so
-dividing it in floating point raises `OverflowError` — which is the *good*
-outcome. The bad one is a library that quietly returns `0.0` and lets a p-value
-of zero into a figure.
+divided as a `Fraction`. `comb(20000, 120)` has 318 digits, so dividing it in
+floating point raises `OverflowError` — which is the *good* outcome. The bad
+one is a library that quietly returns `0.0` and lets a p-value of zero into a
+figure.
 
 Cross-checked against `scipy.stats.hypergeom`; the two agree to 8 × 10⁻¹⁷.
 

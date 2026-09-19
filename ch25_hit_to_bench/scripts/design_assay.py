@@ -70,12 +70,12 @@ def main():
     print("A docking score is not an affinity.\n")
     print("The temptation is to read a Ki off the score, since Vina reports")
     print("kcal/mol. Doing it for this series would give:\n")
+    naive = {name: dg_to_ki_uM(score) for name, score in DOCKING_SCORE.items()}
+    folds = {name: KNOWN_KI_uM[name] / naive[name] for name in DOCKING_SCORE}
     for name, score in DOCKING_SCORE.items():
-        implied = dg_to_ki_uM(score)
-        actual = KNOWN_KI_uM[name]
         print("   %-5s score %.3f -> 'Ki' %.2f uM;  measured Ki %.0f uM;  out by %.0fx"
-              % (name, score, implied, actual, actual / implied))
-    print("\n   Wrong by roughly two orders of magnitude, in the same direction,")
+              % (name, score, naive[name], KNOWN_KI_uM[name], folds[name]))
+    print("\n   Wrong by roughly an order of magnitude, in the same direction,")
     print("   for all three. A Vina score is a ranking device on an energy-like")
     print("   scale; it is not a free energy and it does not convert.")
     print("\n   So the assay is designed around a POTENCY GUESS, stated as a")
@@ -102,10 +102,23 @@ def main():
         covered[name] = inside
         print("   %-5s measured %.0f uM  %s"
               % (name, ki, "inside the range" if inside else "OUTSIDE THE RANGE"))
+    error_decades = {name: math.log10(ki / guess)
+                     for name, ki in KNOWN_KI_uM.items()}
     if all(covered.values()):
-        print("\n   All three are inside, with room either side. A guess two")
-        print("   decades low still worked, because the range is four decades")
-        print("   wide -- which is the argument for the width.")
+        print("")
+        print("   All three are inside, with room either side -- and the guess")
+        print("   was low by %.2f to %.2f decades, roughly the gap between two"
+              % (min(error_decades.values()), max(error_decades.values())))
+        print("   adjacent points. The width is not earned by that. How wrong")
+        print("   the guess is cannot be known while the plate is being")
+        print("   designed, which is the only time the width can be chosen. It")
+        print("   is earned by what was available then, and by how little that")
+        print("   bounded: the naive conversion offers %.2f-%.2f uM and is"
+              % (min(naive.values()), max(naive.values())))
+        print("   itself wrong by %.0fx to %.0fx, and the score alone bounds"
+              % (min(folds.values()), max(folds.values())))
+        print("   nothing at all. Four decades is what covers an error you")
+        print("   have no way to estimate.")
 
     print("\nWhat would count as confirmation:")
     print("   * a dose-response curve with a clear plateau at both ends")
@@ -126,13 +139,17 @@ def main():
     payload = {
         "docking_scores": DOCKING_SCORE,
         "known_ki_uM": KNOWN_KI_uM,
-        "naive_conversion": {name: round(dg_to_ki_uM(score), 3)
-                             for name, score in DOCKING_SCORE.items()},
-        "conversion_error_fold": {
-            name: round(KNOWN_KI_uM[name] / dg_to_ki_uM(DOCKING_SCORE[name]), 1)
-            for name in DOCKING_SCORE},
+        # Raw. Rounding is display's job and happens once, at the point of
+        # display. A value rounded here and formatted again downstream is how
+        # 16.52 reached the reader as 16x in the report and 17x on stdout.
+        "naive_conversion": naive,
+        "conversion_error_fold": folds,
         "guess_uM": guess,
-        "concentration_series_uM": [round(c, 4) for c in series],
+        "guess_error_decades": error_decades,
+        "naive_conversion_span_uM": [min(naive.values()), max(naive.values())],
+        "decades_below": DECADES_BELOW,
+        "decades_above": DECADES_ABOVE,
+        "concentration_series_uM": series,
         "points": len(series),
         "replicates": REPLICATES,
         "assay_volume_uL": ASSAY_VOLUME_uL,
@@ -161,7 +178,7 @@ def write_report(payload):
                         payload["conversion_error_fold"][name]))
     lines += [
         "",
-        "Wrong by roughly two orders of magnitude, in the same direction, for",
+        "Wrong by roughly an order of magnitude, in the same direction, for",
         "all three. A Vina score is a ranking device on an energy-like scale. It",
         "is not a free energy and it does not convert.",
         "",
@@ -193,10 +210,22 @@ def write_report(payload):
                         "yes" if inside else "**no**"))
     lines += [
         "",
-        "The guess was two decades low and the design still worked, because the",
-        "range is four decades wide. That is the argument for the width: the",
-        "cost of an extra decade is a few wells, and the cost of missing the",
-        "curve is the whole experiment.",
+        "All three are inside, with room either side — and the guess was low",
+        "by %.2f to %.2f decades, roughly the gap between two adjacent points."
+        % (min(payload["guess_error_decades"].values()),
+           max(payload["guess_error_decades"].values())),
+        "",
+        "The width is not earned by that. How wrong the guess is cannot be known",
+        "while the plate is being designed, which is the only time the width can",
+        "be chosen. It is earned by what *was* available then, and by how little",
+        "that bounded: the naive conversion in the table above offers %.2f–%.2f"
+        % tuple(payload["naive_conversion_span_uM"]),
+        "µM and is itself wrong by %.0f× to %.0f×, and the docking score on its"
+        % (min(payload["conversion_error_fold"].values()),
+           max(payload["conversion_error_fold"].values())),
+        "own bounds nothing at all. **Four decades is what covers an error you",
+        "have no way to estimate.** The cost of an extra decade is a few wells;",
+        "the cost of missing the curve is the whole experiment.",
         "",
         "## What counts as confirmation",
         "",

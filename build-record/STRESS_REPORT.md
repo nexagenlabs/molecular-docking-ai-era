@@ -523,6 +523,74 @@ that reports protection it is not providing — and it is worth recording that i
 appeared in the instruments rather than in the code, where the suite cannot
 reach it.
 
+### The same shape, kept as a list
+
+B7 was not a one-off, and the tooling pair above was not the end of it. Every
+entry below is a check that passed while providing less protection than its
+name claimed. None was found by reading it.
+
+| The check | What its name claimed | What it actually tested | Caught by |
+|---|---|---|---|
+| `test_the_rmsd_call_passes_minimize_false_explicitly` | that the RMSD call does not superimpose | that the string `minimize=False` occurs in the file — prose counted | mutating `minimize=False` to `True` |
+| `pytest -q \| tail` | a clean suite, on `exit 0` | `tail`'s exit status, which cannot be non-zero | a full traceback printed above that same `exit 0` |
+| the site's internal-link check | that all 31 links resolve, the 25 chapter routes as 302 | it would have tested GitHub's status for the destination, not Netlify's for the route: a route serving 301, or serving nothing, still looks healthy once you follow it | asking what a wrong status would have looked like — fixed before it ran, by not following |
+| `python -m http.server` as a site preview | that the site serves | a different site. No clean URLs, `_redirects` ignored, its own 404 in place of `404.html` — so the three things a printed address depends on are the three it cannot show | `/setup` and `/ch09` 404ing locally while being correct; replaced by `scripts/preview_site.py` |
+| `test_the_guess_was_wrong_by_about_two_decades` | that the ch25 guess was two decades low | `ki / guess > 1.5`, which 1.8× satisfies | the pre-publication prose review |
+| `test_the_conversion_is_the_textbook_one_and_still_fails` | that ch25 converts ΔG with the textbook constant | agreement to `rel=0.02` — and a wrong RT fits inside 2% with room to spare | fixing the row above it |
+
+Two of the six were caught before they ever ran and four only afterwards,
+which is the one encouraging thing here: the shape is becoming recognisable
+early.
+
+**The ch25 entry is the one where the claim, not the check, was the defect.**
+The guess is 10 µM against measured 18, 26 and 26 — low by 0.26 to 0.41
+decades, not two. `DECADES_BELOW = 2` describes how far the *design* extends
+below the guess, and the number migrated from the width to the error, taking
+with it a second slip in the same paragraph: a conversion wrong by 6.6×, 15.3×
+and 16.5× was described as two orders of magnitude rather than one. An
+assertion of `> 1.5` cannot discriminate 0.41 decades from 2.0, which is
+precisely what left the name free to say something the code never tested.
+
+Corrected across the script, its generated report, the chapter README and the
+test, and the replacement was mutation-checked the way the B7 fixes were: with
+`guess = 1.0` — a guess that genuinely *is* two decades low —
+`test_the_guess_was_low_by_under_half_a_decade` and
+`test_the_width_is_chosen_before_the_error_can_be_known` both fail, where the
+old assertion passed comfortably at 26×.
+
+The argument the chapter makes now is the one that survives the correction: the
+four-decade width cannot be justified by how wrong the guess turned out to be,
+because that is unknowable while the plate is being designed. It is justified
+by how little *was* bounded at design time — the naive conversion offers
+1.17–3.91 µM and is itself wrong by an order of magnitude, and the docking
+score bounds nothing at all.
+
+**The sixth entry came out of fixing the fifth**, which is the argument for
+keeping this list. Correcting ch25's prose exposed a second, quieter drift:
+the chapter README's conversion table read 3.86 / 1.16 / 1.55 µM where the
+script wrote 3.91 / 1.17 / 1.57. All three README values are internally
+consistent with RT at T = 297.8 K against the script's 298.15 — a table copied
+by hand once, under an older constant, and never recomputed. The test named for
+exactly this, `test_the_conversion_is_the_textbook_one_and_still_fails`,
+recomputed the conversion and then accepted it to `rel=0.02`. The discrepancy
+is 1.25%. A tolerance chosen to be safely loose was loose enough to admit the
+one thing the test existed to reject.
+
+Both are closed, and closed structurally rather than by correcting the digits.
+The tolerance is now `rel=1e-9`, which is the honest figure for a test that
+recomputes the identical expression: anything above float noise means the
+constant moved. The README table is no longer typed at all — it is lifted from
+the report the script writes, and `test_the_readme_table_is_the_generated_one`
+compares the two on every run. Mutation-checked both ways: restoring T = 297.8 K
+fails three tests where it previously failed none, and changing a single digit
+in the README table fails the comparison.
+
+The rounding defect underneath it is closed the same way. `conversion_error_fold`
+was stored as `round(x, 1)` and then formatted `%.0f`, so 16.52 became 16.5
+became **16×** in the written report while stdout formatted the raw value to
+**17×** — one run, one quantity, two published numbers. The payload now carries
+raw floats and rounding happens once, where a number is displayed.
+
 ### Verification of the fixes
 
 Each of the six commits was followed by a clean-clone run — a fresh `git clone`
