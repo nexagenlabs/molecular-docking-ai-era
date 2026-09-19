@@ -70,6 +70,18 @@
   shows up as a failing build rather than as a reader's afternoon.
 </p>
 
+<h2>The printed addresses can be corrected too</h2>
+<p>
+  Every <code>dock.nexagenlabs.com/chNN</code> address in the book is a redirect
+  rather than a destination, and it is served as a <strong>302, not a
+  301</strong>. That single digit is what keeps those addresses correctable. A
+  301 is cached by the browser and by intermediaries indefinitely: a reader who
+  followed one once would go on being sent to the old target no matter what was
+  changed at this end &mdash; unreachable by any later correction, with nothing
+  on screen to say so. A 302 is looked up every time, so where a chapter points
+  can still be changed after the book is printed.
+</p>
+
 <p class="note">
   Software moving on is not an erratum. Tool versions and model licences that
   have changed since the book was written are on the

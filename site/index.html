@@ -51,9 +51,19 @@
 <h2>Three things that silently ruin a result</h2>
 
 <p>
-  <code>--minimize</code> on an RMSD call superimposes before measuring, so
-  every redock passes. Vina's default seed of 0 means random, not zero, so an
-  unseeded run cannot be repeated. And PDBQT drops formal charge and reorders
+  <code>--minimize</code> on an RMSD call superimposes the two structures before
+  it measures them, which discards the thing a redock exists to test. Measured
+  here on a pose displaced by exactly 3.0&nbsp;&Aring;: without the flag it
+  returns <code>3.00000</code>, and with it <code>0.00000</code>.
+  <strong>The flag does not weaken a validation. It makes every validation
+  pass</strong> &mdash; a redock that never left the crystal pose and one that
+  missed by 3&nbsp;&Aring; report the same number. A test in the repository
+  fails the build if the string appears anywhere in it.
+</p>
+
+<p>
+  The other two are quieter. Vina's default seed of 0 means random, not zero, so
+  an unseeded run cannot be repeated; and PDBQT drops formal charge and reorders
   atoms, so keep an SDF as the reference copy. None of the three produces an
   error.
 </p>
